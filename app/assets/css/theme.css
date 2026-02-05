@@ -1,0 +1,22 @@
+:root {
+    --font: 'Quicksand';
+    --font-accent: 'Quicksand';
+    --col-fg: #222;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --col-fg: #ddd;
+    }
+}
+
+:is(button) {
+    display: grid;
+    place-items: center;
+    background-image: none; /* remove gradient */
+    background-color: var(--col-accent);
+}
+
+:is(svg) {
+    fill: currentColor;
+}

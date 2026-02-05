@@ -8,5 +8,22 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxt/hints',
     '@nuxt/test-utils'
+  ],
+
+  css: [
+    'ssstyles/css/base.css',
+    'ssstyles/css/themes/business.css', 
+    'ssstyles/css/transition.css', 
+    'ssstyles/css/basegrid.css', 
+    'ssstyles/css/headline.css', 
+    'ssstyles/css/actionlink.css', 
+    'ssstyles/css/group.css', 
+    'ssstyles/css/carousel.css', 
+    'ssstyles/css/card.css', 
+    'ssstyles/css/avatar.css', 
+    'ssstyles/css/animation.css', 
+    'ssstyles/css/shadow.css', 
+    '~/assets/css/fixes.css',
+    '~/assets/css/theme.css',
   ]
 })
