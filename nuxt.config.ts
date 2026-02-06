@@ -7,7 +7,8 @@ export default defineNuxtConfig({
     '@nuxt/a11y',
     '@nuxt/eslint',
     '@nuxt/hints',
-    '@nuxt/test-utils'
+    '@nuxt/test-utils',
+    '@nuxt/fonts',
   ],
 
   css: [
