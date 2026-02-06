@@ -2,6 +2,7 @@
     <header>
         <div class="header-inner">
             <button id="menuButton" data-shadow="2-hover" @click="handleMenuButtonClick">
+                <nuxt-icon name="menu" />
                 <span class="sr-only">Menu</span>
             </button>
             <h1>Today</h1>
