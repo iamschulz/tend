@@ -2,11 +2,11 @@ import { defineStore } from 'pinia'
 
 export const useUiStore = defineStore('ui', {
   state: () => ({
-    menuOpen: false
+    menuOpen: false,
   }),
 
   getters: {
-    isMenuOpen: (state) => state.menuOpen
+    isMenuOpen: (state) => state.menuOpen,
   },
 
   actions: {
