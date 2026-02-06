@@ -1,7 +1,7 @@
 <template>
     <header>
         <div class="header-inner">
-            <button id="menuButton" data-shadow="2-hover">
+            <button id="menuButton" data-shadow="2-hover" @click="handleMenuButtonClick">
                 <span class="sr-only">Menu</span>
             </button>
             <h1>Today</h1>
@@ -9,17 +9,37 @@
     </header>
 </template>
 
-<style>
-    :is(header) {
-        .header-inner {
-            display: flex;
-            justify-content: space-between;
-            gap: 1rem;
-        }
+<script lang="ts" setup>
+import { useUiStore } from '~/stores/ui';
 
-        h1 {
-            margin: 0;
-            font-size: 2rem;
-        }
+const ui = useUiStore();
+const handleMenuButtonClick = (): void => {
+    ui.toggleMenu(true);
+}
+</script>
+
+<style scoped>
+.header-inner {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+h1 {
+    margin: 0;
+    font-size: 2rem;
+}
+
+#menuButton {
+    border: none;
+    appearance: none;
+    background: transparent;
+    box-shadow: none;
+    color: var(--col-fg);
+    padding: 0;
+
+    svg {
+        width: 3rem;
     }
+}
 </style>

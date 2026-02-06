@@ -1,5 +1,6 @@
 <template>
   <main-header />
+  <main-menu />
   <main>
     <NuxtRouteAnnouncer />
   </main>
