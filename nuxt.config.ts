@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     '@nuxt/hints',
     '@nuxt/test-utils',
     '@nuxt/fonts',
+    '@pinia/nuxt',
   ],
 
   css: [
