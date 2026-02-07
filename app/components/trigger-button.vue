@@ -31,12 +31,18 @@
     }>()
     const startButton = useTemplateRef('startButton')
     const data = useDataStore();
+    let disableTriggers = false;
 
     const onTriggerDown = (event: TouchEvent | MouseEvent | KeyboardEvent) => {
+        // only trigger once
+        if (("repeat" in event && event.repeat) || disableTriggers) { return; }
+
         // when keyboard event: only trigger on Enter and Space
         if (event.type === "keydown" && event instanceof KeyboardEvent && !["Enter", "Space"].includes(event.code)) {
             return;
         }
+
+        disableTriggers = true;
 
         const clickThreshold = 800; //ms
         const triggerDownTime = event.timeStamp || Date.now();
@@ -54,11 +60,17 @@
             startButton.value?.classList.remove('loading');
             const triggerUpTime = event.timeStamp;
             addEvent(triggerUpTime - triggerDownTime > clickThreshold);
+            window.setTimeout(() => {
+                disableTriggers = false;
+            }, 10)
         }, { once: true });
     }
 
     const abortTrigger = () => {
         startButton.value?.classList.remove('loading');
+        window.setTimeout(() => {
+            disableTriggers = false;
+        }, 10)
         // todo: remove event listeners
     }
 

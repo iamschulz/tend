@@ -100,6 +100,7 @@
 
     .title {
         grid-area: title;
+        margin-top: 0;
     }
 
     .details {
