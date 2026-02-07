@@ -54,6 +54,10 @@ export const useDataStore = defineStore('data', {
             }
         },
 
+        hasRunningEntries(category: Category): boolean {
+            return !!category.entries.find(entry => entry.running);
+        },
+
         closeEntry(id: string): void {
             const entry = this.getAllEntries().find(x => x.id === id);
             if (!entry) { return; }

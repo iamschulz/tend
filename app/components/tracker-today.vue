@@ -7,7 +7,7 @@
 </ul>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useDataStore } from '~/stores/data';
 
 const data = useDataStore();

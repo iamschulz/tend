@@ -4,6 +4,7 @@
   <main>
     <tracker-today />
     <NuxtRouteAnnouncer />
+    <TriggerGroup />
   </main>
   <main-footer />
 </template>
