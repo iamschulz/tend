@@ -1,6 +1,5 @@
 <template>
     <form
-        id="addCategory"
         class="categoryForm"
         data-group
         @submit.prevent="onAddCategory"
@@ -20,7 +19,7 @@
         <input
             v-model="newCategoryData.title"
             type="text"
-            placeholder="e.g. Sports"
+            placeholder="e.g. Feeling Good"
             required
         >
 
@@ -45,18 +44,18 @@ const getRandomColor = (): string =>
 
 // Factory function for clean resets
 const createEmptyCategory = (): CategoryData => ({
-  title: '',
-  color: getRandomColor(),
-  activity: activities[0] as Activity // default first activity
+    title: '',
+    color: getRandomColor(),
+    activity: activities[0] as Activity // default first activity
 })
 
 const newCategoryData = ref<CategoryData>(createEmptyCategory())
 
 const onAddCategory = () => {
-  data.addCategory(newCategoryData.value)
+    data.addCategory(newCategoryData.value)
 
-  // Reset form with new random color
-  newCategoryData.value = createEmptyCategory()
+    // Reset form with new random color
+    newCategoryData.value = createEmptyCategory()
 }
 </script>
 

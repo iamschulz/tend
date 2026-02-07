@@ -24,6 +24,24 @@ export const useDataStore = defineStore('data', {
             });
         },
 
+        updateCategory(data: Partial<Omit<Category, 'entries'>>): void {
+            if (!data.id) { return; }
+            const category = this.categories.find(x => x.id === data.id);
+            if (!category) { return; }
+
+            if (data.title) {
+                category.title = data.title;
+            }
+
+            if (data.activity) {
+                category.activity = data.activity;
+            }
+
+            if (data.color) {
+                category.color = data.color;
+            }
+        },
+
         deleteCategory(id: string): void {
             this.categories = this.categories.filter(x => x.id !== id);
         },
