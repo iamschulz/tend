@@ -10,11 +10,11 @@
             <time>
                 {{ new Date(entry.start).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }}
             </time>
-            <span v-if="entry.running">
+            <span v-if="entry.running" class="running-icon">
                 <nuxt-icon name="play_arrow" />
             </span>
             <span v-if="entry.running">
-                ({{ formatDuration(Date.now(), Date.now()) }})
+                ({{ duration }})
             </span>
             <span v-if="entry.end && (entry.start !== entry.end) && !entry.running">
                 ({{ formatDuration(entry.start, entry.end) }})
@@ -35,12 +35,42 @@
 
     const data = useDataStore();
 
-    defineProps<{
+    const props = defineProps<{
         entry: EntryWithCategory
     }>()
+
+    const now = ref<number>(Date.now())
+    let interval: ReturnType<typeof setInterval>
+
+    onMounted(() => {
+        interval = setInterval(() => {
+            now.value = Date.now()
+        }, 1000) // update every second
+    })
+    onUnmounted(() => {
+        clearInterval(interval)
+    })
+
+    const duration = computed(() => formatDuration(props.entry.start, now.value))
 </script>
 
 <style scoped>
+@keyframes running-entry {
+        0% {
+            transform: translateX(0.2rem);
+            opacity: 0.1;
+        }
+
+        50% {
+            opacity: 1;
+        }
+
+        100% {
+            transform: translateX(-0.2rem);
+            opacity: 0;
+        }
+    }
+
     .track {
         display: grid; 
         grid-template-columns: 4rem auto 4rem;
@@ -84,6 +114,10 @@
         time {
             font-weight: 700;
         }
+    }
+
+    .running-icon {
+        animation: running-entry 1s ease-out infinite;
     }
 
     .controls {

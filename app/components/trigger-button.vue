@@ -1,9 +1,13 @@
 <template>
     <button 
         v-if="!data.hasRunningEntries(category)"
-        @click="onClick"
-        v-bind="{ style: `--categoryColor: ${category.color}`, }"
+        ref="startButton"
         oncontextmenu="return false;"
+        v-bind="{ style: `--categoryColor: ${category.color}`, }"
+        @mousedown="onTriggerDown"
+        @keydown="onTriggerDown"
+        @touchstart="onTriggerDown"
+        @mouseleave="abortTrigger"
     >
         {{ category.activity.emoji }}
         <span class="sr-only">{{ category.title }}</span>
@@ -25,18 +29,47 @@
     const props = defineProps<{
         category: Category
     }>()
-
+    const startButton = useTemplateRef('startButton')
     const data = useDataStore();
 
-    //const clickThreshold = 500; //ms
-    const onClick = () => {
+    const onTriggerDown = (event: TouchEvent | MouseEvent | KeyboardEvent) => {
+        // when keyboard event: only trigger on Enter and Space
+        if (event.type === "keydown" && event instanceof KeyboardEvent && !["Enter", "Space"].includes(event.code)) {
+            return;
+        }
+
+        const clickThreshold = 800; //ms
+        const triggerDownTime = event.timeStamp || Date.now();
+
+        // define matching up event
+        let upEvent: "touchend" | "mouseup" | "keyup" | undefined = undefined;
+        if (event.type === "touchstart") { upEvent = "touchend" }
+        else if (event.type === "mousedown") { upEvent = "mouseup" }
+        else if (event.type === "keydown") { upEvent = "keyup" }
+        if (!upEvent) { return; }
+
+        startButton.value?.classList.add('loading');
+
+        event.target?.addEventListener(upEvent, (event) => {
+            startButton.value?.classList.remove('loading');
+            const triggerUpTime = event.timeStamp;
+            addEvent(triggerUpTime - triggerDownTime > clickThreshold);
+        }, { once: true });
+    }
+
+    const abortTrigger = () => {
+        startButton.value?.classList.remove('loading');
+        // todo: remove event listeners
+    }
+
+    const addEvent = (running: boolean) => {
         data.closeAllEntries(props.category.id);
         const now = Date.now();
         const newEntry: Entry = {
             id: crypto.randomUUID(),
             start: now,
-            end: now,
-            running: false,
+            end: running ? null : now,
+            running: running,
             categoryId: props.category.id,
         }
         data.addEntry(newEntry);
