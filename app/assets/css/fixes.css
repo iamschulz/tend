@@ -9,13 +9,9 @@
     }
 }
 
-body > main {
+body:not(:has(#__nuxt, #__next)), :is(#__nuxt, #__next) > main {
     min-height: -webkit-fill-available;
     min-height: -moz-available;
-}
-
-body > footer {
-    margin-top: 0;
 }
 /* end fix */
 

@@ -2,6 +2,7 @@
   <main-header />
   <main-menu />
   <main>
+    <tracker-today />
     <NuxtRouteAnnouncer />
   </main>
   <main-footer />

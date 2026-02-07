@@ -1,5 +1,5 @@
 <template>
-    <dialog id="menu" data-shadow="5" ref="menuEl">
+    <dialog id="menu" ref="menuEl" data-shadow="5">
         <ul>
             <li>nothing here yet</li>
         </ul>

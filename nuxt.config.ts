@@ -28,5 +28,7 @@ export default defineNuxtConfig({
     'ssstyles/css/shadow.css', 
     '~/assets/css/fixes.css',
     '~/assets/css/theme.css',
+    '~/assets/css/srOnly.css',
+    '~/assets/css/nolist.css',
   ]
 })

@@ -23,3 +23,9 @@ export type Category = {
 export type EntryWithCategory = Entry & {
     category: Omit<Category, 'entries'> | undefined;
 };
+
+export type CategoryData = {
+  title: string;
+  color: string;
+  activity: Activity;
+};

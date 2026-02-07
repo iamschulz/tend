@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { Activity, Category, EntryWithCategory } from './../types/Category';
+import type { Category, CategoryData, EntryWithCategory } from './../types/Category';
 
 export const useDataStore = defineStore('data', {
     state: () => ({
@@ -14,12 +14,12 @@ export const useDataStore = defineStore('data', {
     },
 
     actions: {
-        addCategory(title: string, color: string, activity: Activity): void {
+        addCategory(data: CategoryData): void {
             this.categories.push({
                 id: crypto.randomUUID(),
-                title,
-                activity,
-                color,
+                title: data.title,
+                activity: data.activity,
+                color: data.color,
                 entries: []
             });
         },
