@@ -6,7 +6,7 @@
             <add-category-form />
         </li>
 
-        <li v-if="data.categories.length > 0 && data.getAllEntries().length === 0">
+        <li v-if="data.categories.length > 0 && entries.length === 0">
             <p>
                 Great! You can now start tracking by clicking the <span class="tutorial-emoji" :style="`--shadow-color: ${data.categories[0]!.color}`">{{ data.categories[0]!.activity.emoji }}</span>-Button down below.<br>
                 Hold the button to start a timed tracker.
@@ -15,8 +15,11 @@
         </li>
 
         <!-- display all entries from today -->
-        <li v-for="(entry) in data.getAllEntries(true)" :key="entry.id">
+        <li v-for="(entry, index) in entries" :key="entry.id">
             <TrackerEntry :entry="entry" />
+            <div v-if="displayBeforeTime(index)" class="divider">
+                <span>{{ displayBeforeTime(index) }}h</span>
+            </div>
         </li>
     </TransitionGroup>
 </template>
@@ -26,6 +29,23 @@
     import TrackerEntry from './tracker-entry.vue';
 
     const data = useDataStore();
+    const entries = computed(() => data.getTodaysEntries);
+
+    const displayBeforeTime = (index: number): number | undefined => {
+        const entry = entries.value[index]!;
+        const hour = new Date(entry.start).getHours();
+        
+        const prev = entries.value[index + 1];
+        if (!prev) {
+            return;
+        }
+
+        const prevHour = new Date(prev.start).getHours();
+
+        if (hour !== prevHour) {
+            return hour;
+        }
+    }
 
     const loaderEl = ref<HTMLDialogElement | null>(null)
 
@@ -82,5 +102,26 @@
         width: 100%;
         margin-block: 1rem;
         z-index: 1;
+    }
+
+    .divider {
+        margin-block: 1rem;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        span {
+            flex: 1 0 auto;
+            color: var(--col-fg2);
+        }
+
+        &::before, &::after {
+            content: "";
+            background: var(--col-bg3);
+            flex: 0 1 100%;
+            height: 3px;
+            border-radius: 9999px;
+        }
     }
 </style>

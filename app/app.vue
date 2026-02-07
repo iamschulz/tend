@@ -2,7 +2,7 @@
   <main-header />
   <main-menu v-if="mounted" />
   <main>
-    <tracker-today v-if="mounted" />
+    <tracker-today v-if="mounted" hydrate-on-visible />
     <NuxtRouteAnnouncer />
     <TriggerGroup v-if="mounted" />
   </main>

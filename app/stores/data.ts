@@ -10,9 +10,48 @@ export const useDataStore = defineStore('data', {
 
     getters: {
         getAllCategories: (state): Category[] => state.categories,
+
         getCategoryById: (state) => {
-        return (categoryId: string) => state.categories.find((x) => x.id === categoryId)
+            return (categoryId: string) => state.categories.find((x) => x.id === categoryId)
         },
+
+        getAllEntries(state): EntryWithCategory[] {
+            return state.categories
+                .flatMap(category =>
+                    category.entries.map(event => ({
+                        ...event,
+                        category: {
+                            id: category.id,
+                            title: category.title,
+                            activity: category.activity,
+                            color: category.color
+                        }
+                    }))
+                )
+                .sort((x, y) => y.start - x.start);
+        },
+
+        getTodaysEntries(state): EntryWithCategory[] {
+            const today = new Date(Date.now()).getDay();
+            return state.categories
+                .flatMap(category =>
+                    category.entries
+                        .filter(event => 
+                            new Date(event.start).getDay() === today || 
+                            (event.end && new Date(event.end).getDay() === today)
+                        )
+                        .map(event => ({
+                            ...event,
+                            category: {
+                                id: category.id,
+                                title: category.title,
+                                activity: category.activity,
+                                color: category.color
+                            }
+                        }))
+                )
+                .sort((x, y) => y.start - x.start);
+        }
     },
 
     actions: {        
@@ -54,22 +93,6 @@ export const useDataStore = defineStore('data', {
             );
         },
 
-        getAllEntries(withCategories = false): EntryWithCategory[] {
-            return this.categories
-                .flatMap(category =>
-                    category.entries.map(event => ({
-                        ...event,
-                        category: withCategories ? {
-                            id: category.id,
-                            title: category.title,
-                            activity: category.activity,
-                            color: category.color
-                        } : undefined
-                    }))
-                )
-                .sort((x, y) => y.start - x.start);
-        },
-
         deleteEntry(entryId: string): void {
             for (const category of this.categories) {
                 const index = category.entries.findIndex(x => x.id === entryId);
@@ -85,7 +108,7 @@ export const useDataStore = defineStore('data', {
         },
 
         closeEntry(id: string): void {
-            const entry = this.getAllEntries().find(x => x.id === id);
+            const entry = this.getAllEntries.find(x => x.id === id);
             if (!entry) { return; }
             entry.end = Date.now();
             entry.running = false;
