@@ -4,7 +4,7 @@
   <main>
     <tracker-today v-if="mounted" />
     <NuxtRouteAnnouncer />
-    <TriggerGroup />
+    <TriggerGroup v-if="mounted" />
   </main>
   <main-footer />
 </template>
@@ -22,6 +22,7 @@
     --font: 'Quicksand';
     --font-accent: 'Quicksand';
     --col-fg: #222;
+    --animation-duration: 0.3s;
 }
 
 @media (prefers-color-scheme: dark) {

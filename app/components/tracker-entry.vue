@@ -1,5 +1,5 @@
 <template>
-    <article class="track">
+    <article class="track" data-card data-shadow="1-hover">
         <span class="icon" v-bind="{ style: `--categoryColor: ${entry.category!.color}`, }">
             {{ entry.category!.activity.emoji }}
         </span>
@@ -107,6 +107,8 @@
         grid-area: details;
         display: flex;
         gap: 1ch;
+        margin-block-start: 0;
+        margin-block-end: 1rem;
 
         svg {
             animation: running-entry 1s ease-out infinite;

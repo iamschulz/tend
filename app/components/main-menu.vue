@@ -1,18 +1,15 @@
 <template>
     <dialog id="menu" ref="menuEl" data-shadow="5">
-        <ul class="nolist">
+        <TransitionGroup name="list" tag="ul" class="nolist">
           <li v-if="data.categories.length === 0">Add a tracking category!</li>
 
-          <li v-for="(category, index) in data.categories" :key="index">
+          <li v-for="category in data.categories" :key="category.id">
               <EditCategoryForm :category="category" />
           </li>
+        </TransitionGroup>
 
-          <hr>
-
-          <li>
-              <add-category-form />
-          </li>
-      </ul>
+        <hr>
+        <add-category-form />
 
         <p>
             <button id="closeMenuButton" @click="handleCloseClick">Close</button> <!-- replace with icon -->
@@ -49,8 +46,36 @@ watch(
 </script>
 
 <style scoped>
+.list-move,
+    .list-enter-active,
+    .list-leave-active {
+        --t-opacity: var(--animation-duration);
+        --t-transform: var(--animation-duration);
+        --t-scale: var(--animation-duration);
+    }
+
+    .list-enter-from {
+        opacity: 0;
+        transform: translateY(10px);
+        z-index: 2;
+    }
+    .list-leave-to {
+        opacity: 0;
+        transform: translateY(0);
+        scale: 0.9;
+        z-index: 0;
+    }
+    .list-leave-active {
+        position: absolute;
+        left: 0;
+    }
+
 #menu {
     min-height: 80vh;
+
+    ul {
+      position: relative;
+    }
 
     li {
         margin-block: 1rem;

@@ -20,6 +20,10 @@ const handleMenuButtonClick = (): void => {
 </script>
 
 <style>
+#__nuxt > header {
+    margin-bottom: 0;
+}
+
 .header-inner {
     display: flex;
     justify-content: space-between;
