@@ -1,7 +1,7 @@
 <template>
-    <!-- todo: add input action -->
     <button 
         v-if="!data.hasRunningEntries(category)"
+        @click="onClick"
         v-bind="{ style: `--categoryColor: ${category.color}`, }"
         oncontextmenu="return false;"
     >
@@ -19,14 +19,28 @@
 </template>
 
 <script setup lang="ts">
-    import type { Category } from '~/types/Category'
+    import type { Category, Entry } from '~/types/Category'
     import { useDataStore } from '~/stores/data';
 
-    defineProps<{
+    const props = defineProps<{
         category: Category
     }>()
 
     const data = useDataStore();
+
+    //const clickThreshold = 500; //ms
+    const onClick = () => {
+        data.closeAllEntries(props.category.id);
+        const now = Date.now();
+        const newEntry: Entry = {
+            id: crypto.randomUUID(),
+            start: now,
+            end: now,
+            running: false,
+            categoryId: props.category.id,
+        }
+        data.addEntry(newEntry);
+    }
 </script>
 
 <style scoped>

@@ -1,0 +1,95 @@
+<template>
+    <article class="track">
+        <span class="icon" v-bind="{ style: `--categoryColor: ${entry.category!.color}`, }">
+            {{ entry.category!.activity.emoji }}
+        </span>
+        <h2 class="title">
+            {{ entry.category!.title }}
+        </h2>
+        <div class="details">
+            <time>
+                {{ new Date(entry.start).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }}
+            </time>
+            <span v-if="entry.running">
+                <nuxt-icon name="play_arrow" />
+            </span>
+            <span v-if="entry.running">
+                ({{ formatDuration(Date.now(), Date.now()) }})
+            </span>
+            <span v-if="entry.end && (entry.start !== entry.end) && !entry.running">
+                ({{ formatDuration(entry.start, entry.end) }})
+            </span>
+        </div>
+        <div class="controls">
+            <button @click="data.deleteEntry(entry.id)">
+                <nuxt-icon name="delete" />
+            </button>
+        </div>
+    </article>
+</template>
+
+<script setup lang="ts">
+    import { useDataStore } from '~/stores/data';
+    import type { EntryWithCategory } from '~/types/Category';
+    import { formatDuration } from '~/util/formatDuration';
+
+    const data = useDataStore();
+
+    defineProps<{
+        entry: EntryWithCategory
+    }>()
+</script>
+
+<style scoped>
+    .track {
+        display: grid; 
+        grid-template-columns: 4rem auto 4rem;
+        grid-template-rows: 1fr 1fr; 
+        gap: 0 1rem; 
+        grid-template-areas: 
+            "icon title controls"
+            "icon details controls"; 
+        padding: 0;
+    }
+
+    .event {
+        font-size: 3rem;
+    }
+
+    .icon {
+        grid-area: icon;
+        display: grid;
+        place-items: center;
+        font-size: 2.5rem;
+        background-color: var(--categoryColor);
+        color: oklch(from var(--categoryColor) round(calc(1 - l)) 0 0);
+        text-shadow: 0px 0px 1rem currentColor;
+        padding: 0 0.5rem;
+        border-radius: var(--br-tl, var(--border-radius)) 0 0 var(--br-bl, var(--border-radius));
+    }
+
+    .title {
+        grid-area: title;
+    }
+
+    .details {
+        grid-area: details;
+        display: flex;
+        gap: 1ch;
+
+        svg {
+            animation: running-entry 1s ease-out infinite;
+        }
+
+        time {
+            font-weight: 700;
+        }
+    }
+
+    .controls {
+        grid-area: controls;
+        margin: 0;
+        display: grid;
+        place-items: center;
+    }
+</style>

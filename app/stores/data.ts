@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { Category, CategoryData, EntryWithCategory } from './../types/Category';
+import type { Category, CategoryData, Entry, EntryWithCategory } from './../types/Category';
 
 export const useDataStore = defineStore('data', {
     state: () => ({
@@ -46,6 +46,12 @@ export const useDataStore = defineStore('data', {
             this.categories = this.categories.filter(x => x.id !== id);
         },
 
+        addEntry(entry: Entry) {
+            this.categories.find(x => x.id === entry.categoryId)?.entries.push(
+                entry
+            );
+        },
+
         getAllEntries(withCategories = false): EntryWithCategory[] {
             return this.categories
                 .flatMap(category =>
@@ -85,7 +91,7 @@ export const useDataStore = defineStore('data', {
 
         closeAllEntries(categoryId: string): void {
             const now = Date.now();
-            this.categories.find(x => x.id === categoryId)?.entries.forEach(entry => {
+            this.categories.find(x => x.id === categoryId)?.entries.filter(x => x.running || !x.end).forEach(entry => {
                 entry.end = now;
                 entry.running = false;
             })
