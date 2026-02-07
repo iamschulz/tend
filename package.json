@@ -20,8 +20,12 @@
     "nuxt": "^4.3.0",
     "nuxt-icons": "^4.0.0",
     "pinia": "^3.0.4",
+    "pinia-plugin-persistedstate": "^4.7.1",
     "ssstyles": "^1.3.2",
     "vue": "^3.5.27",
     "vue-router": "^4.6.4"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.1"
   }
 }

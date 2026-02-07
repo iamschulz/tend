@@ -1,13 +1,21 @@
 <template>
   <main-header />
-  <main-menu />
+  <main-menu v-if="mounted" />
   <main>
-    <tracker-today />
+    <tracker-today v-if="mounted" />
     <NuxtRouteAnnouncer />
     <TriggerGroup />
   </main>
   <main-footer />
 </template>
+
+<script setup lang="ts">
+  const mounted = ref(false)
+
+  onMounted(() => {
+    mounted.value = true
+  })
+</script>
 
 <style>
 :root {

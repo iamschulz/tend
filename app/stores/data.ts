@@ -3,8 +3,10 @@ import type { Category, CategoryData, Entry, EntryWithCategory } from './../type
 
 export const useDataStore = defineStore('data', {
     state: () => ({
-        categories: [] as Category[]
+        categories: [] as Category[],
     }),
+
+    persist: true,
 
     getters: {
         getAllCategories: (state): Category[] => state.categories,
@@ -13,7 +15,7 @@ export const useDataStore = defineStore('data', {
         },
     },
 
-    actions: {
+    actions: {        
         addCategory(data: CategoryData): void {
             this.categories.push({
                 id: crypto.randomUUID(),
@@ -97,4 +99,4 @@ export const useDataStore = defineStore('data', {
             })
         }
     }
-})
+});
