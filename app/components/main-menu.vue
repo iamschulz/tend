@@ -1,31 +1,25 @@
 <template>
-    <DialogWrapper ref="menuEl" class="menu" data-shadow="5" name="menu">
-        <TransitionGroup name="list" tag="ul" class="nolist">
-          <li v-if="data.categories.length === 0">Add a tracking category!</li>
+    <DialogWrapper ref="menuEl" class="menu" data-shadow="5" name="menu" title="Settings">
+        <section>
+            <TransitionGroup name="list" tag="ul" class="nolist">
+            <li v-if="data.categories.length === 0">Add a tracking category!</li>
 
-          <li v-for="category in data.categories" :key="category.id">
-              <EditCategoryForm :category="category" />
-          </li>
-        </TransitionGroup>
+            <li v-for="category in data.categories" :key="category.id">
+                <EditCategoryForm :category="category" />
+            </li>
+            </TransitionGroup>
+            <hr>
+            <add-category-form />
+        </section>
 
         <hr>
-        <add-category-form />
 
-        <p>
-            <button id="closeMenuButton" @click="handleCloseClick">Close</button> <!-- replace with icon -->
-        </p>
+        <TimeSelect v-if="ui.menuOpen" />
     </DialogWrapper>
 </template>
 
 <script lang="ts" setup>
-    import { useUiStore } from '~/stores/ui';
-    import EditCategoryForm from './edit-category-form.vue';
-
     const ui = useUiStore();
-    const handleCloseClick = (): void => {
-    ui.toggleMenu(false);
-    }
-
     const data = useDataStore();
 </script>
 

@@ -1,10 +1,13 @@
 <template>
     <dialog ref="dialogEl">
         <div class="backdrop" @click="() => closeDialog()" />
-        <button class="closeButton nobutton" @click="() => closeDialog()">
-            <nuxt-icon name="close" size="36" />
-            <span class="sr-only">Close</span>
-        </button>
+        <header>
+            <h2 v-if="title">{{ title }}</h2>
+            <button class="closeButton nobutton" @click="() => closeDialog()">
+                <nuxt-icon name="close" size="36" />
+                <span class="sr-only">Close</span>
+            </button>
+        </header>
         <div class="dialog-inner">
             <slot />
         </div>
@@ -12,8 +15,8 @@
 </template>
 
 <script setup lang="ts">
-import type { StoreActions, StoreGetters } from 'pinia';
-import { capitalize } from 'vue';
+    import type { _StoreObject, StoreActions, StoreGetters } from 'pinia';
+    import { capitalize } from 'vue';
 
     defineOptions({
         inheritAttrs: false
@@ -22,9 +25,11 @@ import { capitalize } from 'vue';
     const ui = useUiStore();
     type GetterKey = keyof StoreGetters<typeof ui>
     type SetterKey = keyof StoreActions<typeof ui>
+    type StoreObject = keyof _StoreObject<typeof ui>
 
     const props = defineProps<{
-        name: GetterKey
+        name: GetterKey,
+        title?: string,
     }>()
 
     const name = props.name;
@@ -38,15 +43,15 @@ import { capitalize } from 'vue';
             const dialog = dialogEl.value!
 
             if (open && !dialog.open) {
-            dialog.showModal()
+                dialog.showModal()
             } else if (!open && dialog.open) {
-            dialog.close()
+                dialog.close()
             }
         }
     )
 
     const closeDialog = () => {
-        ui[toggleFunction](false);
+        ui[toggleFunction](false as StoreObject);
     }
 </script>
 
@@ -55,19 +60,29 @@ import { capitalize } from 'vue';
         width: 100%;
         height: 100%;
         min-height: 80vh;
-        max-width: 90vw;
-        padding-top: 3rem;
+        max-width: min(90vw, calc(var(--body-width) - 1rem));
 
-        .closeButton {
-            position: absolute;
-            right: 1rem;
-            top: 1rem;
-            width: 2.5rem;
-            height: 2.5rem;
-            font-size: 2rem;
-            display: grid;
-            place-content: center;
+        header {
+            display: flex;
+            justify-content: flex-end;
+            min-height: 3.5rem;
+            padding-right: 0.6rem;
+            background: transparent;
+
+            h2 {
+                margin-block: 0;
+                flex: 1 0 auto;
+            }
+
+            .closeButton {
+                width: 2.5rem;
+                height: 2.5rem;
+                font-size: 2rem;
+                display: grid;
+                place-content: center;
+            }
         }
+
 
         .backdrop {
             position: fixed;
