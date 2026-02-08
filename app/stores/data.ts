@@ -38,7 +38,8 @@ export const useDataStore = defineStore('data', {
                     category.entries
                         .filter(event => 
                             new Date(event.start).getDay() === today || 
-                            (event.end && new Date(event.end).getDay() === today)
+                            (event.end && new Date(event.end).getDay() === today) ||
+                            (event.running)
                         )
                         .map(event => ({
                             ...event,

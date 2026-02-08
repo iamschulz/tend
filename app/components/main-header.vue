@@ -1,11 +1,17 @@
 <template>
     <header>
         <div class="header-inner">
-            <button id="menuButton" @click="handleMenuButtonClick">
+            <button id="menuButton" class="nobutton" @click="handleMenuButtonClick">
                 <nuxt-icon name="menu" size="48" />
                 <span class="sr-only">Menu</span>
             </button>
-            <h1>Today</h1>
+            <div class="right">
+                <h1>Today</h1>
+                <button class="calendarButto nobutton">
+                    <nuxt-icon name="calendar_month" size="24" />
+                    <span class="sr-only">Date select</span>
+                </button>
+            </div>
         </div>
     </header>
 </template>
@@ -29,19 +35,15 @@ const handleMenuButtonClick = (): void => {
     justify-content: space-between;
     gap: 1rem;
 
-    h1 {
-        margin: 0;
-        font-size: 2rem;
-    }
-    
-    #menuButton {
-        border: none;
-        appearance: none;
-        background: transparent;
-        box-shadow: none;
-        color: var(--col-fg);
-        padding: 0;
-    
+    .right {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
     }
 
     svg {

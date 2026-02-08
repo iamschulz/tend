@@ -31,5 +31,6 @@ export default defineNuxtConfig({
     '~/assets/css/theme.css',
     '~/assets/css/srOnly.css',
     '~/assets/css/nolist.css',
+    '~/assets/css/nobutton.css',
   ]
 })

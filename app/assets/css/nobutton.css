@@ -1,0 +1,8 @@
+.nobutton {
+    border: none;
+    appearance: none;
+    background: transparent;
+    box-shadow: none;
+    color: var(--col-fg);
+    padding: 0;
+}
