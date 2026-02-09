@@ -2,7 +2,7 @@
   <main-header />
   <main-menu v-if="mounted" />
   <main>
-    <tracker-today v-if="mounted" hydrate-on-visible />
+    <NuxtPage />
     <NuxtRouteAnnouncer />
     <TriggerGroup v-if="mounted" />
   </main>
@@ -10,11 +10,11 @@
 </template>
 
 <script setup lang="ts">
-  const mounted = ref(false)
+    const mounted = ref(false)
 
-  onMounted(() => {
-    mounted.value = true
-  })
+    onMounted(() => {
+        mounted.value = true
+    })
 </script>
 
 <style>

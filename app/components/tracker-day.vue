@@ -28,8 +28,13 @@
     import { useDataStore } from '~/stores/data';
     import TrackerEntry from './tracker-entry.vue';
 
+    const props = defineProps<{
+        date?: Date,
+    }>()
+    const date = props.date || new Date();
+
     const data = useDataStore();
-    const entries = computed(() => data.getTodaysEntries);
+    const entries = computed(() => data.getEntriesForDate(date));
 
     const displayBeforeTime = (index: number): number | undefined => {
         const entry = entries.value[index]!;

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import type { Category, CategoryData, Entry, EntryWithCategory } from './../types/Category';
+import { getDayRange } from '~/util/getDayRange';
 
 export const useDataStore = defineStore('data', {
     state: () => ({
@@ -30,29 +31,6 @@ export const useDataStore = defineStore('data', {
                 )
                 .sort((x, y) => y.start - x.start);
         },
-
-        getTodaysEntries(state): EntryWithCategory[] {
-            const today = new Date(Date.now()).getDay();
-            return state.categories
-                .flatMap(category =>
-                    category.entries
-                        .filter(event => 
-                            new Date(event.start).getDay() === today || 
-                            (event.end && new Date(event.end).getDay() === today) ||
-                            (event.running)
-                        )
-                        .map(event => ({
-                            ...event,
-                            category: {
-                                id: category.id,
-                                title: category.title,
-                                activity: category.activity,
-                                color: category.color
-                            }
-                        }))
-                )
-                .sort((x, y) => y.start - x.start);
-        }
     },
 
     actions: {        
@@ -102,6 +80,31 @@ export const useDataStore = defineStore('data', {
                     return;
                 }
             }
+        },
+
+        getEntriesForDate(date: Date): EntryWithCategory[] {
+            const dateRange = getDayRange(date);
+            
+            return this.categories
+                .flatMap(category =>
+                    category.entries
+                        .filter(event => (
+                            new Date(event.start) > dateRange[0] && 
+                            (event.end && new Date(event.end) < dateRange[1])
+                        ) || (
+                            (getDayRange(new Date(event.start))[0] <= dateRange[0]) && event.running
+                        ))
+                        .map(event => ({
+                            ...event,
+                            category: {
+                                id: category.id,
+                                title: category.title,
+                                activity: category.activity,
+                                color: category.color
+                            }
+                        }))
+                )
+                .sort((x, y) => y.start - x.start);
         },
 
         hasRunningEntries(category: Category): boolean {

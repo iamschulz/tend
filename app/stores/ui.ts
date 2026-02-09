@@ -6,7 +6,6 @@ export const useUiStore = defineStore('ui', {
 
     // modals
     menuOpen: false,
-    timeSelectOpen: false,
   }),
 
   getters: {
@@ -14,7 +13,6 @@ export const useUiStore = defineStore('ui', {
 
     // modals
     menu: (state) => state.menuOpen,
-    timeSelect: (state) => state.timeSelectOpen
   },
 
   actions: {
@@ -26,8 +24,5 @@ export const useUiStore = defineStore('ui', {
     toggleMenu(force?: boolean) {
       this.menuOpen = force === undefined ? !this.menuOpen : force;
     },
-    toggleTimeSelect(force?: boolean) {
-      this.timeSelectOpen = force === undefined ? !this.timeSelect : force;
-    }
   }
 })

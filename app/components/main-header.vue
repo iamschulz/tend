@@ -5,7 +5,7 @@
                 <nuxt-icon name="menu" size="48" />
                 <span class="sr-only">Menu</span>
             </button>
-            <h1>Today</h1>
+            <HeaderTitle />
         </div>
     </header>
 </template>
@@ -28,11 +28,6 @@ const handleMenuButtonClick = (): void => {
     display: flex;
     justify-content: space-between;
     gap: 1rem;
-
-    h1 {
-        margin: 0;
-        font-size: 2rem;
-    }
 
     svg {
         width: 3rem;

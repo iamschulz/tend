@@ -1,13 +1,13 @@
 <template>
     <section class="selectMenu">
             <h3>Select day</h3>
-            <form data-group>
-                <a href="#">Today</a>
-                <a href="#">Yesterday</a>
-                <input type="date" :value="new Date().toISOString().split('T')[0]">
+            <form data-group @submit.prevent="onDaySelect">
+                <NuxtLink href="/">Today</NuxtLink>
+                <NuxtLink :href="`/day/${yesterday}`">Yesterday</NuxtLink>
+                <input ref="daySelectEl" type="date" :value="new Date().toISOString().split('T')[0]">
+                <button type="submit">Go</button>
             </form>
             <div data-group>
-                <a href="#" >Day</a>
                 <a href="#" >Week</a>
                 <a href="#" >Month</a>
                 <a href="#" >Year</a>
@@ -16,7 +16,12 @@
 </template>
 
 <script lang="ts" setup>
-    // use input to navigate to selected day
+    const yesterday = new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().slice(0, 10);
+
+    const daySelectEl = useTemplateRef('daySelectEl');
+    const onDaySelect = () => {
+        navigateTo(`/day/${daySelectEl.value?.value}`)
+    }
 </script>
 
 <style scoped>
