@@ -8,7 +8,7 @@
                 <button type="submit">Go</button>
             </form>
             <div data-group>
-                <a href="#" >Week</a>
+                <NuxtLink :href="`/week/${currentWeek}`">Week</NuxtLink>
                 <a href="#" >Month</a>
                 <a href="#" >Year</a>
             </div>
@@ -17,6 +17,11 @@
 
 <script lang="ts" setup>
     const yesterday = new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().slice(0, 10);
+    const isoWeekStr = (d = new Date()) => `${d.getFullYear()}-W${String(Math.ceil((((d = new Date(d)).getTime() - new Date(d.getFullYear(),0,4).getTime())/86400000 + (new Date(d.getFullYear(),0,4).getDay()||7) - 1)/7)).padStart(2,'0')}`;
+    const currentWeek = isoWeekStr(new Date());
+
+
+
 
     const daySelectEl = useTemplateRef('daySelectEl');
     const onDaySelect = () => {

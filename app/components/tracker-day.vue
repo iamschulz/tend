@@ -27,14 +27,15 @@
 <script setup lang="ts">
     import { useDataStore } from '~/stores/data';
     import TrackerEntry from './tracker-entry.vue';
+    import { getDayRange } from '~/util/getDayRange';
 
     const props = defineProps<{
         date?: Date,
     }>()
-    const date = props.date || new Date();
+    const dateRange = getDayRange(props.date || new Date());
 
     const data = useDataStore();
-    const entries = computed(() => data.getEntriesForDate(date));
+    const entries = computed(() => data.getEntriesForRange(dateRange[0], dateRange[1]));
 
     const displayBeforeTime = (index: number): number | undefined => {
         const entry = entries.value[index]!;

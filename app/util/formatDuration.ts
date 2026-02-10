@@ -1,15 +1,27 @@
 export function formatDuration(start: number, end: number): string {
-    const diffMs = Math.abs(end - start);
-    const d = new Date(diffMs);
+    const diff = Math.abs(end - start);
 
-    const h = d.getUTCHours();
-    const m = d.getUTCMinutes();
-    const s = d.getUTCSeconds();
+    const totalSeconds = Math.floor(diff / 1000);
+    const seconds = totalSeconds % 60;
 
-    const parts = [];
-    if (h) parts.push(`${h}h`);
-    if (m) parts.push(`${m}m`);
-    if (s || parts.length === 0) parts.push(`${s}s`);
+    const totalMinutes = Math.floor(totalSeconds / 60);
+    const minutes = totalMinutes % 60;
+
+    const totalHours = Math.floor(totalMinutes / 60);
+    const hours = totalHours % 24;
+
+    const days = Math.floor(totalHours / 24);
+
+    const parts: string[] = [];
+
+    if (days) parts.push(`${days}d`);
+    if (hours) parts.push(`${hours}h`);
+    if (minutes) parts.push(`${minutes}m`);
+
+    // Always show seconds if nothing else was added
+    if (parts.length === 0) {
+        parts.push(`${seconds}s`);
+    }
 
     return parts.join(' ');
 }

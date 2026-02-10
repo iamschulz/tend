@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import type { Category, CategoryData, Entry, EntryWithCategory } from './../types/Category';
-import { getDayRange } from '~/util/getDayRange';
 
 export const useDataStore = defineStore('data', {
     state: () => ({
@@ -82,18 +81,22 @@ export const useDataStore = defineStore('data', {
             }
         },
 
-        getEntriesForDate(date: Date): EntryWithCategory[] {
-            const dateRange = getDayRange(date);
-            
+        getEntriesForRange(start: Date, end: Date): EntryWithCategory[] {
+            const rangeStart = start.getTime();
+            const rangeEnd = end.getTime();
+
             return this.categories
                 .flatMap(category =>
                     category.entries
-                        .filter(event => (
-                            new Date(event.start) > dateRange[0] && 
-                            (event.end && new Date(event.end) < dateRange[1])
-                        ) || (
-                            (getDayRange(new Date(event.start))[0] <= dateRange[0]) && event.running
-                        ))
+                        .filter(event => {
+                            const eventStart = new Date(event.start).getTime();
+                            const eventEnd = event.end
+                                ? new Date(event.end).getTime()
+                                : Infinity; // running / open-ended events
+
+                            // overlap check
+                            return eventStart <= rangeEnd && eventEnd >= rangeStart;
+                        })
                         .map(event => ({
                             ...event,
                             category: {

@@ -1,5 +1,5 @@
 <template>
-    <tracker-day v-if="mounted && routeValid && !isInFuture" :date="date" hydrate-on-visible />
+    <tracker-day v-if="mounted && routeValid && !isInFuture" :date="date" />
     <p v-else-if="isInFuture">The Future's going to be awesome!</p>
     <p v-else-if="!routeValid">Error</p>
 </template>
@@ -13,9 +13,16 @@
         return typeof d === 'string' ? d : null
     })
 
+    // YYYY-MM-DD validation
     const isRealDate = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s))
+
+    // Fallback to current date if param is missing
     const date = new Date(dateParam.value || '');
+
+    // Compare by day range
     const isInFuture = getDayRange(new Date())[1] <= date;
+
+    
     const routeValid = dateParam.value && isRealDate(dateParam.value);
 
     const ui = useUiStore();
