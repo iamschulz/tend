@@ -1,6 +1,5 @@
 <template>
     <dialog ref="dialogEl">
-        <div class="backdrop" @click="() => closeDialog()" />
         <header>
             <h2 v-if="title">{{ title }}</h2>
             <button class="closeButton nobutton" @click="() => closeDialog()">
@@ -11,6 +10,7 @@
         <div class="dialog-inner">
             <slot />
         </div>
+        <div class="backdrop" @click="() => closeDialog()" />
     </dialog>
 </template>
 
@@ -19,7 +19,7 @@
     import { capitalize } from 'vue';
 
     defineOptions({
-        inheritAttrs: false
+        inheritAttrs: true
     })
 
     const ui = useUiStore();
@@ -82,7 +82,6 @@
                 place-content: center;
             }
         }
-
 
         .backdrop {
             position: fixed;
