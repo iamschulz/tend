@@ -9,7 +9,7 @@
             </form>
             <div data-group>
                 <NuxtLink :href="`/week/${currentWeek}`">Week</NuxtLink>
-                <a href="#" >Month</a>
+                <NuxtLink :href="`/month/${currentMonth}`">Month</NuxtLink>
                 <a href="#" >Year</a>
             </div>
         </section>
@@ -19,6 +19,7 @@
     const yesterday = new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().slice(0, 10);
     const isoWeekStr = (d = new Date()) => `${d.getFullYear()}-W${String(Math.ceil((((d = new Date(d)).getTime() - new Date(d.getFullYear(),0,4).getTime())/86400000 + (new Date(d.getFullYear(),0,4).getDay()||7) - 1)/7)).padStart(2,'0')}`;
     const currentWeek = isoWeekStr(new Date());
+    const currentMonth = new Date().toISOString().slice(0, 7);
 
 
 
