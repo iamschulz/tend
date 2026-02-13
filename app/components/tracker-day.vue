@@ -1,6 +1,6 @@
 <template>
     <TransitionGroup name="list" tag="ul" class="nolist">
-        <div ref="loaderEl" class="loader" />
+        <li ref="loaderEl" class="loader" />
         <li v-if="data.categories.length === 0">
             <p>What habit do you want to track?</p>
             <add-category-form />
@@ -18,7 +18,7 @@
         <li v-for="(entry, index) in entries" :key="entry.id">
             <TrackerEntry :entry="entry" />
             <div v-if="displayBeforeTime(index)" class="divider">
-                <span>{{ displayBeforeTime(index) }}h</span>
+                <span>{{ displayBeforeTime(index) }}:00</span>
             </div>
         </li>
     </TransitionGroup>
@@ -119,7 +119,7 @@
 
         span {
             flex: 1 0 auto;
-            color: var(--col-fg2);
+            color: var(--col-fg3);
         }
 
         &::before, &::after {

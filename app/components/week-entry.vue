@@ -1,15 +1,15 @@
 <template>
-    <article data-card class="week-entry">
-        <span class="icon" v-bind="{ style: `--categoryColor: ${entry.category!.color}`, }">
-            {{ entry.category!.activity.emoji }}
+    <article data-card class="week-entry" :aria-label="entryLabel">
+        <span v-if="entry.category" class="icon" :style="`--categoryColor: ${entry.category.color}`" aria-hidden="true">
+            {{ entry.category.activity.emoji }}
         </span>
 
         <div class="details">
             <time>
-                {{ new Date(entry.start).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }}
+                {{ timeStr }}
             </time>
             <span v-if="entry.running">
-                <nuxt-icon name="play_arrow" /> {{ duration }}
+                <nuxt-icon name="play_arrow" aria-hidden="true" /><span class="sr-only">running for </span>{{ duration }}
             </span>
             <span v-if="entry.end && (entry.start !== entry.end) && !entry.running">
                 {{ formatDuration(entry.start, entry.end) }}
@@ -39,6 +39,19 @@
     })
 
     const duration = computed(() => formatDuration(props.entry.start, now.value))
+
+    const timeStr = new Date(props.entry.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const categoryName = props.entry.category?.title ?? 'Unknown';
+
+    const entryLabel = computed(() => {
+        if (props.entry.running) {
+            return `${categoryName} at ${timeStr}, running for ${duration.value}`;
+        }
+        if (props.entry.end && props.entry.start !== props.entry.end) {
+            return `${categoryName} at ${timeStr}, ${formatDuration(props.entry.start, props.entry.end)}`;
+        }
+        return `${categoryName} at ${timeStr}`;
+    })
 </script>
 
 <style scoped>

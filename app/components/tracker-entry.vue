@@ -23,6 +23,7 @@
         <div class="controls">
             <button @click="data.deleteEntry(entry.id)">
                 <nuxt-icon name="delete" />
+                <span class="sr-only">Delete</span>
             </button>
         </div>
     </article>
