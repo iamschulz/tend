@@ -1,7 +1,15 @@
 <template>
-    <OverviewWeek v-if="mounted && routeValid && !isInFuture" :date="date" />
-    <p v-else-if="isInFuture">The Future's going to be awesome!</p>
-    <p v-else-if="!routeValid">Error</p>
+    <div>
+        <Teleport v-if="mounted" to="#header-title-long">
+            {{ weekTitle.long }}
+        </Teleport>
+        <Teleport v-if="mounted" to="#header-title-short">
+            {{ weekTitle.short }}
+        </Teleport>
+        <OverviewWeek v-if="mounted && routeValid && !isInFuture" :date="date" />
+        <p v-else-if="isInFuture">The Future's going to be awesome!</p>
+        <p v-else-if="!routeValid">Error</p>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -56,6 +64,16 @@
     watchEffect(() => {
         ui.setCurrentViewDate(date)
     })
+
+    const weekStart = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    const weekEnd = new Date(date.getTime() + 6 * 86400000).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+
+    const weekTitle = computed(() => {
+        return {
+            short: `${weekStart} – ${weekEnd}`,
+            long: `Week of ${date.toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}`,
+        };
+    });
 
     const mounted = ref(false)
     onMounted(() => {
