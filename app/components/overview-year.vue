@@ -3,6 +3,7 @@
         <div
             v-for="cell in monthCells"
             :key="cell.month"
+            ref="months"
             role="listitem"
             :class="{ 'current-month': cell.isCurrentMonth }"
         >
@@ -39,6 +40,15 @@
         ariaLabel: string;
         categories: { id: string; title: string; color: string }[];
     };
+
+    const months = ref<HTMLElement[] | null>(null);
+
+    onMounted(async () => {
+        if (!isCurrentYear) return;
+        await nextTick();
+        const currentMonthEl = months.value?.[currentMonthIndex];
+        currentMonthEl?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    });
 
     const monthCells = computed<MonthCell[]>(() => {
         const cells: MonthCell[] = [];

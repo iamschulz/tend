@@ -37,8 +37,14 @@
 <style scoped>
     .month-cell {
         width: 100%;
-        aspect-ratio: 1;
+        aspect-ratio: 2;
         padding: 0;
+    }
+
+    @media (min-width: 26rem) {
+        .month-cell {
+            aspect-ratio: 1;
+        }
     }
 
     .month-link {

@@ -115,10 +115,14 @@ export const useDataStore = defineStore('data', {
         },
 
         closeEntry(id: string): void {
-            const entry = this.getAllEntries.find(x => x.id === id);
-            if (!entry) { return; }
-            entry.end = Date.now();
-            entry.running = false;
+            for (const category of this.categories) {
+                const entry = category.entries.find(x => x.id === id);
+                if (entry) {
+                    entry.end = Date.now();
+                    entry.running = false;
+                    return;
+                }
+            }
         },
 
         closeAllEntries(categoryId: string): void {

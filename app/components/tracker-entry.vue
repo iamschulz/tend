@@ -21,7 +21,11 @@
             </span>
         </div>
         <div class="controls">
-            <button @click="handleDelete">
+            <button v-if="entry.running" @click="handleStop">
+                <nuxt-icon name="stop" />
+                <span class="sr-only">Stop</span>
+            </button>
+            <button v-else @click="handleDelete">
                 <nuxt-icon name="delete" />
                 <span class="sr-only">Delete</span>
             </button>
@@ -55,6 +59,10 @@
 
     const duration = computed(() => formatDuration(props.entry.start, now.value))
 
+    const handleStop = () => {
+        data.closeEntry(props.entry.id)
+    }
+
     const handleDelete = async () => {
         if (await ui.requestConfirm('Delete this entry?')) {
             data.deleteEntry(props.entry.id)
@@ -63,9 +71,9 @@
 </script>
 
 <style scoped>
-@keyframes running-entry {
+    @keyframes running-entry {
         0% {
-            transform: translateX(0.2rem);
+            transform: translateX(-0.2rem);
             opacity: 0.1;
         }
 
@@ -74,7 +82,7 @@
         }
 
         100% {
-            transform: translateX(-0.2rem);
+            transform: translateX(0.2rem);
             opacity: 0;
         }
     }

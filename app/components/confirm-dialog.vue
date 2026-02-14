@@ -1,8 +1,8 @@
 <template>
     <DialogWrapper name="confirm" :title="ui.confirmMessage" class="confirm-dialog">
         <div class="confirm-actions">
-            <button @click="ui.resolveConfirm(false)">Cancel</button>
-            <button data-variant="primary" @click="ui.resolveConfirm(true)">Confirm</button>
+            <button @click="ui.resolveConfirm(false)"><nuxt-icon name="close" />Cancel</button>
+            <button data-variant="primary" @click="ui.resolveConfirm(true)"><nuxt-icon name="check" />Confirm</button>
         </div>
     </DialogWrapper>
 </template>
@@ -24,5 +24,10 @@
         gap: 1rem;
         justify-content: flex-end;
         padding-block: 1rem;
+    }
+
+    button {
+        display: flex;
+        gap: 0.5ch;
     }
 </style>

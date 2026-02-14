@@ -34,7 +34,9 @@
     }
 
     const getWeekDayName = (date: Date): string => weekdays[(date.getDay() + 6) % 7]!.full;
-    const todayName = getWeekDayName(new Date());
+    const today = new Date();
+    const isCurrentWeek = today >= weekRange[0] && today <= weekRange[1];
+    const todayName = isCurrentWeek ? getWeekDayName(today) : null;
     const populateWeek = (entries: EntryWithCategory[]): Week => {
         const week: Week = {}
         for (let i=0; i < 7; i++) {
@@ -59,6 +61,7 @@
     const days = ref<HTMLElement[] | null>(null);
     
     onMounted(async () => {
+        if (!isCurrentWeek) return;
         await nextTick();
         const dayNumber = (new Date().getDay() + 6) % 7;
         const currentDayEl = days.value![dayNumber];
