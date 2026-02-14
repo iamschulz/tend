@@ -1,6 +1,7 @@
 <template>
   <main-header />
   <main-menu v-if="mounted" />
+  <confirm-dialog v-if="mounted" />
   <main>
     <NuxtPage />
     <NuxtRouteAnnouncer />

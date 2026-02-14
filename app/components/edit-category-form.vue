@@ -7,7 +7,7 @@
             </option>
         </select>
         <input v-model="category.title" type="text" required>
-        <button @click.prevent="data.deleteCategory(category.id)">
+        <button @click.prevent="handleDelete">
             <nuxt-icon name="delete" />
             <span class="sr-only">Delete</span>
         </button>
@@ -30,6 +30,13 @@
     }, { deep: true })
 
     const data = useDataStore();
+    const ui = useUiStore();
+
+    const handleDelete = async () => {
+        if (await ui.requestConfirm('Delete this category?')) {
+            data.deleteCategory(category.id)
+        }
+    }
 </script>
 
 <style scoped>

@@ -21,7 +21,7 @@
             </span>
         </div>
         <div class="controls">
-            <button @click="data.deleteEntry(entry.id)">
+            <button @click="handleDelete">
                 <nuxt-icon name="delete" />
                 <span class="sr-only">Delete</span>
             </button>
@@ -35,6 +35,7 @@
     import { formatDuration } from '~/util/formatDuration';
 
     const data = useDataStore();
+    const ui = useUiStore();
 
     const props = defineProps<{
         entry: EntryWithCategory
@@ -53,6 +54,12 @@
     })
 
     const duration = computed(() => formatDuration(props.entry.start, now.value))
+
+    const handleDelete = async () => {
+        if (await ui.requestConfirm('Delete this entry?')) {
+            data.deleteEntry(props.entry.id)
+        }
+    }
 </script>
 
 <style scoped>
