@@ -1,11 +1,5 @@
 <template>
     <div>
-        <Teleport v-if="mounted" to="#header-title-long">
-            {{ monthTitle.long }}
-        </Teleport>
-        <Teleport v-if="mounted" to="#header-title-short">
-            {{ monthTitle.short }}
-        </Teleport>
         <OverviewMonth v-if="mounted && routeValid && !isInFuture" :date="date" />
         <p v-else-if="isInFuture">The Future's going to be awesome!</p>
         <p v-else-if="!routeValid">Error</p>
@@ -47,15 +41,12 @@
         ui.setCurrentViewDate(date)
     })
 
-    const monthTitle = computed(() => {
-        return {
-            short: date.toLocaleDateString(undefined, { month: 'short', year: 'numeric' }),
-            long: date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' }),
-        };
-    });
 
     const mounted = ref(false)
     onMounted(() => {
         mounted.value = true
+    })
+    onBeforeUnmount(() => {
+        mounted.value = false
     })
 </script>

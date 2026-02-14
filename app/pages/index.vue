@@ -1,11 +1,5 @@
 <template>
     <div>
-        <Teleport to="#header-title-long" v-if="mounted">
-            Today
-        </Teleport>
-        <Teleport to="#header-title-short" v-if="mounted">
-            Today
-        </Teleport>
 
         <tracker-day hydrate-on-visible />
     </div>
@@ -16,5 +10,9 @@
 
     onMounted(() => {
         mounted.value = true
+    })
+
+    onBeforeUnmount(() => {
+        mounted.value = false
     })
 </script>

@@ -1,40 +1,89 @@
 <template>
     <h1 class="title">
-        <span id="header-title-long" />
-        <span id="header-title-short" />
-        <span class="fallback">Tend</span>
+        <NuxtLink v-if="title.prevLink" :to="title.prevLink" class="nav-link">
+            <nuxt-icon name="arrow_left" size="48" />
+            <span class="sr-only">Previous</span>
+        </NuxtLink>
+
+        <span class="long">{{ title.long }}</span>
+        <span class="short">{{ title.short }}</span>
+
+        <NuxtLink v-if="title.nextLink" :to="title.nextLink" class="nav-link">
+            <nuxt-icon name="arrow_right" size="48" />
+            <span class="sr-only">Next</span>
+        </NuxtLink>
     </h1>
 </template>
 
 <script setup lang="ts">
+    import { titleForDay } from '~/util/titleForDay'
+    import { titleForWeek } from '~/util/titleForWeek'
+    import { titleForMonth } from '~/util/titleForMonth'
+    import type { TitleInfo } from '~/util/titleForDay'
+
+    const route = useRoute();
+
+    const fallback: TitleInfo = { short: 'Tend', long: 'Tend', prevLink: null, nextLink: null };
+
+    const title = computed<TitleInfo>(() => {
+        const path = route.path;
+        const param = route.params.date;
+        const dateStr = typeof param === 'string' ? param : null;
+
+        // / → today
+        if (path === '/') return titleForDay(new Date());
+
+        // /day/YYYY-MM-DD
+        if (path.startsWith('/day/') && dateStr) {
+            const date = new Date(dateStr);
+            if (Number.isNaN(date.getTime())) return fallback;
+            return titleForDay(date);
+        }
+
+        // /week/YYYY-Www
+        if (path.startsWith('/week/') && dateStr) {
+            return titleForWeek(dateStr) ?? fallback;
+        }
+
+        // /month/YYYY-MM
+        if (path.startsWith('/month/') && dateStr) {
+            return titleForMonth(dateStr) ?? fallback;
+        }
+
+        return fallback;
+    });
 </script>
 
 <style scoped>
     .title {
         margin: 0;
         font-size: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5ch;
     }
 
-    /* Responsive long/short toggle */
-    #header-title-short {
+    .nav-link {
+        font-size: 0.75em;
+        text-decoration: none;
+        color: inherit;
+        margin-bottom: -0.375rem;
+    }
+
+    .short {
         display: inline;
     }
 
-    #header-title-long {
-        display: none;
-    }
-
-    .title:has(#header-title-long:not(:empty)) .fallback,
-    .title:has(#header-title-short:not(:empty)) .fallback {
+    .long {
         display: none;
     }
 
     @media (min-width: 38rem) {
-        #header-title-short {
+        .short {
             display: none;
         }
 
-        #header-title-long {
+        .long {
             display: inline;
         }
     }

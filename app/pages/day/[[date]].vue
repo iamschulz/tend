@@ -1,11 +1,5 @@
 <template>
     <div>
-        <Teleport v-if="mounted" to="#header-title-long">
-            {{ dayTitle.long }}
-        </Teleport>
-        <Teleport v-if="mounted" to="#header-title-short">
-            {{ dayTitle.short }}
-        </Teleport>
         <tracker-day v-if="mounted && routeValid && !isInFuture" :date="date" />
         <p v-else-if="isInFuture">The Future's going to be awesome!</p>
         <p v-else-if="!routeValid">Error</p>
@@ -40,21 +34,13 @@
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
 
-    const isToday = date.toDateString() === today.toDateString();
-    const isYesterday = date.toDateString() === yesterday.toDateString();
-
-    const dayTitle: ComputedRef<{ short: string; long: string; }> = computed(() => {
-        if (isToday) return { short: 'Today', long: 'Today' };
-        if (isYesterday) return { short: 'Yesterday', long: 'Yesterday' };
-        return {
-            short: date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }),
-            long: date.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }),
-        };
-    });
-
     const mounted = ref(false)
 
     onMounted(() => {
         mounted.value = true
+    })
+
+    onBeforeUnmount(() => {
+        mounted.value = false
     })
 </script>

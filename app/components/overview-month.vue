@@ -109,7 +109,7 @@
 
     onMounted(async () => {
         await nextTick();
-        todayEl.value?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        todayEl.value?.scrollIntoView({ inline: 'center', behavior: 'smooth' });
     });
 
     const calendarWeeks = computed(() => {
@@ -136,6 +136,10 @@
         > th, td {
             padding: var(--day-padding);
             scroll-snap-align: center;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: transparent;
         }
     }
 

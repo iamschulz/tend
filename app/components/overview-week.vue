@@ -62,7 +62,7 @@
         await nextTick();
         const dayNumber = (new Date().getDay() + 6) % 7;
         const currentDayEl = days.value![dayNumber];
-        currentDayEl?.scrollIntoView({ block: 'nearest', behavior: 'smooth'});
+        currentDayEl?.scrollIntoView({ inline: 'center', behavior: 'smooth'});
     })
 
     // todo: add some statistics below table
