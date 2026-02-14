@@ -10,7 +10,7 @@
             <div data-group>
                 <NuxtLink :href="`/week/${currentWeek}`">Week</NuxtLink>
                 <NuxtLink :href="`/month/${currentMonth}`">Month</NuxtLink>
-                <a href="#" >Year</a>
+                <NuxtLink :href="`/year/${currentYear}`">Year</NuxtLink>
             </div>
         </section>
 </template>
@@ -21,6 +21,7 @@
     const yesterday = new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().slice(0, 10);
     const currentWeek = getIsoWeekString(new Date());
     const currentMonth = new Date().toISOString().slice(0, 7);
+    const currentYear = String(new Date().getFullYear());
 
 
 

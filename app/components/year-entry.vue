@@ -1,13 +1,13 @@
 <template>
-    <div data-card data-shadow="1-hover" class="day-cell" :class="{ today: isToday }">
+    <div data-card data-shadow="1-hover" class="month-cell" :class="{ 'current-month': isCurrentMonth }">
         <NuxtLink
-            :to="`/day/${dateStr}`"
-            class="day-link"
+            :to="`/month/${dateStr}`"
+            class="month-link"
             :aria-label="ariaLabel"
-            :aria-current="isToday ? 'date' : undefined"
+            :aria-current="isCurrentMonth ? 'date' : undefined"
             data-card-link
         >
-            <span class="day-number">{{ day }}</span>
+            <span class="month-name">{{ monthLabel }}</span>
             <div v-if="categories.length" class="dots">
                 <span
                     v-for="cat in categories"
@@ -22,48 +22,45 @@
 </template>
 
 <script setup lang="ts">
-    defineProps<{
-        day: number;
+    const props = defineProps<{
+        month: number;
         dateStr: string;
-        isToday: boolean;
+        isCurrentMonth: boolean;
         entryCount: number;
         ariaLabel: string;
         categories: { id: string; title: string; color: string }[];
     }>();
+
+    const monthLabel = new Date(2024, props.month, 1).toLocaleDateString(undefined, { month: 'short' });
 </script>
 
 <style scoped>
-    .day-cell {
-        aspect-ratio: 1;
+    .month-cell {
         width: 100%;
-        margin-bottom: -6px;
+        aspect-ratio: 1;
         padding: 0;
     }
 
-    .day-link {
+    .month-link {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 0.25rem;
+        gap: 0.4rem;
+        padding: 1rem 0.5rem;
         text-decoration: none;
-        padding: 0.5rem;
     }
 
-    .day-number {
+    .month-name {
         font-weight: 600;
-        font-size: 0.9rem;
+        font-size: 1rem;
         line-height: 1;
-        aspect-ratio: 1;
     }
 
-    .today .day-number {
+    .current-month .month-name {
         background: var(--col-fg);
         color: var(--col-bg);
-        border-radius: 50%;
-        width: 1.6em;
-        height: 1.6em;
-        display: inline-grid;
-        place-items: center;
+        border-radius: var(--border-radius);
+        padding: 0.2em 0.5em;
     }
 
     .dots {
@@ -74,14 +71,14 @@
     }
 
     .dot {
-        width: 0.45rem;
-        height: 0.45rem;
+        width: 1rem;
+        height: 1rem;
         border-radius: 50%;
         background: var(--dot-color);
     }
 
     .entry-count {
-        font-size: 0.7rem;
+        font-size: 0.8rem;
         color: var(--col-fg2);
     }
 </style>

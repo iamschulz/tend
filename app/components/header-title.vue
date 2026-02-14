@@ -19,6 +19,7 @@
     import { titleForDay } from '~/util/titleForDay'
     import { titleForWeek } from '~/util/titleForWeek'
     import { titleForMonth } from '~/util/titleForMonth'
+    import { titleForYear } from '~/util/titleForYear'
     import type { TitleInfo } from '~/util/titleForDay'
 
     const route = useRoute();
@@ -48,6 +49,11 @@
         // /month/YYYY-MM
         if (path.startsWith('/month/') && dateStr) {
             return titleForMonth(dateStr) ?? fallback;
+        }
+
+        // /year/YYYY
+        if (path.startsWith('/year/') && dateStr) {
+            return titleForYear(dateStr) ?? fallback;
         }
 
         return fallback;

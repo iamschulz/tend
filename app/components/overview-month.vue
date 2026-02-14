@@ -127,7 +127,6 @@
 <style scoped>
     .month-grid {
         width: 100%;
-        border-spacing: 0.5rem;
         padding: 0 5px 1rem;
         --day-width: 7ch;
         --day-padding: 0.5rem;
