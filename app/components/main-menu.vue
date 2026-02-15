@@ -15,6 +15,8 @@
         <hr>
 
         <TimeSelect v-if="ui.menuOpen" />
+
+        <LanguageSelect />
     </DialogWrapper>
 </template>
 

@@ -18,6 +18,7 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     'pinia-plugin-persistedstate/nuxt',
     'nuxt-icons',
+    '@nuxtjs/i18n'
   ],
 
   css: [
@@ -38,5 +39,14 @@ export default defineNuxtConfig({
     '~/assets/css/srOnly.css',
     '~/assets/css/nolist.css',
     '~/assets/css/nobutton.css',
-  ]
+  ],
+
+  i18n: {
+    defaultLocale: 'en',
+    strategy: 'no_prefix',
+    locales: [
+      { code: 'en', name: 'English', file: 'en.json' },
+      { code: 'de', name: 'Deutsch', file: 'de.json' }
+    ]
+  }
 })

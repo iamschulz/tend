@@ -21,6 +21,7 @@
     import { titleForMonth } from '~/util/titleForMonth'
     import { titleForYear } from '~/util/titleForYear'
     import type { TitleInfo } from '~/util/titleForDay'
+    const { t } = useI18n()
 
     const route = useRoute();
 
@@ -32,13 +33,13 @@
         const dateStr = typeof param === 'string' ? param : null;
 
         // / → today
-        if (path === '/') return titleForDay(new Date());
+        if (path === '/') return titleForDay(new Date(), t);
 
         // /day/YYYY-MM-DD
         if (path.startsWith('/day/') && dateStr) {
             const date = new Date(dateStr);
             if (Number.isNaN(date.getTime())) return fallback;
-            return titleForDay(date);
+            return titleForDay(date, t);
         }
 
         // /week/YYYY-Www

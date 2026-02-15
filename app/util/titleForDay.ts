@@ -1,3 +1,4 @@
+import type { TranslateFunction } from '~/types/TranslateFunction'
 import { toUtcDateStr } from './toUtcDateStr'
 
 export interface TitleInfo {
@@ -7,7 +8,7 @@ export interface TitleInfo {
     nextLink: string | null
 }
 
-export const titleForDay = (date: Date): TitleInfo => {
+export const titleForDay = (date: Date, t: TranslateFunction): TitleInfo => {
     const today = new Date()
     const todayUtc = today.toISOString().slice(0, 10)
     const yesterday = new Date(today)
@@ -21,8 +22,8 @@ export const titleForDay = (date: Date): TitleInfo => {
 
     let short: string, long: string
     if (isToday) {
-        short = 'Today'
-        long = 'Today'
+        short = t('today')
+        long = t('today')
     } else if (isYesterday) {
         short = 'Yesterday'
         long = 'Yesterday'
