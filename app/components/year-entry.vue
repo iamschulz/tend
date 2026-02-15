@@ -9,11 +9,11 @@
         >
             <span class="month-name">{{ monthLabel }}</span>
             <div v-if="categories.length" class="dots">
-                <span
+                <CategoryDot
                     v-for="cat in categories"
                     :key="cat.id"
-                    class="dot"
-                    :style="`--dot-color: ${cat.color}`"
+                    :color="cat.color"
+                    :count="cat.count"
                 />
             </div>
             <span v-if="entryCount > 0" class="entry-count">{{ entryCount }}</span>
@@ -28,7 +28,7 @@
         isCurrentMonth: boolean;
         entryCount: number;
         ariaLabel: string;
-        categories: { id: string; title: string; color: string }[];
+        categories: { id: string; title: string; color: string; count: number }[];
     }>();
 
     const monthLabel = new Date(Date.UTC(2024, props.month, 1)).toLocaleDateString(undefined, { month: 'short' });
@@ -74,13 +74,6 @@
         flex-wrap: wrap;
         justify-content: center;
         gap: 3px;
-    }
-
-    .dot {
-        width: 1rem;
-        height: 1rem;
-        border-radius: 50%;
-        background: var(--dot-color);
     }
 
     .entry-count {

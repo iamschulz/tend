@@ -40,7 +40,7 @@
         isCurrentMonth: boolean;
         entryCount: number;
         ariaLabel: string;
-        categories: { id: string; title: string; color: string }[];
+        categories: { id: string; title: string; color: string; count: number }[];
     };
 
     const months = ref<HTMLElement[] | null>(null);
@@ -64,14 +64,20 @@
                 return start >= monthStart && start <= monthEnd;
             });
 
-            const seen = new Map<string, { id: string; title: string; color: string }>();
+            const seen = new Map<string, { id: string; title: string; color: string; count: number }>();
             for (const entry of monthEntries) {
-                if (entry.category && !seen.has(entry.category.id)) {
-                    seen.set(entry.category.id, {
-                        id: entry.category.id,
-                        title: entry.category.title,
-                        color: entry.category.color,
-                    });
+                if (entry.category) {
+                    const existing = seen.get(entry.category.id);
+                    if (existing) {
+                        existing.count++;
+                    } else {
+                        seen.set(entry.category.id, {
+                            id: entry.category.id,
+                            title: entry.category.title,
+                            color: entry.category.color,
+                            count: 1,
+                        });
+                    }
                 }
             }
 

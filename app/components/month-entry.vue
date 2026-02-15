@@ -9,11 +9,11 @@
         >
             <span class="day-number">{{ day }}</span>
             <div v-if="categories.length" class="dots">
-                <span
+                <CategoryDot
                     v-for="cat in categories"
                     :key="cat.id"
-                    class="dot"
-                    :style="`--dot-color: ${cat.color}`"
+                    :color="cat.color"
+                    :count="cat.count"
                 />
             </div>
             <span v-if="entryCount > 0" class="entry-count">{{ entryCount }}</span>
@@ -28,7 +28,7 @@
         isToday: boolean;
         entryCount: number;
         ariaLabel: string;
-        categories: { id: string; title: string; color: string }[];
+        categories: { id: string; title: string; color: string; count: number }[];
     }>();
 </script>
 
@@ -71,13 +71,6 @@
         flex-wrap: wrap;
         justify-content: center;
         gap: 3px;
-    }
-
-    .dot {
-        width: 0.45rem;
-        height: 0.45rem;
-        border-radius: 50%;
-        background: var(--dot-color);
     }
 
     .entry-count {

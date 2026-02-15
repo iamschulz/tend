@@ -51,7 +51,7 @@
         isToday: boolean;
         entryCount: number;
         ariaLabel: string;
-        categories: { id: string; title: string; color: string }[];
+        categories: { id: string; title: string; color: string; count: number }[];
     };
 
     const todayStr = new Date().toISOString().slice(0, 10);
@@ -75,14 +75,20 @@
                 return start >= dayStart && start <= dayEnd;
             });
 
-            const seen = new Map<string, { id: string; title: string; color: string }>();
+            const seen = new Map<string, { id: string; title: string; color: string; count: number }>();
             for (const entry of dayEntries) {
-                if (entry.category && !seen.has(entry.category.id)) {
-                    seen.set(entry.category.id, {
-                        id: entry.category.id,
-                        title: entry.category.title,
-                        color: entry.category.color,
-                    });
+                if (entry.category) {
+                    const existing = seen.get(entry.category.id);
+                    if (existing) {
+                        existing.count++;
+                    } else {
+                        seen.set(entry.category.id, {
+                            id: entry.category.id,
+                            title: entry.category.title,
+                            color: entry.category.color,
+                            count: 1,
+                        });
+                    }
                 }
             }
 
