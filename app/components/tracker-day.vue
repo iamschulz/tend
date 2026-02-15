@@ -2,16 +2,16 @@
     <TransitionGroup name="list" tag="ul" class="nolist">
         <li ref="loaderEl" class="loader" />
         <li v-if="data.categories.length === 0">
-            <p>What habit do you want to track?</p>
+            <p>{{ $t('whatHabit') }}</p>
             <add-category-form />
         </li>
 
         <li v-if="data.categories.length > 0 && entries.length === 0">
             <p>
-                Great! You can now start tracking by clicking the <span class="tutorial-emoji" :style="`--shadow-color: ${data.categories[0]!.color}`">{{ data.categories[0]!.activity.emoji }}</span>-Button down below.<br>
-                Hold the button to start a timed tracker.
+                {{ $t('tutorialStart') }} <span class="tutorial-emoji" :style="`--shadow-color: ${data.categories[0]!.color}`">{{ data.categories[0]!.activity.emoji }}</span>{{ $t('tutorialButton') }}<br>
+                {{ $t('tutorialHold') }}
             </p>
-            <p>You can add more categories in the menu.</p>
+            <p>{{ $t('tutorialMore') }}</p>
         </li>
 
         <!-- display all entries from today -->
@@ -40,7 +40,7 @@
     const displayBeforeTime = (index: number): number | undefined => {
         const entry = entries.value[index]!;
         const hour = new Date(entry.start).getHours();
-        
+
         const prev = entries.value[index + 1];
         if (!prev) {
             return;

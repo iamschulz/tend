@@ -4,7 +4,7 @@
             <h2 v-if="title">{{ title }}</h2>
             <button class="closeButton nobutton" @click="() => closeDialog()">
                 <nuxt-icon name="close" size="36" />
-                <span class="sr-only">Close</span>
+                <span class="sr-only">{{ $t('close') }}</span>
             </button>
         </header>
         <div class="dialog-inner">

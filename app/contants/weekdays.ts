@@ -1,9 +1,11 @@
-export const weekdays = [
-    { short: 'Mo', full: 'Monday' },
-    { short: 'Tu', full: 'Tuesday' },
-    { short: 'We', full: 'Wednesday' },
-    { short: 'Th', full: 'Thursday' },
-    { short: 'Fr', full: 'Friday' },
-    { short: 'Sa', full: 'Saturday' },
-    { short: 'Su', full: 'Sunday' },
+import type { TranslateFunction } from '~/types/TranslateFunction'
+
+export const getWeekdays = (t: TranslateFunction) => [
+    { short: t('weekdayMoShort'), full: t('weekdayMo') },
+    { short: t('weekdayTuShort'), full: t('weekdayTu') },
+    { short: t('weekdayWeShort'), full: t('weekdayWe') },
+    { short: t('weekdayThShort'), full: t('weekdayTh') },
+    { short: t('weekdayFrShort'), full: t('weekdayFr') },
+    { short: t('weekdaySaShort'), full: t('weekdaySa') },
+    { short: t('weekdaySuShort'), full: t('weekdaySu') },
 ];

@@ -9,7 +9,7 @@
         <input v-model="category.title" type="text" required>
         <button @click.prevent="handleDelete">
             <nuxt-icon name="delete" />
-            <span class="sr-only">Delete</span>
+            <span class="sr-only">{{ $t('delete') }}</span>
         </button>
     </form>
 </template>
@@ -32,8 +32,10 @@
     const data = useDataStore();
     const ui = useUiStore();
 
+    const { t } = useI18n();
+
     const handleDelete = async () => {
-        if (await ui.requestConfirm('Delete this category?')) {
+        if (await ui.requestConfirm(t('deleteCategory'))) {
             data.deleteCategory(category.id)
         }
     }

@@ -2,7 +2,7 @@
     <DialogWrapper ref="menuEl" class="menu" data-shadow="5" name="menu" title="Tend">
         <section>
             <TransitionGroup name="list" tag="ul" class="nolist">
-            <li v-if="data.categories.length === 0">Add a tracking category!</li>
+            <li v-if="data.categories.length === 0">{{ $t('addCategoryPrompt') }}</li>
 
             <li v-for="category in data.categories" :key="category.id">
                 <EditCategoryForm :category="category" />

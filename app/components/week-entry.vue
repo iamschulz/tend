@@ -9,10 +9,10 @@
                 {{ timeStr }}
             </time>
             <span v-if="entry.running">
-                <nuxt-icon name="play_arrow" aria-hidden="true" /><span class="sr-only">running for </span>{{ duration }}
+                <nuxt-icon name="play_arrow" aria-hidden="true" /><span class="sr-only">{{ $t('runningFor') }}</span>{{ duration }}
             </span>
             <span v-if="entry.end && (entry.start !== entry.end) && !entry.running">
-                {{ formatDuration(entry.start, entry.end) }}
+                {{ formatDuration(entry.start, entry.end, t) }}
             </span>
         </div>
     </article>
@@ -21,6 +21,8 @@
 <script setup lang="ts">
     import type { EntryWithCategory } from '~/types/Category';
     import { formatDuration } from '~/util/formatDuration';
+
+    const { t } = useI18n();
 
     const props = defineProps<{
         entry: EntryWithCategory,
@@ -38,19 +40,19 @@
         clearInterval(interval)
     })
 
-    const duration = computed(() => formatDuration(props.entry.start, now.value))
+    const duration = computed(() => formatDuration(props.entry.start, now.value, t))
 
     const timeStr = new Date(props.entry.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const categoryName = props.entry.category?.title ?? 'Unknown';
 
     const entryLabel = computed(() => {
         if (props.entry.running) {
-            return `${categoryName} at ${timeStr}, running for ${duration.value}`;
+            return t('entryAtRunning', { category: categoryName, time: timeStr, duration: duration.value });
         }
         if (props.entry.end && props.entry.start !== props.entry.end) {
-            return `${categoryName} at ${timeStr}, ${formatDuration(props.entry.start, props.entry.end)}`;
+            return t('entryAtDuration', { category: categoryName, time: timeStr, duration: formatDuration(props.entry.start, props.entry.end, t) });
         }
-        return `${categoryName} at ${timeStr}`;
+        return t('entryAt', { category: categoryName, time: timeStr });
     })
 </script>
 

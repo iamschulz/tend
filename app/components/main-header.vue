@@ -3,7 +3,7 @@
         <div class="header-inner">
             <button class="nobutton" @click="handleMenuButtonClick">
                 <nuxt-icon name="menu" size="48" />
-                <span class="sr-only">Menu</span>
+                <span class="sr-only">{{ $t('menu') }}</span>
             </button>
             <HeaderTitle />
         </div>

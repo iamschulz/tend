@@ -1,16 +1,16 @@
 <template>
     <section class="selectMenu">
-            <h3>Select day</h3>
+            <h3>{{ $t('selectDay') }}</h3>
             <form data-group @submit.prevent="onDaySelect">
-                <NuxtLink href="/">Today</NuxtLink>
-                <NuxtLink :href="`/day/${yesterday}`">Yesterday</NuxtLink>
+                <NuxtLink href="/">{{ $t('today') }}</NuxtLink>
+                <NuxtLink :href="`/day/${yesterday}`">{{ $t('yesterday') }}</NuxtLink>
                 <input ref="daySelectEl" type="date" :value="new Date().toISOString().split('T')[0]">
-                <button type="submit">Go</button>
+                <button type="submit">{{ $t('go') }}</button>
             </form>
             <div data-group>
-                <NuxtLink :href="`/week/${currentWeek}`">Week</NuxtLink>
-                <NuxtLink :href="`/month/${currentMonth}`">Month</NuxtLink>
-                <NuxtLink :href="`/year/${currentYear}`">Year</NuxtLink>
+                <NuxtLink :href="`/week/${currentWeek}`">{{ $t('week') }}</NuxtLink>
+                <NuxtLink :href="`/month/${currentMonth}`">{{ $t('month') }}</NuxtLink>
+                <NuxtLink :href="`/year/${currentYear}`">{{ $t('year') }}</NuxtLink>
             </div>
         </section>
 </template>

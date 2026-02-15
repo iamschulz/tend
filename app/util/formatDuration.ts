@@ -1,4 +1,6 @@
-export function formatDuration(start: number, end: number): string {
+import type { TranslateFunction } from '~/types/TranslateFunction'
+
+export function formatDuration(start: number, end: number, t: TranslateFunction): string {
     const diff = Math.abs(end - start);
 
     const totalSeconds = Math.floor(diff / 1000);
@@ -14,13 +16,13 @@ export function formatDuration(start: number, end: number): string {
 
     const parts: string[] = [];
 
-    if (days) parts.push(`${days}d`);
-    if (hours) parts.push(`${hours}h`);
-    if (minutes) parts.push(`${minutes}m`);
+    if (days) parts.push(`${days}${t('durationD')}`);
+    if (hours) parts.push(`${hours}${t('durationH')}`);
+    if (minutes) parts.push(`${minutes}${t('durationM')}`);
 
     // Always show seconds if nothing else was added
     if (parts.length === 0) {
-        parts.push(`${seconds}s`);
+        parts.push(`${seconds}${t('durationS')}`);
     }
 
     return parts.join(' ');

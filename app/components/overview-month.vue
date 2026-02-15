@@ -29,7 +29,9 @@
 <script setup lang="ts">
     import { getMonthRange } from '~/util/getMonthRange';
     import { getDayRange } from '~/util/getDayRange';
-    import { weekdays } from '~/contants/weekdays';
+    import { getWeekdays } from '~/contants/weekdays';
+
+    const { t } = useI18n();
 
     const props = defineProps<{
         date: Date,
@@ -37,6 +39,7 @@
 
     const data = useDataStore();
 
+    const weekdays = getWeekdays(t);
     const monthLabel = props.date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
 
     const monthRange = getMonthRange(props.date);
@@ -88,8 +91,9 @@
 
             const dateLabel = current.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
             const categoryNames = [...seen.values()].map(c => c.title);
+            const entryWord = dayEntries.length === 1 ? t('entry') : t('entries');
             const ariaLabel = dayEntries.length > 0
-                ? `${dateLabel}, ${dayEntries.length} ${dayEntries.length === 1 ? 'entry' : 'entries'}: ${categoryNames.join(', ')}`
+                ? `${dateLabel}, ${dayEntries.length} ${entryWord}: ${categoryNames.join(', ')}`
                 : dateLabel;
 
             cells.push({

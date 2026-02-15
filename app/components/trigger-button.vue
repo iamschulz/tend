@@ -18,7 +18,7 @@
         @click="data.closeAllEntries(category.id)"
     >
         <nuxt-icon name="stop" />
-        <span class="sr-only">Delete</span>
+        <span class="sr-only">{{ $t('stop') }}</span>
     </button>
 </template>
 

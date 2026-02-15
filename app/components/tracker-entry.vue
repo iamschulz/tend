@@ -17,17 +17,17 @@
                 ({{ duration }})
             </span>
             <span v-if="entry.end && (entry.start !== entry.end) && !entry.running">
-                ({{ formatDuration(entry.start, entry.end) }})
+                ({{ formatDuration(entry.start, entry.end, t) }})
             </span>
         </div>
         <div class="controls">
             <button v-if="entry.running" @click="handleStop">
                 <nuxt-icon name="stop" />
-                <span class="sr-only">Stop</span>
+                <span class="sr-only">{{ $t('stop') }}</span>
             </button>
             <button v-else @click="handleDelete">
                 <nuxt-icon name="delete" />
-                <span class="sr-only">Delete</span>
+                <span class="sr-only">{{ $t('delete') }}</span>
             </button>
         </div>
     </article>
@@ -38,6 +38,7 @@
     import type { EntryWithCategory } from '~/types/Category';
     import { formatDuration } from '~/util/formatDuration';
 
+    const { t } = useI18n();
     const data = useDataStore();
     const ui = useUiStore();
 
@@ -57,14 +58,14 @@
         clearInterval(interval)
     })
 
-    const duration = computed(() => formatDuration(props.entry.start, now.value))
+    const duration = computed(() => formatDuration(props.entry.start, now.value, t))
 
     const handleStop = () => {
         data.closeEntry(props.entry.id)
     }
 
     const handleDelete = async () => {
-        if (await ui.requestConfirm('Delete this entry?')) {
+        if (await ui.requestConfirm(t('deleteEntry'))) {
             data.deleteEntry(props.entry.id)
         }
     }
@@ -88,13 +89,13 @@
     }
 
     .track {
-        display: grid; 
+        display: grid;
         grid-template-columns: 4rem auto 4rem;
-        grid-template-rows: 1fr 1fr; 
-        gap: 0 1rem; 
-        grid-template-areas: 
+        grid-template-rows: 1fr 1fr;
+        gap: 0 1rem;
+        grid-template-areas:
             "icon title controls"
-            "icon details controls"; 
+            "icon details controls";
         padding: 0;
     }
 

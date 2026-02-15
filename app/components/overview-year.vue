@@ -16,6 +16,8 @@
     import { getYearRange } from '~/util/getYearRange'
     import { getMonthRange } from '~/util/getMonthRange'
 
+    const { t } = useI18n();
+
     const props = defineProps<{
         date: Date,
     }>();
@@ -23,7 +25,7 @@
     const data = useDataStore();
 
     const year = props.date.getUTCFullYear();
-    const yearLabel = `Year ${year}`;
+    const yearLabel = t('yearLabel', { year });
 
     const yearRange = getYearRange(props.date);
     const entries = computed(() => data.getEntriesForRange(yearRange[0], yearRange[1]));
@@ -76,8 +78,9 @@
             const mm = String(m + 1).padStart(2, '0');
             const monthName = monthDate.toLocaleDateString(undefined, { month: 'long' });
             const categoryNames = [...seen.values()].map(c => c.title);
+            const entryWord = monthEntries.length === 1 ? t('entry') : t('entries');
             const ariaLabel = monthEntries.length > 0
-                ? `${monthName} ${year}, ${monthEntries.length} ${monthEntries.length === 1 ? 'entry' : 'entries'}: ${categoryNames.join(', ')}`
+                ? `${monthName} ${year}, ${monthEntries.length} ${entryWord}: ${categoryNames.join(', ')}`
                 : `${monthName} ${year}`;
 
             cells.push({

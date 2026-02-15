@@ -7,7 +7,7 @@
             <li v-for="entry in day" :key="entry.id">
                 <WeekEntry :entry="entry" />
             </li>
-            <li v-if="!day.length" class="empty" aria-label="No entries">Nothing today</li>
+            <li v-if="!day.length" class="empty" aria-label="No entries">{{ $t('nothingToday') }}</li>
         </ul>
     </div>
 </template>
@@ -16,7 +16,9 @@
     import type { EntryWithCategory } from '~/types/Category';
     import { getDayRange } from '~/util/getDayRange';
     import { getWeekRange } from '~/util/getWeekRange';
-    import { weekdays } from '~/contants/weekdays';
+    import { getWeekdays } from '~/contants/weekdays';
+
+    const { t } = useI18n();
 
     const props = defineProps<{
         date: Date,
@@ -24,7 +26,8 @@
 
     const data = useDataStore();
 
-    const weekLabel = `Week of ${props.date.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}`;
+    const weekdays = getWeekdays(t);
+    const weekLabel = t('weekOf', { date: props.date.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) });
 
     const weekRange = getWeekRange(props.date);
     const entries = computed(() => data.getEntriesForRange(weekRange[0], weekRange[1]));
@@ -59,7 +62,7 @@
 
     // scroll to current day
     const days = ref<HTMLElement[] | null>(null);
-    
+
     onMounted(async () => {
         if (!isCurrentWeek) return;
         await nextTick();

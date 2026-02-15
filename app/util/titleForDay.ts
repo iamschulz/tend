@@ -25,8 +25,8 @@ export const titleForDay = (date: Date, t: TranslateFunction): TitleInfo => {
         short = t('today')
         long = t('today')
     } else if (isYesterday) {
-        short = 'Yesterday'
-        long = 'Yesterday'
+        short = t('yesterday')
+        long = t('yesterday')
     } else {
         short = date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })
         long = date.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })

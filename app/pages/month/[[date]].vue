@@ -1,8 +1,8 @@
 <template>
     <div>
         <OverviewMonth v-if="mounted && routeValid && !isInFuture" :date="date" />
-        <p v-else-if="isInFuture">The Future's going to be awesome!</p>
-        <p v-else-if="!routeValid">Error</p>
+        <p v-else-if="isInFuture">{{ $t('futureMessage') }}</p>
+        <p v-else-if="!routeValid">{{ $t('error') }}</p>
     </div>
 </template>
 

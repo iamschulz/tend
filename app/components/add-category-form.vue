@@ -19,13 +19,13 @@
         <input
             v-model="newCategoryData.title"
             type="text"
-            placeholder="e.g. Feeling Good"
+            :placeholder="$t('placeholder')"
             required
         >
 
         <button type="submit">
             <nuxt-icon name="add" />
-            <span class="sr-only">Add</span>
+            <span class="sr-only">{{ $t('add') }}</span>
         </button>
     </form>
 </template>

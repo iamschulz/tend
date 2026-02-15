@@ -2,7 +2,7 @@
     <h1 class="title">
         <NuxtLink v-if="title.prevLink" :to="title.prevLink" class="nav-link">
             <nuxt-icon name="arrow_left" size="48" />
-            <span class="sr-only">Previous</span>
+            <span class="sr-only">{{ $t('previous') }}</span>
         </NuxtLink>
 
         <span class="long">{{ title.long }}</span>
@@ -10,7 +10,7 @@
 
         <NuxtLink v-if="title.nextLink" :to="title.nextLink" class="nav-link">
             <nuxt-icon name="arrow_right" size="48" />
-            <span class="sr-only">Next</span>
+            <span class="sr-only">{{ $t('next') }}</span>
         </NuxtLink>
     </h1>
 </template>
@@ -44,7 +44,7 @@
 
         // /week/YYYY-Www
         if (path.startsWith('/week/') && dateStr) {
-            return titleForWeek(dateStr) ?? fallback;
+            return titleForWeek(dateStr, t) ?? fallback;
         }
 
         // /month/YYYY-MM
