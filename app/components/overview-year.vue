@@ -22,15 +22,15 @@
 
     const data = useDataStore();
 
-    const year = props.date.getFullYear();
+    const year = props.date.getUTCFullYear();
     const yearLabel = `Year ${year}`;
 
     const yearRange = getYearRange(props.date);
     const entries = computed(() => data.getEntriesForRange(yearRange[0], yearRange[1]));
 
     const now = new Date();
-    const isCurrentYear = year === now.getFullYear();
-    const currentMonthIndex = now.getMonth();
+    const isCurrentYear = year === now.getUTCFullYear();
+    const currentMonthIndex = now.getUTCMonth();
 
     type MonthCell = {
         month: number;
@@ -54,7 +54,7 @@
         const cells: MonthCell[] = [];
 
         for (let m = 0; m < 12; m++) {
-            const monthDate = new Date(year, m, 1);
+            const monthDate = new Date(Date.UTC(year, m, 1));
             const [monthStart, monthEnd] = getMonthRange(monthDate);
 
             const monthEntries = entries.value.filter(entry => {

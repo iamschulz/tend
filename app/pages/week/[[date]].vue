@@ -24,8 +24,8 @@
             const [year, week] = s.split('-W').map(Number)
 
             // ISO week → date sanity check
-            const d = new Date((year || 0), 0, 4) // Jan 4 always in week 1
-            d.setDate(d.getDate() + ((week || 0) - 1) * 7)
+            const d = new Date(Date.UTC(year || 0, 0, 4)) // Jan 4 always in week 1
+            d.setUTCDate(d.getUTCDate() + ((week || 0) - 1) * 7)
 
             return !Number.isNaN(d.getTime())
         })()

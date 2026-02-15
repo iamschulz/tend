@@ -1,4 +1,4 @@
 export const getMonthRange = (d: Date) => [
-    new Date(d.getFullYear(), d.getMonth(), 1),
-    new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999)
+    new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1)),
+    new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0, 23, 59, 59, 999))
 ] as const

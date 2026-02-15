@@ -11,14 +11,14 @@ export const titleForWeek = (weekStr: string): TitleInfo | null => {
     const long = `Week of ${monday.toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}`
 
     const prevMonday = new Date(monday)
-    prevMonday.setDate(prevMonday.getDate() - 7)
+    prevMonday.setUTCDate(prevMonday.getUTCDate() - 7)
     const prevLink = `/week/${getIsoWeekString(prevMonday)}`
 
     const currentWeek = getIsoWeekString(new Date())
     let nextLink: string | null = null
     if (weekStr !== currentWeek) {
         const nextMonday = new Date(monday)
-        nextMonday.setDate(nextMonday.getDate() + 7)
+        nextMonday.setUTCDate(nextMonday.getUTCDate() + 7)
         nextLink = `/week/${getIsoWeekString(nextMonday)}`
     }
 

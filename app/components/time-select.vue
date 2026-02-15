@@ -18,10 +18,11 @@
 <script lang="ts" setup>
     import { getIsoWeekString } from '~/util/getIsoWeekString'
 
-    const yesterday = new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().slice(0, 10);
+    const d = new Date(); d.setUTCDate(d.getUTCDate() - 1);
+    const yesterday = d.toISOString().slice(0, 10);
     const currentWeek = getIsoWeekString(new Date());
     const currentMonth = new Date().toISOString().slice(0, 7);
-    const currentYear = String(new Date().getFullYear());
+    const currentYear = String(new Date().getUTCFullYear());
 
 
 

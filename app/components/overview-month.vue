@@ -51,20 +51,20 @@
         categories: { id: string; title: string; color: string }[];
     };
 
-    const todayStr = new Date().toDateString();
+    const todayStr = new Date().toISOString().slice(0, 10);
 
     const calendarCells = computed<(DayCell | null)[]>(() => {
-        const year = props.date.getFullYear();
-        const month = props.date.getMonth();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const year = props.date.getUTCFullYear();
+        const month = props.date.getUTCMonth();
+        const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
 
         // Monday = 0, Sunday = 6
-        const firstDayOfWeek = (new Date(year, month, 1).getDay() + 6) % 7;
+        const firstDayOfWeek = (new Date(Date.UTC(year, month, 1)).getUTCDay() + 6) % 7;
 
         const cells: (DayCell | null)[] = Array(firstDayOfWeek).fill(null);
 
         for (let day = 1; day <= daysInMonth; day++) {
-            const current = new Date(year, month, day);
+            const current = new Date(Date.UTC(year, month, day));
             const [dayStart, dayEnd] = getDayRange(current);
 
             const dayEntries = entries.value.filter(entry => {
@@ -95,7 +95,7 @@
             cells.push({
                 day,
                 dateStr: `${year}-${mm}-${dd}`,
-                isToday: current.toDateString() === todayStr,
+                isToday: current.toISOString().slice(0, 10) === todayStr,
                 entryCount: dayEntries.length,
                 ariaLabel,
                 categories: [...seen.values()],

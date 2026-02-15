@@ -1,14 +1,9 @@
 export const getWeekRange = (d: Date) => {
     const date = new Date(d)
-    const day = date.getDay() || 7 // Sunday (0) → 7
+    const day = date.getUTCDay() || 7
 
-    const startOfWeek = new Date(date)
-    startOfWeek.setDate(date.getDate() - day + 1)
-    startOfWeek.setHours(0, 0, 0, 0)
-
-    const endOfWeek = new Date(startOfWeek)
-    endOfWeek.setDate(startOfWeek.getDate() + 6)
-    endOfWeek.setHours(23, 59, 59, 999)
+    const startOfWeek = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() - day + 1))
+    const endOfWeek = new Date(Date.UTC(startOfWeek.getUTCFullYear(), startOfWeek.getUTCMonth(), startOfWeek.getUTCDate() + 6, 23, 59, 59, 999))
 
     return [startOfWeek, endOfWeek] as const
 }

@@ -31,7 +31,7 @@
         categories: { id: string; title: string; color: string }[];
     }>();
 
-    const monthLabel = new Date(2024, props.month, 1).toLocaleDateString(undefined, { month: 'short' });
+    const monthLabel = new Date(Date.UTC(2024, props.month, 1)).toLocaleDateString(undefined, { month: 'short' });
 </script>
 
 <style scoped>

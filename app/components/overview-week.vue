@@ -33,7 +33,7 @@
         [key: string]: EntryWithCategory[]
     }
 
-    const getWeekDayName = (date: Date): string => weekdays[(date.getDay() + 6) % 7]!.full;
+    const getWeekDayName = (date: Date): string => weekdays[(date.getUTCDay() + 6) % 7]!.full;
     const today = new Date();
     const isCurrentWeek = today >= weekRange[0] && today <= weekRange[1];
     const todayName = isCurrentWeek ? getWeekDayName(today) : null;
@@ -41,8 +41,8 @@
         const week: Week = {}
         for (let i=0; i < 7; i++) {
             const currentDayRange = getDayRange(new Date(props.date));
-            currentDayRange[0].setDate(currentDayRange[0].getDate() + i);
-            currentDayRange[1].setDate(currentDayRange[1].getDate() + i);
+            currentDayRange[0].setUTCDate(currentDayRange[0].getUTCDate() + i);
+            currentDayRange[1].setUTCDate(currentDayRange[1].getUTCDate() + i);
             const nextWeekday = getWeekDayName(currentDayRange[0]);
             const dayEntries = entries.filter(
                 entry => getDayRange(new Date(entry.start))[0].toString() === currentDayRange[0].toString()
@@ -63,7 +63,7 @@
     onMounted(async () => {
         if (!isCurrentWeek) return;
         await nextTick();
-        const dayNumber = (new Date().getDay() + 6) % 7;
+        const dayNumber = (new Date().getUTCDay() + 6) % 7;
         const currentDayEl = days.value![dayNumber];
         currentDayEl?.scrollIntoView({ inline: 'center', behavior: 'smooth'});
     })
