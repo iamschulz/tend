@@ -1,7 +1,7 @@
 <template>
     <TransitionGroup name="list" tag="ul" class="nolist">
-        <li ref="loaderEl" class="loader" />
-        <li v-if="data.categories.length === 0">
+        <li ref="loaderEl" key="loader" class="loader" />
+        <li v-if="data.categories.length === 0" key="0">
             <p>{{ $t('whatHabit') }}</p>
             <add-category-form />
         </li>
@@ -17,7 +17,7 @@
         <!-- display all entries from today -->
         <li v-for="(entry, index) in entries" :key="entry.id">
             <TrackerEntry :entry="entry" />
-            <div v-if="displayBeforeTime(index)" class="divider">
+            <div v-if="displayBeforeTime(index)" :key="displayBeforeTime(index)" class="divider">
                 <span>{{ displayBeforeTime(index) }}:00</span>
             </div>
         </li>

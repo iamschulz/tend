@@ -1,12 +1,12 @@
 import { toUtcDateStr } from './toUtcDateStr'
 import type { TitleInfo } from './titleForDay'
 
-export const titleForMonth = (monthStr: string): TitleInfo | null => {
+export const titleForMonth = (monthStr: string, locale: string): TitleInfo | null => {
     const date = new Date(`${monthStr}-01`)
     if (Number.isNaN(date.getTime())) return null
 
-    const short = date.toLocaleDateString(undefined, { month: 'short', year: 'numeric' })
-    const long = date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
+    const short = date.toLocaleDateString(locale, { month: 'short', year: 'numeric' })
+    const long = date.toLocaleDateString(locale, { month: 'long', year: 'numeric' })
 
     const prevDate = new Date(date)
     prevDate.setUTCMonth(prevDate.getUTCMonth() - 1)

@@ -8,7 +8,7 @@ export interface TitleInfo {
     nextLink: string | null
 }
 
-export const titleForDay = (date: Date, t: TranslateFunction): TitleInfo => {
+export const titleForDay = (date: Date, t: TranslateFunction, locale: string): TitleInfo => {
     const today = new Date()
     const todayUtc = today.toISOString().slice(0, 10)
     const yesterday = new Date(today)
@@ -28,8 +28,8 @@ export const titleForDay = (date: Date, t: TranslateFunction): TitleInfo => {
         short = t('yesterday')
         long = t('yesterday')
     } else {
-        short = date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })
-        long = date.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })
+        short = date.toLocaleDateString(locale, { weekday: 'short', month: 'short', day: 'numeric' })
+        long = date.toLocaleDateString(locale, { weekday: 'long', month: 'long', day: 'numeric' })
     }
 
     const prevDay = new Date(date)

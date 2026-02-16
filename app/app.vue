@@ -1,20 +1,19 @@
 <template>
   <main-header />
-  <main-menu v-if="mounted" />
-  <confirm-dialog v-if="mounted" />
+  <main-menu v-if="ready" />
+  <confirm-dialog v-if="ready" />
   <main>
     <NuxtPage />
     <NuxtRouteAnnouncer />
-    <TriggerGroup v-if="mounted" />
+    <TriggerGroup v-if="ready" />
   </main>
   
 </template>
 
 <script setup lang="ts">
-    const mounted = ref(false)
-
-    onMounted(() => {
-        mounted.value = true
+    const ready = ref(false)
+    onNuxtReady(() => {
+        ready.value = true
     })
 </script>
 

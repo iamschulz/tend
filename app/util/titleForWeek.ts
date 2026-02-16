@@ -3,13 +3,13 @@ import { getDateFromWeek } from './getDateFromWeek'
 import { getIsoWeekString } from './getIsoWeekString'
 import type { TitleInfo } from './titleForDay'
 
-export const titleForWeek = (weekStr: string, t: TranslateFunction): TitleInfo | null => {
+export const titleForWeek = (weekStr: string, t: TranslateFunction, locale: string): TitleInfo | null => {
     const monday = getDateFromWeek(weekStr)
     if (Number.isNaN(monday.getTime())) return null
 
     const sunday = new Date(monday.getTime() + 6 * 86400000)
-    const short = `${monday.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} – ${sunday.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`
-    const long = t('weekOf', { date: monday.toLocaleDateString(undefined, { month: 'long', day: 'numeric' }) })
+    const short = `${monday.toLocaleDateString(locale, { month: 'short', day: 'numeric' })} – ${sunday.toLocaleDateString(locale, { month: 'short', day: 'numeric' })}`
+    const long = t('weekOf', { date: monday.toLocaleDateString(locale, { month: 'long', day: 'numeric' }) })
 
     const prevMonday = new Date(monday)
     prevMonday.setUTCDate(prevMonday.getUTCDate() - 7)

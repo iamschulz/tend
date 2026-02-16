@@ -21,7 +21,7 @@
     import { titleForMonth } from '~/util/titleForMonth'
     import { titleForYear } from '~/util/titleForYear'
     import type { TitleInfo } from '~/util/titleForDay'
-    const { t } = useI18n()
+    const { t, locale } = useI18n()
 
     const route = useRoute();
 
@@ -33,23 +33,23 @@
         const dateStr = typeof param === 'string' ? param : null;
 
         // / → today
-        if (path === '/') return titleForDay(new Date(), t);
+        if (path === '/') return titleForDay(new Date(), t, locale.value);
 
         // /day/YYYY-MM-DD
         if (path.startsWith('/day/') && dateStr) {
             const date = new Date(dateStr);
             if (Number.isNaN(date.getTime())) return fallback;
-            return titleForDay(date, t);
+            return titleForDay(date, t, locale.value);
         }
 
         // /week/YYYY-Www
         if (path.startsWith('/week/') && dateStr) {
-            return titleForWeek(dateStr, t) ?? fallback;
+            return titleForWeek(dateStr, t, locale.value) ?? fallback;
         }
 
         // /month/YYYY-MM
         if (path.startsWith('/month/') && dateStr) {
-            return titleForMonth(dateStr) ?? fallback;
+            return titleForMonth(dateStr, locale.value) ?? fallback;
         }
 
         // /year/YYYY

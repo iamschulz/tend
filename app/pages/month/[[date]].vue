@@ -1,6 +1,7 @@
 <template>
     <div>
-        <OverviewMonth v-if="mounted && routeValid && !isInFuture" :date="date" />
+        <loading-indicator v-if="!mounted" />
+        <OverviewMonth v-else-if="routeValid && !isInFuture" :date="date" />
         <p v-else-if="isInFuture">{{ $t('futureMessage') }}</p>
         <p v-else-if="!routeValid">{{ $t('error') }}</p>
     </div>
@@ -43,7 +44,7 @@
 
 
     const mounted = ref(false)
-    onMounted(() => {
+    onNuxtReady(() => {
         mounted.value = true
     })
     onBeforeUnmount(() => {

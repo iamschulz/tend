@@ -1,18 +1,13 @@
 <template>
     <div>
-
-        <tracker-day hydrate-on-visible />
+        <tracker-day v-if="ready" />
+        <loading-indicator v-else />
     </div>
 </template>
 
 <script setup lang="ts">
-    const mounted = ref(false)
-
-    onMounted(() => {
-        mounted.value = true
-    })
-
-    onBeforeUnmount(() => {
-        mounted.value = false
+    const ready = ref(false)
+    onNuxtReady(() => {
+        ready.value = true
     })
 </script>
