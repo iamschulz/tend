@@ -1,33 +1,34 @@
 <template>
-    <form
-        class="categoryForm"
-        data-group
-        @submit.prevent="onAddCategory"
-    >
-        <input v-model="newCategoryData.color" type="color">
-
-        <select v-model="newCategoryData.activity" required>
-            <option
-                v-for="activity in activities"
-                :key="activity.title"
-                :value="activity"
-            >
-                {{ activity.emoji }}
-            </option>
-            </select>
-
-        <input
-            v-model="newCategoryData.title"
-            type="text"
-            :placeholder="$t('placeholder')"
-            required
+    <div class="categoryForm">
+        <form
+            data-group
+            @submit.prevent="onAddCategory"
         >
+            <input v-model="newCategoryData.color" type="color">
 
-        <button type="submit">
-            <nuxt-icon name="add" />
-            <span class="sr-only">{{ $t('add') }}</span>
-        </button>
-    </form>
+            <select v-model="newCategoryData.activity" required>
+                <option
+                    v-for="activity in activities"
+                    :key="activity.title"
+                    :value="activity"
+                >
+                    {{ activity.emoji }}
+                </option>
+                </select>
+
+            <input
+                v-model="newCategoryData.title"
+                type="text"
+                :placeholder="$t('placeholder')"
+                required
+            >
+
+            <button type="submit">
+                <nuxt-icon name="add" />
+                <span class="sr-only">{{ $t('add') }}</span>
+            </button>
+        </form>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -60,11 +61,49 @@ const onAddCategory = () => {
 </script>
 
 <style scoped>
-input[type="color"] {
-    height: 2.2rem;
-}
+    .categoryForm {
+        container-name: category-form;
+        container-type: inline-size;
+        margin-block: 1rem;
+    }
 
-input[type="text"] {
-        max-width: min(16ch, 50vw);
-}
+    input[type="color"] {
+        height: 2.2rem;
+    }
+
+    input[type="text"] {
+            max-width: min(16ch, 50vw);
+    }
+
+    @container category-form (width < 18rem) {
+        .categoryForm [data-group] {
+            display: grid;
+            grid-template-columns: 1fr auto;
+
+            > *, > :is(input, select, button) {
+                --br-tl: 0;
+                --br-tr: 0;
+                --br-bl: 0;
+                --br-br: 0;
+                width: 100%;
+                max-width: none;
+            }
+
+            :nth-child(1) {
+                --br-tl: var(--border-radius);
+            }
+
+            :nth-child(2) {
+                --br-tr: var(--border-radius);
+            }
+
+            :nth-child(3) {
+                --br-bl: var(--border-radius);
+            }
+
+            :nth-child(4) {
+                --br-br: var(--border-radius);
+            }
+        }
+    }
 </style>

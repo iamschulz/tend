@@ -1,6 +1,11 @@
 <template>
-    <DialogWrapper ref="menuEl" class="menu" data-shadow="5" name="menu" title="Tend">
-        <section>
+    <DialogWrapper ref="menuEl" class="menu" data-shadow="5" name="menu" title="🌱 Tend">
+        <details :open="!!data.categories.length" >
+            <summary><h3>{{ $t('selectDay') }}</h3></summary>
+            <TimeSelect v-if="ui.menuOpen" />
+        </details>
+        <details :open="!data.categories.length">
+            <summary><h3>{{ $t('categories') }}</h3></summary>
             <TransitionGroup name="list" tag="ul" class="nolist">
             <li v-if="data.categories.length === 0">{{ $t('addCategoryPrompt') }}</li>
 
@@ -9,14 +14,17 @@
             </li>
             </TransitionGroup>
             <hr>
-            <add-category-form />
-        </section>
+            <AddCategoryForm />
+        </details>
 
-        <hr>
+        <details>
+            <summary><h3>{{ $t('settings') }}</h3></summary>
+            <LanguageSelect />
+        </details>
 
-        <TimeSelect v-if="ui.menuOpen" />
-
-        <LanguageSelect />
+        <div class="menu-footer">
+            <p><span class="appname">🌱 Tend</span> | made with ♥ | {{ new Date().getUTCFullYear() }}</p>
+        </div>
     </DialogWrapper>
 </template>
 
@@ -71,12 +79,13 @@
     }
 
     dialog.menu {
+        --menu-width: 440px;
         max-height: 100vh;
         height: 100vh;
         border-radius: 0 var(--border-radius)(--border-radius) 0;
-        width: min(400px, 80vw);
-        max-width: min(400px, 80vw);
-        left: calc(-100% + min(400px, 80vw));
+        width: min(var(--menu-width), 80vw);
+        max-width: min(var(--menu-width), 80vw);
+        left: calc(-100% + min(var(--menu-width), 80vw));
         @media (prefers-reduced-motion: no-preference) {
 	    	animation: dialog-fade-in 0.2s ease-out;
 	    }
@@ -87,26 +96,58 @@
             }
         }
 
-        ul {
-        position: relative;
+        h3 {
+            margin-block: 0;
+        }
+
+        details {
+            margin-block: 1rem;
+
+            summary + * {
+                margin-block-start: 2rem;
+            }
+        }
+
+        hr {
+            margin-block: 2rem;
         }
 
         li {
             margin-block: 1rem;
         }
 
-        hr {
-            margin: 2rem 0;
+        .menu-footer {
+            margin-top: auto;
+            width: 100%;
+            max-width: min(var(--menu-width), 80vw);
+            color: var(--col-fg2);
+
+            .appname {
+                color: var(--col-fg);
+                font-weight: 700;
+            }
         }
     }
 </style>
 
 <style>
+    dialog[open].menu {
+        display: flex;
+        flex-direction: column;
+    }
+
+    dialog[open].menu .dialog-inner {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
     dialog[open].menu .backdrop {
         inset: unset;
         right: 0;
         top: 0;
         bottom: 0;
-        left: min(400px, 80vw);
+        left: min(var(--menu-width), 80vw);
     }
 </style>

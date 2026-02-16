@@ -1,6 +1,6 @@
 <template>
     <footer>
-        <p>footer</p>
+        <p>Tend (2027)</p>
     </footer>
 </template>
 

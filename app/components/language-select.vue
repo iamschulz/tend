@@ -1,11 +1,20 @@
 <script setup>
-const { locales, setLocale } = useI18n()
+const { locale, locales, setLocale } = useI18n()
 </script>
 
 <template>
   <div>
-    <button v-for="locale in locales" :key="locale.name" @click="setLocale(locale.code)">
-      {{ locale.name }}
-    </button>
+    <label for="language-select">{{ $t("language") }}: </label>
+    <select id="language-select" :value="locale" @change="setLocale(($event.target).value)">
+      <option v-for="loc in locales" :key="loc.code" :value="loc.code">
+        {{ loc.name }}
+      </option>
+    </select>
   </div>
 </template>
+
+<style scoped>
+  div {
+    margin-block: 1rem;
+  }
+</style>

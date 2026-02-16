@@ -7,7 +7,7 @@
     <NuxtRouteAnnouncer />
     <TriggerGroup v-if="mounted" />
   </main>
-  <main-footer />
+  
 </template>
 
 <script setup lang="ts">

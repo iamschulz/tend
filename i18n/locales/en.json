@@ -1,4 +1,9 @@
 {
+    "selectDay": "Select day",
+    "categories": "Categories",
+    "settings": "Settings",
+    "language": "Language",
+
     "today": "Today",
     "yesterday": "Yesterday",
     "week": "Week",
@@ -17,7 +22,6 @@
     "delete": "Delete",
     "add": "Add",
     "go": "Go",
-    "selectDay": "Select day",
 
     "addCategoryPrompt": "Add a tracking category!",
     "whatHabit": "What habit do you want to track?",

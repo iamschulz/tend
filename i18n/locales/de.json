@@ -1,4 +1,9 @@
 {
+    "selectDay": "Tag wählen",
+    "categories": "Kategorien",
+    "settings": "Einstellungen",
+    "language": "Sprache",
+
     "today": "Heute",
     "yesterday": "Gestern",
     "week": "Woche",
@@ -17,7 +22,6 @@
     "delete": "Löschen",
     "add": "Hinzufügen",
     "go": "Los",
-    "selectDay": "Tag wählen",
 
     "addCategoryPrompt": "Füge eine Kategorie hinzu!",
     "whatHabit": "Welche Gewohnheit möchtest du tracken?",
