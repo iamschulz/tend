@@ -1,6 +1,20 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
+
+  app: {
+    head: {
+      script: [
+        {
+          // Render-blocking inline script: applies the user's saved theme
+          // preference before first paint to prevent a flash of wrong theme.
+          // Runs outside of Nuxt/Vue — raw browser JS in <head>.
+          innerHTML: `(function(){var s=localStorage.getItem('force-scheme');if(s==='light'||s==='dark'){document.documentElement.setAttribute('force-scheme',s)}})()`,
+          tagPosition: 'head'
+        }
+      ]
+    }
+  },
   devtools: {
     enabled: true,
 

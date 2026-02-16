@@ -2,12 +2,24 @@
     --font: 'Quicksand';
     --font-accent: 'Quicksand';
     --col-fg: #222;
+    --animation-duration: 0.3s;   
+}
+
+[force-scheme="light"] {
+    --col-fg: #222;
+    color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([force-scheme="light"]) {
         --col-fg: #ddd;
+        color-scheme: dark;
     }
+}
+
+[force-scheme="dark"] {
+    --col-fg: #ddd;
+    color-scheme: dark;
 }
 
 :is(button) {

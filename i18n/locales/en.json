@@ -3,6 +3,10 @@
     "categories": "Categories",
     "settings": "Settings",
     "language": "Language",
+    "theme": "Theme",
+    "autoTheme": "Auto Theme",
+    "lightTheme": "Light Theme",
+    "darkTheme": "Dark Theme",
 
     "today": "Today",
     "yesterday": "Yesterday",

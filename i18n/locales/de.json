@@ -3,6 +3,10 @@
     "categories": "Kategorien",
     "settings": "Einstellungen",
     "language": "Sprache",
+    "theme": "Helligkeit",
+    "autoTheme": "Automatisch",
+    "lightTheme": "Heller Modus",
+    "darkTheme": "Dunkler Modus",
 
     "today": "Heute",
     "yesterday": "Gestern",

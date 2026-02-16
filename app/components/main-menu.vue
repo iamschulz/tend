@@ -20,6 +20,7 @@
         <details>
             <summary><h3>{{ $t('settings') }}</h3></summary>
             <LanguageSelect />
+            <DisplaySettings />
         </details>
 
         <div class="menu-footer">
@@ -29,6 +30,8 @@
 </template>
 
 <script lang="ts" setup>
+import DisplaySettings from '~/assets/icons/display-settings.vue';
+
     const ui = useUiStore();
     const data = useDataStore();
 </script>
