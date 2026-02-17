@@ -16,9 +16,10 @@
         v-else 
         v-bind="{ style: `--categoryColor: ${category.color}`, }"
         @click="data.closeAllEntries(category.id)"
+        class="running"
     >
-        <nuxt-icon name="stop" />
-        <span class="sr-only">{{ $t('stop') }}</span>
+        {{ category.activity.emoji }}
+        <span class="sr-only">{{ $t('stop') }} {{ category.title }}</span>
     </button>
 </template>
 
@@ -96,8 +97,27 @@
     }
 
     @keyframes progress-fill {
+        0% { --progress: 0; }
         20% { --progress: 0; }
         100%   { --progress: 1; }
+    }
+
+    @keyframes progress-pulse {
+        0% { --progress: 0.2; }
+        20% { --progress: 0.2; }
+        80%   { --progress: 0.8; }
+        100%   { --progress: 0.8; }
+    }
+
+    @keyframes running {
+        0% { 
+            --progress: 0.75;
+            transform: rotate(0);
+        }
+        100%   { 
+            --progress: 0.75;
+            transform: rotate(360deg);
+        }
     }
 
     button {
@@ -125,6 +145,10 @@
 
         &.loading::before {
             animation: progress-fill 0.8s ease-out forwards;
+        }
+
+        &.running::before {
+            animation: running 1.5s linear forwards infinite, progress-pulse 5s ease-in-out alternate infinite;
         }
     }
 </style>

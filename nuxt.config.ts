@@ -48,6 +48,7 @@ export default defineNuxtConfig({
     'ssstyles/css/avatar.css', 
     'ssstyles/css/animation.css', 
     'ssstyles/css/shadow.css', 
+    'ssstyles/css/loading.css', 
     '~/assets/css/fixes.css',
     '~/assets/css/theme.css',
     '~/assets/css/srOnly.css',
