@@ -12,7 +12,9 @@
     "test": "vitest run",
     "test:unit": "vitest run",
     "test:e2e": "nuxt build && vitest run --config vitest.e2e.config.ts",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "seed": "tsx scripts/generate-seed-data.ts"
   },
   "dependencies": {
     "@nuxt/a11y": "^1.0.0-alpha.1",
@@ -35,6 +37,7 @@
     "@pinia/testing": "^1.0.3",
     "@types/node": "^25.2.1",
     "puppeteer": "^24.37.3",
+    "tsx": "^4.21.0",
     "vitest": "^3.2.4"
   }
 }

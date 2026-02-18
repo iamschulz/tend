@@ -18,6 +18,9 @@ logs
 .fleet
 .idea
 
+# Generated seed data
+tmp
+
 # Local env files
 .env
 .env.*
