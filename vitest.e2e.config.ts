@@ -8,7 +8,8 @@ export default defineConfig({
     },
   },
   test: {
-    include: ['test/**/*.spec.ts'],
-    exclude: ['test/e2e/**'],
+    include: ['test/e2e/**/*.spec.ts'],
+    testTimeout: 30_000,
+    hookTimeout: 30_000,
   },
 })
