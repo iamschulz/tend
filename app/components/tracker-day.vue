@@ -1,18 +1,15 @@
 <template>
     <TransitionGroup name="list" tag="ul" class="nolist">
         <li ref="loaderEl" key="loader" class="loader" />
-        <li v-if="data.categories.length === 0" key="0">
-            <p>{{ $t('whatHabit') }}</p>
-            <add-category-form />
+        
+        <li v-if="data.hasNoEntries" key="firststeps">
+            <FirstSteps 
+                :has-categories="data.categories.length > 0"
+                :has-entries="data.categories.length > 0 && entries.length > 0"
+            />
         </li>
 
-        <li v-if="data.categories.length > 0 && entries.length === 0">
-            <p>
-                {{ $t('tutorialStart') }} <span class="tutorial-emoji" :style="`--shadow-color: ${data.categories[0]!.color}`">{{ data.categories[0]!.activity.emoji }}</span>{{ $t('tutorialButton') }}<br>
-                {{ $t('tutorialHold') }}
-            </p>
-            <p>{{ $t('tutorialMore') }}</p>
-        </li>
+        <li v-else-if="entries.length === 0" key="nothingtoday">{{ $t("nothingToday") }}</li>
 
         <!-- display all entries from today -->
         <li v-for="(entry, index) in entries" :key="entry.id">

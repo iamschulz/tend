@@ -30,6 +30,10 @@ export const useDataStore = defineStore('data', {
                 )
                 .sort((x, y) => y.start - x.start);
         },
+
+        hasNoEntries(state): boolean {
+            return state.categories.filter(x => x.entries.length > 0).length === 0;
+        }
     },
 
     actions: {        
