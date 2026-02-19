@@ -122,6 +122,7 @@
 
     "data": "Data",
     "import": "Import",
+    "export": "Export",
     "importConfirm": "Import will delete all existing data. Continue?",
     "importError": "Invalid import file format."
 }

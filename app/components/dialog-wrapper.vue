@@ -1,7 +1,7 @@
 <template>
     <dialog ref="dialogEl">
         <header>
-            <div><h2 v-if="title">{{ title }}</h2></div>
+            <div class="headline"><h2 v-if="title">{{ title }}</h2></div>
             <button class="closeButton nobutton" @click="() => closeDialog()">
                 <nuxt-icon name="close" size="36" />
                 <span class="sr-only">{{ $t('close') }}</span>
@@ -68,6 +68,10 @@
             min-height: 3.5rem;
             padding-right: 0.6rem;
             background: transparent;
+
+            .headline {
+                width: 100%;
+            }
 
             h2 {
                 margin-block: 0;

@@ -25,7 +25,10 @@
 
         <details>
             <summary><h3>{{ $t('data') }}</h3></summary>
-            <DataImport />
+            <div data-group>
+                <DataImport />
+                <DataExport />
+            </div>
         </details>
 
         <div class="menu-footer">
