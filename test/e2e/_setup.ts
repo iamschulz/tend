@@ -108,9 +108,18 @@ export async function getPage(path: string): Promise<Page> {
   return page
 }
 
-/** Navigate to a path and wait for hydration. Reuses the existing page. */
+/** Navigate to a path using client-side Vue Router push. Preserves Pinia store state. */
 export async function navigateTo(page: Page, path: string): Promise<void> {
-  await page.goto(`${baseUrl}${path}`, { waitUntil: 'networkidle' })
+  await page.evaluate((p: string) => {
+    const el = document.querySelector('#__nuxt') as any
+    const router = el?.__vue_app__?.config?.globalProperties?.$router
+    if (router) router.push(p)
+  }, path)
+  await page.waitForFunction(
+    (p: string) => window.location.pathname === p,
+    path,
+    { timeout: 10_000 },
+  )
   await page.waitForFunction(() => !document.querySelector('[data-loading]'), undefined, { timeout: 10_000 })
 }
 

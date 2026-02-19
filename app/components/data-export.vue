@@ -8,6 +8,6 @@
     const data = useDataStore()
 
     function handleExport() {
-        downloadExportData(data.categories)
+        downloadExportData(data.categories, data.entries)
     }
 </script>

@@ -27,8 +27,10 @@
     }>()
     const category = reactive({ ...props.category })
 
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null
     watch(category, (updatedCategory: Category) => {
-        data.updateCategory(updatedCategory)
+        if (debounceTimer) clearTimeout(debounceTimer)
+        debounceTimer = setTimeout(() => data.updateCategory(updatedCategory), 300)
     }, { deep: true })
 
     const data = useDataStore();

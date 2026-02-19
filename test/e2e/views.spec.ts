@@ -215,16 +215,18 @@ describe('Views', () => {
       if (!app) return
       const pinia = app.config.globalProperties.$pinia
       const state = pinia.state.value.data
-      const emptyCat = state.categories.find((c: any) => c.entries.length === 0)
+      // Find a category that has no entries in the flat entries array
+      const catWithEntries = new Set((state.entries as any[]).map((e: any) => e.categoryId))
+      const emptyCat = state.categories.find((c: any) => !catWithEntries.has(c.id))
       if (!emptyCat) return
       const now = Date.now()
-      emptyCat.entries.push({
+      state.entries = [...state.entries, {
         id: crypto.randomUUID(),
         start: now,
         end: now,
         running: false,
         categoryId: emptyCat.id,
-      })
+      }]
     })
     /* eslint-enable @typescript-eslint/no-explicit-any */
 

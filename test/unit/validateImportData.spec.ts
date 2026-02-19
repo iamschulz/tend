@@ -153,8 +153,16 @@ describe('validateImportData', () => {
     describe('seed data validation', () => {
         const seedData = generateSeedData()
 
-        it('passes validation', () => {
-            expect(validateImportData(seedData)).toBe(true)
+        // Nest entries back into categories (import/export format)
+        const nested = {
+            categories: seedData.categories.map(cat => ({
+                ...cat,
+                entries: seedData.entries.filter(e => e.categoryId === cat.id),
+            })),
+        }
+
+        it('passes validation when nested for import', () => {
+            expect(validateImportData(nested)).toBe(true)
         })
 
         it('has 5 categories', () => {
@@ -162,16 +170,15 @@ describe('validateImportData', () => {
         })
 
         it('every category has at least one entry', () => {
-            for (const category of seedData.categories) {
+            for (const category of nested.categories) {
                 expect(category.entries.length).toBeGreaterThan(0)
             }
         })
 
-        it('every entry has a categoryId matching its parent', () => {
-            for (const category of seedData.categories) {
-                for (const entry of category.entries) {
-                    expect(entry.categoryId).toBe(category.id)
-                }
+        it('every entry has a categoryId matching an existing category', () => {
+            const categoryIds = new Set(seedData.categories.map(c => c.id))
+            for (const entry of seedData.entries) {
+                expect(categoryIds.has(entry.categoryId)).toBe(true)
             }
         })
     })

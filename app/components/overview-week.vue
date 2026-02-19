@@ -40,25 +40,39 @@
     const today = new Date();
     const isCurrentWeek = today >= weekRange[0] && today <= weekRange[1];
     const todayName = isCurrentWeek ? getWeekDayName(today) : null;
-    const populateWeek = (entries: EntryWithCategory[]): Week => {
-        const week: Week = {}
-        for (let i=0; i < 7; i++) {
-            const currentDayRange = getDayRange(new Date(props.date));
-            currentDayRange[0].setUTCDate(currentDayRange[0].getUTCDate() + i);
-            currentDayRange[1].setUTCDate(currentDayRange[1].getUTCDate() + i);
-            const nextWeekday = getWeekDayName(currentDayRange[0]);
-            const dayEntries = entries.filter(
-                entry => getDayRange(new Date(entry.start))[0].toString() === currentDayRange[0].toString()
-            ).reverse();
-            week[nextWeekday] = dayEntries;
-        }
-        return week;
-    }
 
-    const week = ref(populateWeek(entries.value));
-    watch(entries, (updatedEntries: EntryWithCategory[]) => {
-        week.value = populateWeek(updatedEntries);
-    }, { deep: true })
+    // Pre-bucket entries by day-of-week in one pass
+    const week = computed<Week>(() => {
+        // Build day start dates for each weekday
+        const dayStarts: { name: string; start: string }[] = [];
+        for (let i = 0; i < 7; i++) {
+            const dayDate = new Date(props.date);
+            dayDate.setUTCDate(dayDate.getUTCDate() + i);
+            dayStarts.push({
+                name: getWeekDayName(dayDate),
+                start: getDayRange(dayDate)[0].toString(),
+            });
+        }
+
+        // Initialize buckets
+        const result: Week = {};
+        for (const d of dayStarts) {
+            result[d.name] = [];
+        }
+
+        // Single pass over entries
+        for (const entry of entries.value) {
+            const entryDayStr = getDayRange(new Date(entry.start))[0].toString();
+            for (const d of dayStarts) {
+                if (d.start === entryDayStr) {
+                    result[d.name]!.unshift(entry);
+                    break;
+                }
+            }
+        }
+
+        return result;
+    });
 
     // scroll to current day
     const days = ref<HTMLElement[] | null>(null);

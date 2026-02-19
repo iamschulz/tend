@@ -17,15 +17,19 @@ export type Category = {
     title: string;
     activity: Activity;
     color: string;
-    entries: Entry[]; 
 }
 
 export type EntryWithCategory = Entry & {
-    category: Omit<Category, 'entries'> | undefined;
+    category: Category | undefined;
 };
 
 export type CategoryData = {
   title: string;
   color: string;
   activity: Activity;
+};
+
+/** Category bundled with its entries, used for import/export JSON format */
+export type CategoryWithEntries = Category & {
+    entries: Entry[];
 };

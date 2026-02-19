@@ -1,4 +1,4 @@
-import type { Category } from '~/types/Category'
+import type { Category, Entry, CategoryWithEntries } from '~/types/Category'
 
 export function buildExportFilename(): string {
     const now = new Date()
@@ -8,8 +8,13 @@ export function buildExportFilename(): string {
     return `${dd}-${mm}-${yyyy}.tend.json`
 }
 
-export function downloadExportData(categories: Category[]): void {
-    const data = { categories }
+export function downloadExportData(categories: Category[], entries: Entry[]): void {
+    // Re-nest entries into categories for backward-compatible export format
+    const nested: CategoryWithEntries[] = categories.map(cat => ({
+        ...cat,
+        entries: entries.filter(e => e.categoryId === cat.id),
+    }))
+    const data = { categories: nested }
     const json = JSON.stringify(data, null, 2)
     const blob = new Blob([json], { type: 'application/json' })
     const url = URL.createObjectURL(blob)

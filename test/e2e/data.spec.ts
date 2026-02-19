@@ -81,7 +81,14 @@ describe('Data export', () => {
 
     it('import then export round-trip passes validation', async () => {
         const seedData = generateSeedData()
-        const seedJson = JSON.stringify(seedData)
+        // Nest entries into categories for import-compatible format
+        const nested = {
+            categories: seedData.categories.map(cat => ({
+                ...cat,
+                entries: seedData.entries.filter(e => e.categoryId === cat.id),
+            })),
+        }
+        const seedJson = JSON.stringify(nested)
 
         // Import seed data via the file input
         await openMenu(page)

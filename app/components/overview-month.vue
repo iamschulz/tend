@@ -28,7 +28,6 @@
 
 <script setup lang="ts">
     import { getMonthRange } from '~/util/getMonthRange';
-    import { getDayRange } from '~/util/getDayRange';
     import { getWeekdays } from '~/contants/weekdays';
 
     const { t } = useI18n();
@@ -56,6 +55,22 @@
 
     const todayStr = new Date().toISOString().slice(0, 10);
 
+    // Pre-bucket entries by day (dd) in one pass — O(E) instead of O(days × E)
+    const entriesByDay = computed(() => {
+        const buckets = new Map<number, typeof entries.value>();
+        for (const entry of entries.value) {
+            const d = new Date(entry.start);
+            const day = d.getUTCDate();
+            let bucket = buckets.get(day);
+            if (!bucket) {
+                bucket = [];
+                buckets.set(day, bucket);
+            }
+            bucket.push(entry);
+        }
+        return buckets;
+    });
+
     const calendarCells = computed<(DayCell | null)[]>(() => {
         const year = props.date.getUTCFullYear();
         const month = props.date.getUTCMonth();
@@ -65,15 +80,11 @@
         const firstDayOfWeek = (new Date(Date.UTC(year, month, 1)).getUTCDay() + 6) % 7;
 
         const cells: (DayCell | null)[] = Array(firstDayOfWeek).fill(null);
+        const byDay = entriesByDay.value;
 
         for (let day = 1; day <= daysInMonth; day++) {
             const current = new Date(Date.UTC(year, month, day));
-            const [dayStart, dayEnd] = getDayRange(current);
-
-            const dayEntries = entries.value.filter(entry => {
-                const start = new Date(entry.start);
-                return start >= dayStart && start <= dayEnd;
-            });
+            const dayEntries = byDay.get(day) ?? [];
 
             const seen = new Map<string, { id: string; title: string; color: string; count: number }>();
             for (const entry of dayEntries) {

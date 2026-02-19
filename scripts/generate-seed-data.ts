@@ -15,10 +15,9 @@ type Category = {
   title: string;
   activity: Activity;
   color: string;
-  entries: Entry[];
 };
 
-export type SeedData = { categories: Category[] };
+export type SeedData = { categories: Category[]; entries: Entry[] };
 
 // ---------------------------------------------------------------------------
 // Seeded PRNG — mulberry32
@@ -38,7 +37,7 @@ function mulberry32(seed: number) {
 // Constants — 5 categories
 // ---------------------------------------------------------------------------
 
-const CATEGORIES_DEF: Omit<Category, "entries">[] = [
+const CATEGORIES_DEF: Category[] = [
   {
     id: "seed-cat-1",
     title: "Work",
@@ -335,20 +334,12 @@ export function generateSeedData(): SeedData {
   // Main loop
   // -------------------------------------------------------------------------
 
-  const categories: Category[] = CATEGORIES_DEF.map((c) => ({
-    ...c,
-    entries: [],
-  }));
-
-  function categoryById(id: string): Category {
-    return categories.find((c) => c.id === id)!;
-  }
+  const categories: Category[] = [...CATEGORIES_DEF];
+  const entries: Entry[] = [];
 
   // Inject edge case entries first
   for (const ec of edgeCases) {
-    categoryById(ec.categoryId).entries.push(
-      makeEntry(ec.categoryId, ec.start, ec.end, ec.id)
-    );
+    entries.push(makeEntry(ec.categoryId, ec.start, ec.end, ec.id));
   }
 
   // Date range: 2025-01-01 through 2026-01-01, plus yesterday and today
@@ -380,23 +371,16 @@ export function generateSeedData(): SeedData {
     const m = dt.getUTCMonth();
     const d = dt.getUTCDate();
 
-    const sleepEntries = generateSleepEntries(y, m, d);
-    const workEntries = generateWorkEntries(y, m, d);
-    const commuteEntries = generateCommuteEntries(y, m, d);
-    const exerciseEntries = generateExerciseEntries(y, m, d);
-    const coffeeEntries = generateCoffeeEntries(y, m, d);
-
-    categoryById("seed-cat-2").entries.push(...sleepEntries);
-    categoryById("seed-cat-1").entries.push(...workEntries);
-    categoryById("seed-cat-5").entries.push(...commuteEntries);
-    categoryById("seed-cat-3").entries.push(...exerciseEntries);
-    categoryById("seed-cat-4").entries.push(...coffeeEntries);
+    entries.push(
+      ...generateSleepEntries(y, m, d),
+      ...generateWorkEntries(y, m, d),
+      ...generateCommuteEntries(y, m, d),
+      ...generateExerciseEntries(y, m, d),
+      ...generateCoffeeEntries(y, m, d),
+    );
   }
 
-  // Sort entries within each category by start time
-  for (const cat of categories) {
-    cat.entries.sort((a, b) => a.start - b.start);
-  }
+  entries.sort((a, b) => a.start - b.start);
 
-  return { categories };
+  return { categories, entries };
 }

@@ -25,6 +25,7 @@
     "@nuxtjs/i18n": "^10.2.3",
     "@pinia/nuxt": "^0.11.3",
     "eslint": "^9.39.2",
+    "idb-keyval": "^6.2.2",
     "nuxt": "^4.3.0",
     "nuxt-icons": "^4.0.0",
     "pinia": "^3.0.4",

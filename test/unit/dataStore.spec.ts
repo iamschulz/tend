@@ -30,14 +30,13 @@ describe('useDataStore', () => {
 
   // --- addCategory ---
   describe('addCategory', () => {
-    it('creates a category with a UUID and empty entries', () => {
+    it('creates a category with a UUID', () => {
       const store = useDataStore()
       store.addCategory({ title: 'Work', color: '#ff0000', activity: sampleActivity })
 
       expect(store.categories).toHaveLength(1)
       expect(store.categories[0]!.id).toBe('uuid-1')
       expect(store.categories[0]!.title).toBe('Work')
-      expect(store.categories[0]!.entries).toEqual([])
     })
   })
 
@@ -73,21 +72,24 @@ describe('useDataStore', () => {
 
   // --- deleteCategory ---
   describe('deleteCategory', () => {
-    it('removes the correct category', () => {
+    it('removes the correct category and its entries', () => {
       const store = useDataStore()
       store.addCategory({ title: 'A', color: '#f00', activity: sampleActivity })
       store.addCategory({ title: 'B', color: '#0f0', activity: sampleActivity })
       const idA = store.categories[0]!.id
 
+      store.addEntry(makeEntry({ categoryId: idA }))
       store.deleteCategory(idA)
+
       expect(store.categories).toHaveLength(1)
       expect(store.categories[0]!.title).toBe('B')
+      expect(store.entries).toHaveLength(0)
     })
   })
 
   // --- addEntry / deleteEntry ---
   describe('addEntry', () => {
-    it('adds entry to the correct category', () => {
+    it('adds entry to the flat entries array', () => {
       const store = useDataStore()
       store.addCategory({ title: 'Work', color: '#f00', activity: sampleActivity })
       const catId = store.categories[0]!.id
@@ -95,13 +97,13 @@ describe('useDataStore', () => {
       const entry = makeEntry({ categoryId: catId })
       store.addEntry(entry)
 
-      expect(store.categories[0]!.entries).toHaveLength(1)
-      expect(store.categories[0]!.entries[0]!.id).toBe(entry.id)
+      expect(store.entries).toHaveLength(1)
+      expect(store.entries[0]!.id).toBe(entry.id)
     })
   })
 
   describe('deleteEntry', () => {
-    it('removes the entry across categories', () => {
+    it('removes the entry from the flat array', () => {
       const store = useDataStore()
       store.addCategory({ title: 'Work', color: '#f00', activity: sampleActivity })
       const catId = store.categories[0]!.id
@@ -110,7 +112,7 @@ describe('useDataStore', () => {
       store.addEntry(entry)
       store.deleteEntry(entry.id)
 
-      expect(store.categories[0]!.entries).toHaveLength(0)
+      expect(store.entries).toHaveLength(0)
     })
   })
 
@@ -250,7 +252,7 @@ describe('useDataStore', () => {
       store.addEntry(entry)
       store.closeEntry(entry.id)
 
-      const closed = store.categories[0]!.entries[0]!
+      const closed = store.entries[0]!
       expect(closed.running).toBe(false)
       expect(closed.end).toBeTypeOf('number')
     })
@@ -258,7 +260,7 @@ describe('useDataStore', () => {
 
   // --- importData ---
   describe('importData', () => {
-    it('replaces all categories', () => {
+    it('replaces all categories and entries from legacy format', () => {
       const store = useDataStore()
       store.addCategory({ title: 'Old', color: '#f00', activity: sampleActivity })
 
@@ -277,7 +279,7 @@ describe('useDataStore', () => {
       expect(store.categories).toHaveLength(1)
       expect(store.categories[0]!.title).toBe('Imported')
       expect(store.categories[0]!.id).toBe('imp-1')
-      expect(store.categories[0]!.entries).toHaveLength(1)
+      expect(store.entries).toHaveLength(1)
     })
   })
 
@@ -292,7 +294,7 @@ describe('useDataStore', () => {
       store.addEntry(makeEntry({ categoryId: catId, running: true, end: null }))
       store.closeAllEntries(catId)
 
-      for (const entry of store.categories[0]!.entries) {
+      for (const entry of store.entries) {
         expect(entry.running).toBe(false)
         expect(entry.end).toBeTypeOf('number')
       }

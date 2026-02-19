@@ -37,6 +37,7 @@
     import { useDataStore } from '~/stores/data';
     import type { EntryWithCategory } from '~/types/Category';
     import { formatDuration } from '~/util/formatDuration';
+    import { useSharedNow } from '~/composables/useSharedNow';
 
     const { t } = useI18n();
     const data = useDataStore();
@@ -46,17 +47,7 @@
         entry: EntryWithCategory
     }>()
 
-    const now = ref<number>(Date.now())
-    let interval: ReturnType<typeof setInterval>
-
-    onMounted(() => {
-        interval = setInterval(() => {
-            now.value = Date.now()
-        }, 1000) // update every second
-    })
-    onUnmounted(() => {
-        clearInterval(interval)
-    })
+    const now = useSharedNow()
 
     const duration = computed(() => formatDuration(props.entry.start, now.value, t))
 

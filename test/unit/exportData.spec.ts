@@ -30,7 +30,12 @@ describe('buildExportFilename', () => {
 describe('export round-trip', () => {
     it('exported seed data passes validateImportData', () => {
         const seedData = generateSeedData()
-        const json = JSON.stringify({ categories: seedData.categories })
+        // Re-nest entries into categories (export format)
+        const nested = seedData.categories.map(cat => ({
+            ...cat,
+            entries: seedData.entries.filter(e => e.categoryId === cat.id),
+        }))
+        const json = JSON.stringify({ categories: nested })
         const parsed: unknown = JSON.parse(json)
         expect(validateImportData(parsed)).toBe(true)
     })

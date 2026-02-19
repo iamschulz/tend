@@ -14,7 +14,6 @@
 
 <script setup lang="ts">
     import { getYearRange } from '~/util/getYearRange'
-    import { getMonthRange } from '~/util/getMonthRange'
 
     const { t } = useI18n();
 
@@ -52,17 +51,28 @@
         currentMonthEl?.scrollIntoView({ block: 'center', behavior: 'smooth' });
     });
 
+    // Pre-bucket entries by month in one pass — O(E) instead of O(12 × E)
+    const entriesByMonth = computed(() => {
+        const buckets = new Map<number, typeof entries.value>();
+        for (const entry of entries.value) {
+            const m = new Date(entry.start).getUTCMonth();
+            let bucket = buckets.get(m);
+            if (!bucket) {
+                bucket = [];
+                buckets.set(m, bucket);
+            }
+            bucket.push(entry);
+        }
+        return buckets;
+    });
+
     const monthCells = computed<MonthCell[]>(() => {
         const cells: MonthCell[] = [];
+        const byMonth = entriesByMonth.value;
 
         for (let m = 0; m < 12; m++) {
             const monthDate = new Date(Date.UTC(year, m, 1));
-            const [monthStart, monthEnd] = getMonthRange(monthDate);
-
-            const monthEntries = entries.value.filter(entry => {
-                const start = new Date(entry.start);
-                return start >= monthStart && start <= monthEnd;
-            });
+            const monthEntries = byMonth.get(m) ?? [];
 
             const seen = new Map<string, { id: string; title: string; color: string; count: number }>();
             for (const entry of monthEntries) {

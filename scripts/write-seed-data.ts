@@ -4,7 +4,7 @@ import { fileURLToPath } from "url";
 import { generateSeedData } from "./generate-seed-data";
 
 const data = generateSeedData();
-const { categories } = data;
+const { categories, entries } = data;
 
 // ---------------------------------------------------------------------------
 // Output
@@ -14,20 +14,25 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const tmpDir = resolve(__dirname, "..", "tmp");
 mkdirSync(tmpDir, { recursive: true });
 const outPath = resolve(tmpDir, "seed-data.json");
-writeFileSync(outPath, JSON.stringify(data, null, 2));
+
+// Nest entries into categories for import-compatible format
+const exportData = {
+  categories: categories.map((cat) => ({
+    ...cat,
+    entries: entries.filter((e) => e.categoryId === cat.id),
+  })),
+};
+writeFileSync(outPath, JSON.stringify(exportData, null, 2));
 
 // ---------------------------------------------------------------------------
 // Summary
 // ---------------------------------------------------------------------------
 
-const totalEntries = categories.reduce((sum, c) => sum + c.entries.length, 0);
-const runningEntries = categories.reduce(
-  (sum, c) => sum + c.entries.filter((e) => e.running).length,
-  0
-);
+const totalEntries = entries.length;
+const runningEntries = entries.filter((e) => e.running).length;
 
 const startDate = new Date(Date.UTC(2025, 0, 1));
-const allStarts = categories.flatMap((c) => c.entries.map((e) => e.start));
+const allStarts = entries.map((e) => e.start);
 const endDate = new Date(Math.max(...allStarts));
 
 console.log("=== Seed Data Generated ===");
@@ -40,5 +45,6 @@ console.log(`Running entries: ${runningEntries}`);
 console.log("");
 console.log("Per-category counts:");
 for (const cat of categories) {
-  console.log(`  ${cat.title}: ${cat.entries.length}`);
+  const count = entries.filter((e) => e.categoryId === cat.id).length;
+  console.log(`  ${cat.title}: ${count}`);
 }

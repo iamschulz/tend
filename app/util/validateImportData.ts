@@ -1,7 +1,7 @@
-import type { Activity, Category, Entry } from '~/types/Category'
+import type { Activity, Entry, CategoryWithEntries } from '~/types/Category'
 
 export type ImportData = {
-    categories: Category[]
+    categories: CategoryWithEntries[]
 }
 
 function isActivity(value: unknown): value is Activity {
@@ -22,7 +22,7 @@ function isEntry(value: unknown): value is Entry {
         && typeof obj.categoryId === 'string'
 }
 
-function isCategory(value: unknown): value is Category {
+function isCategory(value: unknown): value is CategoryWithEntries {
     if (typeof value !== 'object' || value === null) { return false }
     const obj = value as Record<string, unknown>
     return typeof obj.id === 'string'
