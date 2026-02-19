@@ -15,8 +15,8 @@
     <button 
         v-else 
         v-bind="{ style: `--categoryColor: ${category.color}`, }"
-        @click="data.closeAllEntries(category.id)"
         class="running"
+        @click="data.closeAllEntries(category.id)"
     >
         {{ category.activity.emoji }}
         <span class="sr-only">{{ $t('stop') }} {{ category.title }}</span>

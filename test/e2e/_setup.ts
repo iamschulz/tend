@@ -111,7 +111,7 @@ export async function getPage(path: string): Promise<Page> {
 /** Navigate to a path using client-side Vue Router push. Preserves Pinia store state. */
 export async function navigateTo(page: Page, path: string): Promise<void> {
   await page.evaluate((p: string) => {
-    const el = document.querySelector('#__nuxt') as any
+    const el = document.querySelector('#__nuxt') as any // eslint-disable-line
     const router = el?.__vue_app__?.config?.globalProperties?.$router
     if (router) router.push(p)
   }, path)
