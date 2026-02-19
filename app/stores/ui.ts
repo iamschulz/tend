@@ -12,6 +12,7 @@ export const useUiStore = defineStore('ui', {
     confirmMessage: '',
     errorOpen: false,
     errorMessage: '',
+    triggerDialogOpen: false,
   }),
 
   getters: {
@@ -21,6 +22,7 @@ export const useUiStore = defineStore('ui', {
     menu: (state) => state.menuOpen,
     confirm: (state) => state.confirmOpen,
     error: (state) => state.errorOpen,
+    triggerDialog: (state) => state.triggerDialogOpen,
   },
 
   actions: {
@@ -37,6 +39,10 @@ export const useUiStore = defineStore('ui', {
       const open = force === undefined ? !this.confirmOpen : force;
       this.confirmOpen = open;
       if (!open) this.resolveConfirm(false);
+    },
+
+    toggleTriggerDialog(force?: boolean) {
+      this.triggerDialogOpen = force === undefined ? !this.triggerDialogOpen : force;
     },
 
     toggleError(force?: boolean) {

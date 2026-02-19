@@ -26,4 +26,8 @@
   #__nuxt {
     overflow-x: initial;
   }
+
+  main {
+    padding-bottom: 8rem;
+  }
 </style>
