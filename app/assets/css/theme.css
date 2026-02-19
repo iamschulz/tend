@@ -3,6 +3,7 @@
     --font-accent: 'Quicksand';
     --col-fg: #222;
     --animation-duration: 0.3s;   
+    --body-width: 72rem;
 }
 
 [force-scheme="light"] {
