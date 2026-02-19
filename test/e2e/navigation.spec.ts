@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from 'vitest'
-import type { Page } from 'puppeteer'
+import type { Page } from 'playwright'
 import {
   startServer,
   stopServer,
@@ -118,8 +118,8 @@ describe('Navigation', () => {
     // Wait for URL to change away from yesterday's page
     await page.waitForFunction(
       (prevUrl: string) => window.location.href !== prevUrl,
-      { timeout: 5000 },
       urlBefore,
+      { timeout: 5000 },
     )
 
     // Should have navigated away from yesterday (could be / for today or /day/today)

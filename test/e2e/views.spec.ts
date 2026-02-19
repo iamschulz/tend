@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from 'vitest'
-import type { Page } from 'puppeteer'
+import type { Page } from 'playwright'
 import {
   startServer,
   stopServer,

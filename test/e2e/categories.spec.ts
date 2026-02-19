@@ -44,7 +44,7 @@ describe('Categories', () => {
     await addCategory(page, 'Meditation')
 
     // Trigger button should now appear (inside [data-avatar])
-    const triggerButtons = await page.$$('[data-avatar] button')
+    const triggerButtons = await page.$$('[data-group] [data-avatar]:not(.allCategories) button')
     expect(triggerButtons.length).toBe(1)
   })
 
@@ -55,7 +55,7 @@ describe('Categories', () => {
     await addCategory(page, 'Reading')
 
     // Two trigger buttons should appear
-    const triggerButtons = await page.$$('[data-avatar] button')
+    const triggerButtons = await page.$$('[data-group] [data-avatar]:not(.allCategories) button')
     expect(triggerButtons.length).toBe(2)
   })
 

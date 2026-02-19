@@ -2,7 +2,7 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import * as os from 'node:os'
 import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from 'vitest'
-import type { Page } from 'puppeteer'
+import type { Page } from 'playwright'
 import {
     startServer,
     stopServer,
@@ -30,13 +30,6 @@ describe('Data export', () => {
     beforeEach(async () => {
         downloadDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tend-export-'))
         page = await getPage('/')
-
-        // Configure CDP to download files to temp directory
-        const client = await page.createCDPSession()
-        await client.send('Browser.setDownloadBehavior', {
-            behavior: 'allow',
-            downloadPath: downloadDir,
-        })
     })
 
     afterEach(async () => {
@@ -44,21 +37,8 @@ describe('Data export', () => {
         fs.rmSync(downloadDir, { recursive: true, force: true })
     })
 
-    /** Wait for a .tend.json file to appear in the download directory. */
-    async function waitForDownload(timeout = 5000): Promise<string> {
-        const start = Date.now()
-        while (Date.now() - start < timeout) {
-            const files = fs.readdirSync(downloadDir).filter(f => f.endsWith('.tend.json'))
-            if (files.length > 0) {
-                return path.join(downloadDir, files[0]!)
-            }
-            await new Promise(r => setTimeout(r, 200))
-        }
-        throw new Error('Download timed out')
-    }
-
-    /** Open the Data details section and click Export. */
-    async function clickExport(): Promise<void> {
+    /** Open the Data details section and click Export, returning the downloaded file path. */
+    async function clickExport(): Promise<string> {
         await openMenu(page)
 
         // Open the Data details section (last one)
@@ -71,20 +51,26 @@ describe('Data export', () => {
         })
         await new Promise(r => setTimeout(r, 300))
 
-        // Click the Export button (second button in the Data section)
-        const exportBtn = await page.evaluateHandle(() => {
+        // Set up download listener before triggering
+        const downloadPromise = page.waitForEvent('download')
+
+        // Click the Export button
+        await page.evaluate(() => {
             const buttons = document.querySelectorAll('dialog.menu details:last-of-type button')
-            return Array.from(buttons).find(b => b.textContent?.trim() === 'Export') ?? null
+            const exportBtn = Array.from(buttons).find(b => b.textContent?.trim() === 'Export')
+            if (exportBtn) (exportBtn as HTMLElement).click()
         })
-        expect(exportBtn).not.toBeNull()
-        await (exportBtn as import('puppeteer').ElementHandle<HTMLButtonElement>).click()
+
+        const download = await downloadPromise
+        const dest = path.join(downloadDir, download.suggestedFilename())
+        await download.saveAs(dest)
+        return dest
     }
 
     it('exports data with a category', async () => {
         await addCategory(page, 'Meditation')
-        await clickExport()
+        const filePath = await clickExport()
 
-        const filePath = await waitForDownload()
         expect(filePath).toMatch(/\.tend\.json$/)
 
         const content = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
@@ -118,21 +104,20 @@ describe('Data export', () => {
         const seedFile = path.join(downloadDir, 'seed.json')
         fs.writeFileSync(seedFile, seedJson)
 
-        const input = fileInput as import('puppeteer').ElementHandle<HTMLInputElement>
-        await input.uploadFile(seedFile)
+        await fileInput!.setInputFiles(seedFile)
 
         // Confirm the import dialog
         await page.waitForSelector('dialog.confirm-dialog[open]', { timeout: 5000 })
         await page.click('dialog.confirm-dialog button[data-variant="primary"]')
         await page.waitForFunction(
             () => !document.querySelector('dialog.confirm-dialog[open]'),
+            undefined,
             { timeout: 5000 },
         )
 
         // Now export
-        await clickExport()
+        const filePath = await clickExport()
 
-        const filePath = await waitForDownload()
         const exported = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
 
         expect(exported).toHaveProperty('categories')

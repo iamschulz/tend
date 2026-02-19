@@ -1,5 +1,5 @@
 import { expect } from 'vitest'
-import type { Page } from 'puppeteer'
+import type { Page } from 'playwright'
 import { ensureCategoriesOpen } from './_setup'
 
 /** Open menu if not already open. */
@@ -16,7 +16,7 @@ export async function closeMenu(page: Page): Promise<void> {
   const isOpen = await page.$('dialog.menu[open]')
   if (isOpen) {
     await page.click('dialog.menu .closeButton')
-    await page.waitForFunction(() => !document.querySelector('dialog.menu[open]'), { timeout: 3000 })
+    await page.waitForFunction(() => !document.querySelector('dialog.menu[open]'), undefined, { timeout: 3000 })
   }
 }
 
@@ -39,8 +39,8 @@ export async function addCategory(page: Page, title: string, { keepMenuOpen = fa
       const inputs = document.querySelectorAll('dialog.menu li .categoryForm input[type="text"]')
       return Array.from(inputs).some((el) => (el as HTMLInputElement).value === t)
     },
-    { timeout: 5000 },
     title,
+    { timeout: 5000 },
   )
 
   if (!keepMenuOpen) {

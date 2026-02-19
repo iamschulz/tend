@@ -1,6 +1,6 @@
 import { type ChildProcess, spawn } from 'node:child_process'
 import { createServer } from 'node:net'
-import puppeteer, { type Browser, type Page } from 'puppeteer'
+import { chromium, type Browser, type Page } from 'playwright'
 
 let browser: Browser | null = null
 let serverProcess: ChildProcess | null = null
@@ -73,10 +73,12 @@ export function stopServer(): void {
   }
 }
 
+const debug = !!process.env.PWDEBUG
+
 export async function launchBrowser(): Promise<Browser> {
-  browser = await puppeteer.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  browser = await chromium.launch({
+    headless: !debug,
+    slowMo: debug ? 100 : 0,
   })
   return browser
 }
@@ -90,34 +92,26 @@ export async function closeBrowser(): Promise<void> {
 
 /**
  * Get a new page with clean state, navigate to path, and wait for Nuxt hydration.
- * Uses CDP to clear all site storage before navigation, ensuring no state leaks
+ * Each page gets its own browser context, ensuring no state leaks
  * between tests (prevents pinia-plugin-persistedstate from restoring stale data).
  */
 export async function getPage(path: string): Promise<Page> {
   if (!browser) throw new Error('Browser not launched')
-  const page = await browser.newPage()
-  await page.setViewport({ width: 1280, height: 800 })
-  // Force English locale for consistent test assertions
-  await page.setExtraHTTPHeaders({ 'Accept-Language': 'en' })
-
-  // Use CDP to clear all storage for the origin BEFORE navigating
-  const client = await page.createCDPSession()
-  await client.send('Storage.clearDataForOrigin', {
-    origin: baseUrl,
-    storageTypes: 'local_storage,session_storage,cookies',
+  const context = await browser.newContext({
+    viewport: { width: 1280, height: 800 },
+    locale: 'en',
   })
-  await client.detach()
-
-  await page.goto(`${baseUrl}${path}`, { waitUntil: 'networkidle0' })
+  const page = await context.newPage()
+  await page.goto(`${baseUrl}${path}`, { waitUntil: 'networkidle' })
   // Wait for Nuxt hydration
-  await page.waitForFunction(() => !document.querySelector('[data-loading]'), { timeout: 10_000 })
+  await page.waitForFunction(() => !document.querySelector('[data-loading]'), undefined, { timeout: 10_000 })
   return page
 }
 
 /** Navigate to a path and wait for hydration. Reuses the existing page. */
 export async function navigateTo(page: Page, path: string): Promise<void> {
-  await page.goto(`${baseUrl}${path}`, { waitUntil: 'networkidle0' })
-  await page.waitForFunction(() => !document.querySelector('[data-loading]'), { timeout: 10_000 })
+  await page.goto(`${baseUrl}${path}`, { waitUntil: 'networkidle' })
+  await page.waitForFunction(() => !document.querySelector('[data-loading]'), undefined, { timeout: 10_000 })
 }
 
 /** Open the Categories details section in the menu (it may be closed). */
