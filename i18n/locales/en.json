@@ -118,5 +118,10 @@
     "actPlants": "plants",
     "actGaming": "gaming",
     "actPerformingArts": "performing arts",
-    "actMedicine": "medicine"
+    "actMedicine": "medicine",
+
+    "data": "Data",
+    "import": "Import",
+    "importConfirm": "Import will delete all existing data. Continue?",
+    "importError": "Invalid import file format."
 }

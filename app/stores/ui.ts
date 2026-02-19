@@ -10,6 +10,8 @@ export const useUiStore = defineStore('ui', {
     menuOpen: false,
     confirmOpen: false,
     confirmMessage: '',
+    errorOpen: false,
+    errorMessage: '',
   }),
 
   getters: {
@@ -18,6 +20,7 @@ export const useUiStore = defineStore('ui', {
     // modals
     menu: (state) => state.menuOpen,
     confirm: (state) => state.confirmOpen,
+    error: (state) => state.errorOpen,
   },
 
   actions: {
@@ -34,6 +37,15 @@ export const useUiStore = defineStore('ui', {
       const open = force === undefined ? !this.confirmOpen : force;
       this.confirmOpen = open;
       if (!open) this.resolveConfirm(false);
+    },
+
+    toggleError(force?: boolean) {
+      this.errorOpen = force === undefined ? !this.errorOpen : force;
+    },
+
+    showError(message: string) {
+      this.errorMessage = message;
+      this.errorOpen = true;
     },
 
     requestConfirm(message: string): Promise<boolean> {

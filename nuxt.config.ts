@@ -56,6 +56,10 @@ export default defineNuxtConfig({
     '~/assets/css/nobutton.css',
   ],
 
+  piniaPluginPersistedstate: {
+    storage: 'localStorage',
+  },
+
   i18n: {
     defaultLocale: 'en',
     strategy: 'no_prefix',

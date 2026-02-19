@@ -14,7 +14,7 @@
     "test:e2e": "nuxt build && vitest run --config vitest.e2e.config.ts",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "seed": "tsx scripts/generate-seed-data.ts"
+    "seed": "tsx scripts/write-seed-data.ts"
   },
   "dependencies": {
     "@nuxt/a11y": "^1.0.0-alpha.1",

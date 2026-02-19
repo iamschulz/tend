@@ -129,6 +129,10 @@ export const useDataStore = defineStore('data', {
             }
         },
 
+        importData(categories: Category[]): void {
+            this.categories = categories;
+        },
+
         closeAllEntries(categoryId: string): void {
             const now = Date.now();
             this.categories.find(x => x.id === categoryId)?.entries.filter(x => x.running || !x.end).forEach(entry => {

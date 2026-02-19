@@ -2,6 +2,7 @@
   <main-header />
   <main-menu v-if="ready" />
   <confirm-dialog v-if="ready" />
+  <error-dialog v-if="ready" />
   <main>
     <NuxtPage />
     <NuxtRouteAnnouncer />

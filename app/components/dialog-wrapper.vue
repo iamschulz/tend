@@ -1,7 +1,7 @@
 <template>
     <dialog ref="dialogEl">
         <header>
-            <h2 v-if="title">{{ title }}</h2>
+            <div><h2 v-if="title">{{ title }}</h2></div>
             <button class="closeButton nobutton" @click="() => closeDialog()">
                 <nuxt-icon name="close" size="36" />
                 <span class="sr-only">{{ $t('close') }}</span>

@@ -118,5 +118,10 @@
     "actPlants": "Pflanzen",
     "actGaming": "Gaming",
     "actPerformingArts": "Theater",
-    "actMedicine": "Medizin"
+    "actMedicine": "Medizin",
+
+    "data": "Daten",
+    "import": "Importieren",
+    "importConfirm": "Der Import löscht alle bisherigen Daten. Fortfahren?",
+    "importError": "Ungültiges Dateiformat."
 }

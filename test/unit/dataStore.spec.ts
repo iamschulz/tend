@@ -256,6 +256,31 @@ describe('useDataStore', () => {
     })
   })
 
+  // --- importData ---
+  describe('importData', () => {
+    it('replaces all categories', () => {
+      const store = useDataStore()
+      store.addCategory({ title: 'Old', color: '#f00', activity: sampleActivity })
+
+      const imported = [
+        {
+          id: 'imp-1',
+          title: 'Imported',
+          activity: sampleActivity,
+          color: '#0f0',
+          entries: [makeEntry({ categoryId: 'imp-1' })],
+        },
+      ]
+
+      store.importData(imported)
+
+      expect(store.categories).toHaveLength(1)
+      expect(store.categories[0]!.title).toBe('Imported')
+      expect(store.categories[0]!.id).toBe('imp-1')
+      expect(store.categories[0]!.entries).toHaveLength(1)
+    })
+  })
+
   // --- closeAllEntries ---
   describe('closeAllEntries', () => {
     it('closes all running entries in a category', () => {

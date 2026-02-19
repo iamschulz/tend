@@ -23,6 +23,11 @@
             <DisplaySettings />
         </details>
 
+        <details>
+            <summary><h3>{{ $t('data') }}</h3></summary>
+            <DataImport />
+        </details>
+
         <div class="menu-footer">
             <p><span class="appname">🌱 Tend</span> | made with ♥ | {{ new Date().getUTCFullYear() }}</p>
         </div>
