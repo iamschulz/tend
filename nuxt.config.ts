@@ -4,6 +4,7 @@ export default defineNuxtConfig({
 
   app: {
     head: {
+      title: "Tend",
       script: [
         {
           // Render-blocking inline script: applies the user's saved theme
@@ -36,20 +37,6 @@ export default defineNuxtConfig({
   ],
 
   css: [
-    'ssstyles/css/base.css',
-    'ssstyles/css/themes/business.css', 
-    'ssstyles/css/transition.css', 
-    'ssstyles/css/basegrid.css', 
-    'ssstyles/css/headline.css', 
-    'ssstyles/css/actionlink.css', 
-    'ssstyles/css/group.css', 
-    'ssstyles/css/carousel.css', 
-    'ssstyles/css/card.css', 
-    'ssstyles/css/avatar.css', 
-    'ssstyles/css/animation.css', 
-    'ssstyles/css/shadow.css', 
-    'ssstyles/css/loading.css', 
-    'ssstyles/css/autogrid.css', 
     '~/assets/css/fixes.css',
     '~/assets/css/theme.css',
     '~/assets/css/srOnly.css',
@@ -63,6 +50,9 @@ export default defineNuxtConfig({
 
   i18n: {
     defaultLocale: 'en',
+    detectBrowserLanguage: {
+      
+    },
     strategy: 'no_prefix',
     locales: [
       { code: 'en', name: 'English', file: 'en.json' },

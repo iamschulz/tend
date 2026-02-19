@@ -7,7 +7,7 @@
         <details :open="!data.categories.length">
             <summary><h3>{{ $t('categories') }}</h3></summary>
             <TransitionGroup name="list" tag="ul" class="nolist">
-            <li v-if="data.categories.length === 0">{{ $t('addCategoryPrompt') }}</li>
+            <li v-if="data.categories.length === 0" key="0">{{ $t('addCategoryPrompt') }}</li>
 
             <li v-for="category in data.categories" :key="category.id">
                 <EditCategoryForm :category="category" />

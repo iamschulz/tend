@@ -1,6 +1,6 @@
 <template>
     <TransitionGroup name="list" tag="ul" class="nolist" data-group>
-        <li ref="loaderEl" class="loader" />
+        <li ref="loaderEl" key="loader" class="loader" />
         <li v-for="(category, index) in visibleCategories" :key="index" data-avatar data-shadow="2-hover">
             <trigger-button :category="category" />
         </li>
