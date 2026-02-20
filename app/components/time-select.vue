@@ -50,13 +50,17 @@
         color: var(--col-accent-contrast);
         font-weight: 500;
         text-decoration: none;
+
+        &:hover {
+            background-color: var(--col-accent2);
+        }
     }
 
     button[type="submit"] {
         font-weight: 700;
     }
 
-    @container time-select (width < 18rem) {
+    @container time-select (width < 19rem) {
         [data-group] { 
             display: flex;
             flex-direction: column;

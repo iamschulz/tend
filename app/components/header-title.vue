@@ -75,6 +75,10 @@
         text-decoration: none;
         color: inherit;
         margin-bottom: -0.375rem;
+
+        &:hover {
+            color: var(--col-accent2);
+        }
     }
 
     .short {

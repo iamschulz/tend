@@ -14,6 +14,7 @@
 @media (prefers-color-scheme: dark) {
     :root:not([force-scheme="light"]) {
         --col-fg: #ddd;
+        --col-accent2: #d9e8f5;
         color-scheme: dark;
     }
 }
@@ -28,6 +29,10 @@
     place-items: center;
     background-image: none; /* remove gradient */
     background-color: var(--col-accent);
+
+    &:hover {
+        background-color: var(--col-accent2);
+    }
 }
 
 :is(svg) {

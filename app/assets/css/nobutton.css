@@ -5,4 +5,9 @@
     box-shadow: none;
     color: var(--col-fg);
     padding: 0;
+
+    &:hover {
+        background: transparent;
+        color: var(--col-accent2);
+    }
 }

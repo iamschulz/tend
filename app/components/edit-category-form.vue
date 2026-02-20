@@ -65,7 +65,7 @@
             max-width: min(16ch, 50vw);
     }
 
-    @container category-form (width < 18rem) {
+    @container category-form (width < 19rem) {
         .categoryForm [data-group] {
             display: grid;
             grid-template-columns: 1fr auto;
