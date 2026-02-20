@@ -2,8 +2,8 @@
     <div class="categoryForm">
         <form data-group>
             <input v-model="category.color" type="color">
-            <select v-model="category.activity" required>
-                <option v-for="(activity, index2) in activities" :key="index2" :value="activity">
+            <select :value="category.activity.emoji" required @change="handleActivityChange">
+                <option v-for="(activity, index2) in activities" :key="index2" :value="activity.emoji">
                     {{ activity.emoji }}
                 </option>
             </select>
@@ -37,6 +37,12 @@
     const ui = useUiStore();
 
     const { t } = useI18n();
+
+    function handleActivityChange(e: Event) {
+        const emoji = (e.target as HTMLSelectElement).value
+        const match = activities.find(a => a.emoji === emoji)
+        if (match) { category.activity = match }
+    }
 
     const handleDelete = async () => {
         if (await ui.requestConfirm(t('deleteCategory'))) {
