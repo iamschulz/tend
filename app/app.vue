@@ -1,12 +1,12 @@
 <template>
   <main-header />
-  <main-menu v-if="ready" />
-  <confirm-dialog v-if="ready" />
-  <error-dialog v-if="ready" />
+  <LazyMainMenu v-if="ready" />
+  <LazyConfirmDialog v-if="ready" />
+  <LazyErrorDialog v-if="ready" />
   <main>
     <NuxtPage />
     <NuxtRouteAnnouncer />
-    <TriggerGroup v-if="ready" />
+    <LazyTriggerGroup v-if="ready" />
   </main>
   
 </template>

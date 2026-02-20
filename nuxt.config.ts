@@ -25,15 +25,16 @@ export default defineNuxtConfig({
   },
 
   modules: [
-    '@nuxt/a11y',
-    '@nuxt/eslint',
-    '@nuxt/hints',
-    '@nuxt/test-utils',
     '@nuxt/fonts',
     '@pinia/nuxt',
     'pinia-plugin-persistedstate/nuxt',
     'nuxt-icons',
-    '@nuxtjs/i18n'
+    '@nuxtjs/i18n',
+    ...(process.env.NODE_ENV !== 'production' ? [
+      '@nuxt/a11y',
+      '@nuxt/eslint',
+      '@nuxt/hints',
+    ] : []),
   ],
 
   css: [
@@ -50,10 +51,9 @@ export default defineNuxtConfig({
 
   i18n: {
     defaultLocale: 'en',
-    detectBrowserLanguage: {
-      
-    },
+    detectBrowserLanguage: {},
     strategy: 'no_prefix',
+    langDir: 'locales',
     locales: [
       { code: 'en', name: 'English', file: 'en.json' },
       { code: 'de', name: 'Deutsch', file: 'de.json' }

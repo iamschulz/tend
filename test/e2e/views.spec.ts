@@ -99,6 +99,7 @@ describe('Views', () => {
     await quickClickTrigger(page)
 
     await navigateTo(page, `/week/${getCurrentWeekStr()}`)
+    await page.waitForSelector('.week-entry', { timeout: 5000 })
 
     const weekEntries = await page.$$('.week-entry')
     expect(weekEntries.length).toBeGreaterThan(0)
@@ -112,6 +113,7 @@ describe('Views', () => {
     await quickClickTrigger(page)
 
     await navigateTo(page, `/month/${getCurrentMonthStr()}`)
+    await page.waitForSelector('td.today .category-dot', { timeout: 5000 })
 
     // Today's cell should show a category dot
     const dot = await page.$('td.today .category-dot')
@@ -127,6 +129,7 @@ describe('Views', () => {
     await quickClickTrigger(page)
 
     await navigateTo(page, `/year/${getCurrentYearStr()}`)
+    await page.waitForSelector('.current-month .category-dot', { timeout: 5000 })
 
     const dot = await page.$('.current-month .category-dot')
     expect(dot).not.toBeNull()
@@ -161,6 +164,7 @@ describe('Views', () => {
     await closeMenu(page)
 
     await navigateTo(page, `/month/${getCurrentMonthStr()}`)
+    await page.waitForSelector('td.today .category-dot', { timeout: 5000 })
 
     // The dot's --categoryColor should use the new color
     const dotStyle = await page.$eval('td.today .category-dot', (el) => el.getAttribute('style'))

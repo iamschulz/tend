@@ -1,6 +1,6 @@
 <template>
     <div>
-        <tracker-day v-if="ready" />
+        <LazyTrackerDay v-if="ready" />
         <loading-indicator v-else />
     </div>
 </template>
