@@ -13,7 +13,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npx nuxt prepare
+      - run: NODE_ENV=development npx nuxt prepare
       - run: npm run lint
 
   build:
