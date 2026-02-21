@@ -38,6 +38,13 @@ describe('useDataStore', () => {
       expect(store.categories[0]!.id).toBe('uuid-1')
       expect(store.categories[0]!.title).toBe('Work')
     })
+
+    it('sets hidden to false by default', () => {
+      const store = useDataStore()
+      store.addCategory({ title: 'Work', color: '#ff0000', activity: sampleActivity })
+
+      expect(store.categories[0]!.hidden).toBe(false)
+    })
   })
 
   // --- updateCategory ---
@@ -53,6 +60,18 @@ describe('useDataStore', () => {
       expect(store.categories[0]!.title).toBe('Play')
       expect(store.categories[0]!.activity).toEqual(newActivity)
       expect(store.categories[0]!.color).toBe('#00ff00')
+    })
+
+    it('can toggle hidden', () => {
+      const store = useDataStore()
+      store.addCategory({ title: 'Work', color: '#ff0000', activity: sampleActivity })
+      const id = store.categories[0]!.id
+
+      store.updateCategory({ id, hidden: true })
+      expect(store.categories[0]!.hidden).toBe(true)
+
+      store.updateCategory({ id, hidden: false })
+      expect(store.categories[0]!.hidden).toBe(false)
     })
 
     it('no-ops when id is missing', () => {
@@ -134,6 +153,23 @@ describe('useDataStore', () => {
       expect(all[0]!.start).toBe(3000)
       expect(all[1]!.start).toBe(2000)
       expect(all[2]!.start).toBe(1000)
+    })
+
+    it('excludes entries from hidden categories', () => {
+      const store = useDataStore()
+      store.addCategory({ title: 'A', color: '#f00', activity: sampleActivity })
+      store.addCategory({ title: 'B', color: '#0f0', activity: sampleActivity })
+      const catA = store.categories[0]!.id
+      const catB = store.categories[1]!.id
+
+      store.addEntry(makeEntry({ categoryId: catA, start: 1000 }))
+      store.addEntry(makeEntry({ categoryId: catB, start: 2000 }))
+
+      store.updateCategory({ id: catA, hidden: true })
+
+      const all = store.getAllEntries
+      expect(all).toHaveLength(1)
+      expect(all[0]!.category!.title).toBe('B')
     })
   })
 
@@ -218,6 +254,23 @@ describe('useDataStore', () => {
       const results = store.getEntriesForRange(new Date(5000), new Date(10000))
       expect(results).toHaveLength(0)
     })
+
+    it('excludes entries from hidden categories', () => {
+      const store = useDataStore()
+      store.addCategory({ title: 'A', color: '#f00', activity: sampleActivity })
+      store.addCategory({ title: 'B', color: '#0f0', activity: sampleActivity })
+      const catA = store.categories[0]!.id
+      const catB = store.categories[1]!.id
+
+      store.addEntry(makeEntry({ categoryId: catA, start: 5000, end: 8000, running: false }))
+      store.addEntry(makeEntry({ categoryId: catB, start: 5000, end: 8000, running: false }))
+
+      store.updateCategory({ id: catA, hidden: true })
+
+      const results = store.getEntriesForRange(new Date(0), new Date(10000))
+      expect(results).toHaveLength(1)
+      expect(results[0]!.category!.title).toBe('B')
+    })
   })
 
   // --- hasRunningEntries ---
@@ -270,6 +323,7 @@ describe('useDataStore', () => {
           title: 'Imported',
           activity: sampleActivity,
           color: '#0f0',
+          hidden: false,
           entries: [makeEntry({ categoryId: 'imp-1' })],
         },
       ]

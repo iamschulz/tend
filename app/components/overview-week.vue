@@ -1,14 +1,15 @@
 <template>
     <div data-carousel :aria-label="weekLabel">
-        <ul v-for="(day, name) in week" :key="name" ref="days" data-group="vertical" class="weekday nolist" :aria-label="String(name)">
-            <li class="table-header">
+
+        <TransitionGroup v-for="(day, name) in week" :key="name" ref="days" tag="ul" name="list" data-group="vertical" class="weekday nolist" :aria-label="String(name)">
+            <li key="label" class="table-header">
                 <span class="label" :class="{ active: name === todayName }" :aria-current="name === todayName ? 'date' : undefined">{{ name }}</span>
             </li>
             <li v-for="entry in day" :key="entry.id">
                 <WeekEntry :entry="entry" />
             </li>
-            <li v-if="!day.length" class="empty" aria-label="No entries">{{ $t('nothingToday') }}</li>
-        </ul>
+            <li v-if="!day.length" key="empty" class="empty" aria-label="No entries">{{ $t('nothingToday') }}</li>
+        </TransitionGroup>
     </div>
 </template>
 
@@ -107,6 +108,7 @@
     }
 
     [data-group].weekday {
+        position: relative;
         gap: 0.6rem;
 
         *:nth-of-type(2) {
@@ -118,5 +120,27 @@
     .empty {
         color: var(--col-fg2);
         text-align: center;
+    }
+
+    .list-move,
+    .list-enter-active,
+    .list-leave-active {
+        --t-opacity: var(--animation-duration);
+        --t-transform: var(--animation-duration);
+        --t-scale: var(--animation-duration);
+    }
+
+    .list-enter-from {
+        opacity: 0;
+        z-index: 2;
+    }
+    .list-leave-to {
+        opacity: 0;
+        scale: 0.9;
+        z-index: 0;
+    }
+    .list-leave-active {
+        position: absolute;
+        transform: translateY(100%);
     }
 </style>

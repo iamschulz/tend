@@ -3,9 +3,9 @@
         <li ref="loaderEl" key="loader" class="loader" />
         
         <li v-if="data.hasNoEntries" key="firststeps">
-            <FirstSteps 
-                :has-categories="data.categories.length > 0"
-                :has-entries="data.categories.length > 0 && entries.length > 0"
+            <FirstSteps
+                :has-categories="data.visibleCategories.length > 0"
+                :has-entries="data.visibleCategories.length > 0 && entries.length > 0"
             />
         </li>
 

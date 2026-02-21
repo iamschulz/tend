@@ -8,7 +8,7 @@ import {
   getPage,
   ensureCategoriesOpen,
 } from './_setup'
-import { addCategory } from './_helpers'
+import { addCategory, openMenu, closeMenu, quickClickTrigger } from './_helpers'
 
 describe('Categories', () => {
   let page: Page
@@ -99,7 +99,7 @@ describe('Categories', () => {
     expect(editInputs.length).toBe(1)
 
     // Click the delete button on the edit form (the non-submit button)
-    await page.click('dialog.menu li .categoryForm button:not([type="submit"])')
+    await page.click('dialog.menu li .categoryForm button:not([type="submit"]):not([aria-pressed])')
 
     // Confirm dialog should appear
     await page.waitForSelector('dialog.confirm-dialog[open]', { timeout: 3000 })
@@ -123,7 +123,7 @@ describe('Categories', () => {
     await ensureCategoriesOpen(page)
 
     // Click the delete button
-    await page.click('dialog.menu li .categoryForm button:not([type="submit"])')
+    await page.click('dialog.menu li .categoryForm button:not([type="submit"]):not([aria-pressed])')
 
     // Confirm dialog should appear
     await page.waitForSelector('dialog.confirm-dialog[open]', { timeout: 3000 })
@@ -142,5 +142,95 @@ describe('Categories', () => {
     // Category should still exist
     const editInputs = await page.$$('dialog.menu li .categoryForm input[type="text"]')
     expect(editInputs.length).toBe(1)
+  })
+
+  it('hides a category', async () => {
+    await addCategory(page, 'Yoga')
+    await quickClickTrigger(page, 0)
+
+    // Trigger button and entry should be visible
+    let triggers = await page.$$('[data-group] [data-avatar]:not(.allCategories) button')
+    expect(triggers.length).toBe(1)
+    let entries = await page.$$('article.track')
+    expect(entries.length).toBe(1)
+
+    // Open menu and toggle hide
+    await openMenu(page)
+    await ensureCategoriesOpen(page)
+    const hideBtn = await page.$('dialog.menu li .categoryForm button[aria-pressed]')
+    expect(hideBtn).not.toBeNull()
+    await hideBtn!.click()
+
+    // Wait for the store watcher debounce
+    await page.waitForFunction(
+      () => {
+        const btn = document.querySelector('dialog.menu li .categoryForm button[aria-pressed]')
+        return btn?.getAttribute('aria-pressed') === 'true'
+      },
+      { timeout: 3000 },
+    )
+
+    await closeMenu(page)
+
+    // Trigger button should disappear
+    await page.waitForFunction(
+      () => document.querySelectorAll('[data-group] [data-avatar]:not(.allCategories) button').length === 0,
+      { timeout: 5000 },
+    )
+    triggers = await page.$$('[data-group] [data-avatar]:not(.allCategories) button')
+    expect(triggers.length).toBe(0)
+
+    // Entry should disappear from day view
+    entries = await page.$$('article.track')
+    expect(entries.length).toBe(0)
+  })
+
+  it('shows a hidden category again', async () => {
+    await addCategory(page, 'Reading')
+    await quickClickTrigger(page, 0)
+
+    // Hide the category
+    await openMenu(page)
+    await ensureCategoriesOpen(page)
+    const hideBtn = await page.$('dialog.menu li .categoryForm button[aria-pressed]')
+    await hideBtn!.click()
+    await page.waitForFunction(
+      () => {
+        const btn = document.querySelector('dialog.menu li .categoryForm button[aria-pressed]')
+        return btn?.getAttribute('aria-pressed') === 'true'
+      },
+      { timeout: 3000 },
+    )
+    await closeMenu(page)
+
+    // Verify it's hidden
+    await page.waitForFunction(
+      () => document.querySelectorAll('[data-group] [data-avatar]:not(.allCategories) button').length === 0,
+      { timeout: 5000 },
+    )
+
+    // Unhide the category
+    await openMenu(page)
+    await ensureCategoriesOpen(page)
+    const showBtn = await page.$('dialog.menu li .categoryForm button[aria-pressed]')
+    await showBtn!.click()
+    await page.waitForFunction(
+      () => {
+        const btn = document.querySelector('dialog.menu li .categoryForm button[aria-pressed]')
+        return btn?.getAttribute('aria-pressed') === 'false'
+      },
+      { timeout: 3000 },
+    )
+    await closeMenu(page)
+
+    // Trigger button should reappear
+    await page.waitForSelector('[data-group] [data-avatar]:not(.allCategories) button', { timeout: 5000 })
+    const triggers = await page.$$('[data-group] [data-avatar]:not(.allCategories) button')
+    expect(triggers.length).toBe(1)
+
+    // Entry should reappear in day view
+    await page.waitForSelector('article.track', { timeout: 5000 })
+    const entries = await page.$$('article.track')
+    expect(entries.length).toBe(1)
   })
 })

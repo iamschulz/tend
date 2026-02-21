@@ -11,6 +11,8 @@ export const useDataStore = defineStore('data', () => {
 
     const getAllCategories = computed((): Category[] => categories.value)
 
+    const visibleCategories = computed((): Category[] => categories.value.filter(c => !c.hidden))
+
     const getCategoryById = computed(() => {
         return (categoryId: string) => categories.value.find((x) => x.id === categoryId)
     })
@@ -18,9 +20,10 @@ export const useDataStore = defineStore('data', () => {
     const getAllEntries = computed((): EntryWithCategory[] => {
         const categoryMap = new Map<string, Category>()
         for (const cat of categories.value) {
-            categoryMap.set(cat.id, cat)
+            if (!cat.hidden) categoryMap.set(cat.id, cat)
         }
         return entries.value
+            .filter(entry => categoryMap.has(entry.categoryId))
             .map(entry => ({
                 ...entry,
                 category: categoryMap.get(entry.categoryId),
@@ -38,6 +41,7 @@ export const useDataStore = defineStore('data', () => {
             title: data.title,
             activity: data.activity,
             color: data.color,
+            hidden: false,
         }]
     }
 
@@ -52,6 +56,7 @@ export const useDataStore = defineStore('data', () => {
         if (data.title) { category.title = data.title }
         if (data.activity) { category.activity = data.activity }
         if (data.color) { category.color = data.color }
+        if (data.hidden !== undefined) { category.hidden = data.hidden }
 
         updated[index] = category
         categories.value = updated
@@ -76,11 +81,12 @@ export const useDataStore = defineStore('data', () => {
 
         const categoryMap = new Map<string, Category>()
         for (const cat of categories.value) {
-            categoryMap.set(cat.id, cat)
+            if (!cat.hidden) categoryMap.set(cat.id, cat)
         }
 
         return entries.value
             .filter(entry => {
+                if (!categoryMap.has(entry.categoryId)) return false
                 const eventStart = new Date(entry.start).getTime()
                 const eventEnd = entry.end
                     ? new Date(entry.end).getTime()
@@ -113,7 +119,7 @@ export const useDataStore = defineStore('data', () => {
 
         for (const cat of importCategories) {
             const { entries: catEntries, ...categoryData } = cat
-            newCategories.push(categoryData)
+            newCategories.push({ ...categoryData, hidden: categoryData.hidden ?? false })
             newEntries.push(...catEntries)
         }
 
@@ -134,6 +140,7 @@ export const useDataStore = defineStore('data', () => {
         categories,
         entries,
         getAllCategories,
+        visibleCategories,
         getCategoryById,
         getAllEntries,
         hasNoEntries,

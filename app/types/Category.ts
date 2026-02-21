@@ -17,6 +17,7 @@ export type Category = {
     title: string;
     activity: Activity;
     color: string;
+    hidden: boolean;
 }
 
 export type EntryWithCategory = Entry & {

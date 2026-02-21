@@ -72,10 +72,10 @@ const onAddCategory = () => {
     }
 
     input[type="text"] {
-            max-width: min(16ch, 50vw);
+            max-width: min(17ch, 50vw);
     }
 
-    @container category-form (width < 18rem) {
+    @container category-form (width < 22rem) {
         .categoryForm [data-group] {
             display: grid;
             grid-template-columns: 1fr auto;

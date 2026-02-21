@@ -15,6 +15,7 @@ type Category = {
   title: string;
   activity: Activity;
   color: string;
+  hidden: boolean;
 };
 
 export type SeedData = { categories: Category[]; entries: Entry[] };
@@ -43,30 +44,35 @@ const CATEGORIES_DEF: Category[] = [
     title: "Work",
     activity: { title: "work", icon: "factory", emoji: "\u{1F3ED}" },
     color: "#00aaff",
+    hidden: false,
   },
   {
     id: "seed-cat-2",
     title: "Sleep",
     activity: { title: "sleep", icon: "bed", emoji: "\u{1F634}" },
     color: "#8700b8",
+    hidden: false,
   },
   {
     id: "seed-cat-3",
     title: "Exercise",
     activity: { title: "excercise", icon: "exercise", emoji: "\u{1F3CB}\u{FE0F}" },
     color: "#00ff73",
+    hidden: false,
   },
   {
     id: "seed-cat-4",
     title: "Coffee",
     activity: { title: "coffee", icon: "coffee", emoji: "\u2615" },
     color: "#ffc400",
+    hidden: false,
   },
   {
     id: "seed-cat-5",
     title: "Commute",
     activity: { title: "commute", icon: "commute", emoji: "\u{1F68C}" },
     color: "#ff0059",
+    hidden: false,
   },
 ];
 

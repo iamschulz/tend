@@ -17,6 +17,7 @@ const validCategory = {
     title: 'Work',
     activity: validActivity,
     color: '#ff0000',
+    hidden: false,
     entries: [validEntry],
 }
 
@@ -114,6 +115,18 @@ describe('validateImportData', () => {
         it('returns false when second category is invalid', () => {
             expect(validateImportData({
                 categories: [validCategory, { bad: true }],
+            })).toBe(false)
+        })
+
+        it('passes validation with hidden: true', () => {
+            expect(validateImportData({
+                categories: [{ ...validCategory, hidden: true }],
+            })).toBe(true)
+        })
+
+        it('fails validation with hidden: "yes" (wrong type)', () => {
+            expect(validateImportData({
+                categories: [{ ...validCategory, hidden: 'yes' }],
             })).toBe(false)
         })
     })

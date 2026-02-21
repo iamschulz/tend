@@ -47,6 +47,7 @@ describe('Views', () => {
     await navigateTo(page, `/week/${getCurrentWeekStr()}`)
 
     // 7 day columns (each is a ul.weekday)
+    await page.waitForSelector('.weekday', { timeout: 5000 })
     const dayColumns = await page.$$('.weekday')
     expect(dayColumns.length).toBe(7)
 
@@ -178,7 +179,7 @@ describe('Views', () => {
     // Delete the category
     await openMenu(page)
     await ensureCategoriesOpen(page)
-    await page.click('dialog.menu li .categoryForm button:not([type="submit"])')
+    await page.click('dialog.menu li .categoryForm button:not([type="submit"]):not([aria-pressed])')
     await page.waitForSelector('dialog.confirm-dialog[open]', { timeout: 3000 })
     await page.click('dialog.confirm-dialog button[data-variant="primary"]')
 
@@ -240,6 +241,7 @@ describe('Views', () => {
     await navigateTo(page, `/month/${getCurrentMonthStr()}`)
 
     // Today's cell should have 2 category dots
+    await page.waitForSelector('td.today .category-dot', { timeout: 5000 })
     const dots = await page.$$('td.today .category-dot')
     expect(dots.length).toBe(2)
 

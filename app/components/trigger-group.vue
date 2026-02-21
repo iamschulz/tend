@@ -14,7 +14,7 @@
 
     <DialogWrapper name="triggerDialog">
         <ul class="nolist" data-autogrid>
-            <li v-for="(category, index) in data.categories" :key="index" data-avatar data-shadow="2-hover">
+            <li v-for="(category, index) in data.visibleCategories" :key="index" data-avatar data-shadow="2-hover">
                 <trigger-button :category="category" />
             </li>
         </ul>
@@ -40,8 +40,8 @@
     mq40.addEventListener('change', updateCount)
     mq85.addEventListener('change', updateCount)
 
-    const visibleCategories = computed(() => data.categories.slice(0, visibleCount.value))
-    const hasHidden = computed(() => data.categories.length > visibleCount.value)
+    const visibleCategories = computed(() => data.visibleCategories.slice(0, visibleCount.value))
+    const hasHidden = computed(() => data.visibleCategories.length > visibleCount.value)
 
     onMounted(() => {
         requestAnimationFrame(() => {

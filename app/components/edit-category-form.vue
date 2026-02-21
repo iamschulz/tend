@@ -8,6 +8,10 @@
                 </option>
             </select>
             <input v-model="category.title" type="text" required>
+            <button :aria-pressed="category.hidden" @click.prevent="category.hidden = !category.hidden">
+                <nuxt-icon :name="category.hidden ? 'visibility_off' : 'visibility'" />
+                <span class="sr-only">{{ category.hidden ? $t('show') : $t('hide') }}</span>
+            </button>
             <button @click.prevent="handleDelete">
                 <nuxt-icon name="delete" />
                 <span class="sr-only">{{ $t('delete') }}</span>
@@ -65,10 +69,10 @@
             max-width: min(16ch, 50vw);
     }
 
-    @container category-form (width < 19rem) {
+    @container category-form (width < 22rem) {
         .categoryForm [data-group] {
             display: grid;
-            grid-template-columns: 1fr auto;
+            grid-template-columns: 1fr 7ch auto;
 
             > *, > :is(input, select, button) {
                 --br-tl: 0;
@@ -79,19 +83,27 @@
                 max-width: none;
             }
 
-            :nth-child(1) {
+            :nth-child(1) { /* color */
+                grid-area: 1 / 1;
                 --br-tl: var(--border-radius);
             }
 
-            :nth-child(2) {
-                --br-tr: var(--border-radius);
+            :nth-child(2) { /* emoji */
+                grid-area: 1 / 2;
             }
 
-            :nth-child(3) {
+            :nth-child(3) { /* title */
+                grid-area: 2 / 1 / 2 / 3;
                 --br-bl: var(--border-radius);
             }
 
-            :nth-child(4) {
+            :nth-child(4) { /* hide */
+                grid-area: 1 / 3;
+                --br-tr: var(--border-radius);
+            }
+
+            :nth-child(5) { /* delete */
+                grid-area: 2 / 3;
                 --br-br: var(--border-radius);
             }
         }

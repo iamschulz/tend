@@ -29,6 +29,7 @@ function isCategory(value: unknown): value is CategoryWithEntries {
         && typeof obj.title === 'string'
         && isActivity(obj.activity)
         && typeof obj.color === 'string'
+        && (obj.hidden === undefined || typeof obj.hidden === 'boolean')
         && Array.isArray(obj.entries)
         && obj.entries.every(isEntry)
 }
