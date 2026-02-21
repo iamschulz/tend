@@ -12,6 +12,11 @@
 </template>
 
 <script setup lang="ts">
+    const { locale } = useI18n()
+    useHead({
+        htmlAttrs: { lang: locale }
+    })
+
     const ready = ref(false)
     onNuxtReady(() => {
         ready.value = true
