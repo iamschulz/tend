@@ -1,5 +1,5 @@
 <template>
-    <article class="track" data-card data-shadow="1-hover">
+    <article :id="`e-${entry.id}`" class="track" data-card data-shadow="1-hover">
         <span class="icon" v-bind="{ style: `--categoryColor: ${entry.category!.color}`, }">
             {{ entry.category!.activity.emoji }}
         </span>

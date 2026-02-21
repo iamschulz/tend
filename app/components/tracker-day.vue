@@ -52,10 +52,17 @@
 
     const loaderEl = ref<HTMLDialogElement | null>(null)
 
+    const route = useRoute()
+
     onMounted(() => {
         requestAnimationFrame(() => {
             loaderEl.value?.classList.add('mounted')
         })
+        if (route.hash) {
+            nextTick(() => {
+                document.querySelector(route.hash)?.scrollIntoView({ behavior: 'smooth' })
+            })
+        }
     })
 </script>
 

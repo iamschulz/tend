@@ -1,5 +1,5 @@
 <template>
-    <article data-card class="week-entry" :aria-label="entryLabel">
+    <article data-card class="week-entry" :aria-label="entryLabel" data-shadow="1-hover">
         <span v-if="entry.category" class="icon" :style="`--categoryColor: ${entry.category.color}`" aria-hidden="true">
             {{ entry.category.activity.emoji }}
         </span>
@@ -15,6 +15,7 @@
                 {{ formatDuration(entry.start, entry.end, t) }}
             </span>
         </div>
+        <NuxtLink data-card-link :to="`/day/${dateStr}#e-${entry.id}`" :aria-label="entry.category?.title" />
     </article>
 </template>
 
@@ -33,6 +34,7 @@
 
     const duration = computed(() => formatDuration(props.entry.start, now.value, t))
 
+    const dateStr = new Date(props.entry.start).toISOString().slice(0, 10);
     const timeStr = new Date(props.entry.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const categoryName = props.entry.category?.title ?? 'Unknown';
 
@@ -76,5 +78,9 @@
     span {
         color: var(--col-fg2);
         font-size: 0.9rem;
+    }
+
+    [data-card-link] {
+        margin: 0;
     }
 </style>

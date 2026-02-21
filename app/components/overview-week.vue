@@ -107,6 +107,8 @@
     }
 
     [data-group].weekday {
+        gap: 0.6rem;
+
         *:nth-of-type(2) {
             --br-tl: var(--border-radius);
             --br-tr: var(--border-radius);
