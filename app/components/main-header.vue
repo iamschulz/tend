@@ -1,7 +1,7 @@
 <template>
     <header>
         <div class="header-inner">
-            <button class="nobutton" @click="handleMenuButtonClick">
+            <button class="nobutton" :aria-pressed="ui.menuOpen" @click="handleMenuButtonClick">
                 <nuxt-icon name="menu" size="48" />
                 <span class="sr-only">{{ $t('menu') }}</span>
             </button>

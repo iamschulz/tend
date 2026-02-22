@@ -128,6 +128,7 @@
         height: 100%;
         text-shadow: 0px 0px 1rem currentColor;
         user-select: none;
+        border-radius: 99999px;
 
         &::before {
             content: "";

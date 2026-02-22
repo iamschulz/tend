@@ -50,8 +50,13 @@
         }
     )
 
+    onMounted(() => {
+        dialogEl.value!.addEventListener('close', closeDialog)
+    })
+
     const closeDialog = () => {
         ui[toggleFunction](false as StoreObject);
+        dialogEl.value!.blur();
     }
 </script>
 

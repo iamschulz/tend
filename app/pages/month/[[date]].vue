@@ -42,7 +42,6 @@
         ui.setCurrentViewDate(date)
     })
 
-
     const mounted = ref(false)
     onNuxtReady(() => {
         mounted.value = true

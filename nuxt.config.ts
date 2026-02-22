@@ -4,7 +4,8 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: "Tend",
+      title: "",
+      titleTemplate: '%s Tend',
       script: [
         {
           // Render-blocking inline script: applies the user's saved theme

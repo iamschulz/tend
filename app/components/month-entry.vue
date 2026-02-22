@@ -1,5 +1,5 @@
 <template>
-    <div data-card data-shadow="1-hover" class="day-cell" :class="{ today: isToday }">
+    <article data-card data-shadow="1-hover" class="day-cell" :class="{ today: isToday }">
         <NuxtLink
             :to="`/day/${dateStr}`"
             class="day-link"
@@ -18,7 +18,7 @@
             </div>
             <span v-if="entryCount > 0" class="entry-count">{{ entryCount }}</span>
         </NuxtLink>
-    </div>
+    </article>
 </template>
 
 <script setup lang="ts">

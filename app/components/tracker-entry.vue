@@ -12,6 +12,7 @@
             </time>
             <span v-if="entry.running" class="running-icon">
                 <nuxt-icon name="play_arrow" />
+                <span class="sr-only">{{ $t("runningFor") }}</span>
             </span>
             <span v-if="entry.running">
                 ({{ duration }})
@@ -23,11 +24,11 @@
         <div class="controls">
             <button v-if="entry.running" @click="handleStop">
                 <nuxt-icon name="stop" />
-                <span class="sr-only">{{ $t('stop') }}</span>
+                <span class="sr-only">{{ $t('stop') }} {{ entry.category?.title }}</span>
             </button>
             <button v-else @click="handleDelete">
                 <nuxt-icon name="delete" />
-                <span class="sr-only">{{ $t('delete') }}</span>
+                <span class="sr-only">{{ $t('delete') }} {{ entry.category?.title }}</span>
             </button>
         </div>
     </article>

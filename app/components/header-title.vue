@@ -59,6 +59,10 @@
 
         return fallback;
     });
+
+    useHead({
+        title: computed(() => `${title.value.long} |`)
+    });
 </script>
 
 <style scoped>
