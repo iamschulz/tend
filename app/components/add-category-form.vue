@@ -4,9 +4,9 @@
             data-group
             @submit.prevent="onAddCategory"
         >
-            <input v-model="newCategoryData.color" type="color">
+            <input v-model="newCategoryData.color" type="color" :aria-label="$t('selectColor')">
 
-            <select v-model="newCategoryData.activity" required>
+            <select v-model="newCategoryData.activity" :aria-label="$t('selectEmoji')" required>
                 <option
                     v-for="activity in activities"
                     :key="activity.title"
@@ -19,6 +19,7 @@
             <input
                 v-model="newCategoryData.title"
                 type="text"
+                :aria-label="$t('selectCategoryTitle')"
                 :placeholder="$t('placeholder')"
                 required
             >

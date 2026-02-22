@@ -1,13 +1,18 @@
 <template>
     <div class="categoryForm">
         <form data-group>
-            <input v-model="category.color" type="color">
-            <select :value="category.activity.emoji" required @change="handleActivityChange">
+            <input v-model="category.color" :aria-label="$t('selectColor')" type="color">
+            <select 
+                :aria-label="$t('selectEmoji')" 
+                :value="category.activity.emoji" 
+                required 
+                @change="handleActivityChange"
+            >
                 <option v-for="(activity, index2) in activities" :key="index2" :value="activity.emoji">
                     {{ activity.emoji }}
                 </option>
             </select>
-            <input v-model="category.title" type="text" required>
+            <input v-model="category.title" :aria-label="$t('selectCategoryTitle')" type="text" required>
             <button :aria-pressed="category.hidden" @click.prevent="category.hidden = !category.hidden">
                 <nuxt-icon :name="category.hidden ? 'visibility_off' : 'visibility'" />
                 <span class="sr-only">{{ category.hidden ? $t('show') : $t('hide') }}</span>

@@ -28,6 +28,9 @@
     "hide": "Verstecken",
     "add": "Hinzufügen",
     "go": "Los",
+    "selectColor": "Wähle eine Farbe für diese Kategorie aus",
+    "selectEmoji": "Wähle ein Emoji für diese Kategorie aus",
+    "selectCategoryTitle": "Benenne diese Kategorie",
 
     "addCategoryPrompt": "Füge eine Kategorie hinzu!",
     "whatHabit": "Welche Gewohnheit möchtest du tracken?",
