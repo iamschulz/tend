@@ -34,6 +34,8 @@
     "selectColor": "Wähle eine Farbe für diese Kategorie aus",
     "selectEmoji": "Wähle ein Emoji für diese Kategorie aus",
     "selectCategoryTitle": "Benenne diese Kategorie",
+    "imported": "Importiert",
+    "exported": "Exportiert",
 
     "addCategoryPrompt": "Füge eine Kategorie hinzu!",
     "whatHabit": "Welche Gewohnheit möchtest du tracken?",

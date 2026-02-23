@@ -34,6 +34,8 @@
     "selectColor": "Select a color for this category",
     "selectEmoji": "Select an emoji for this category",
     "selectCategoryTitle": "Choose a name for this category",
+    "imported": "Imported",
+    "exported": "Exported",
 
     "addCategoryPrompt": "Add a tracking category!",
     "whatHabit": "What habit do you want to track?",

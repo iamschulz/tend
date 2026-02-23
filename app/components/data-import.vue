@@ -12,6 +12,7 @@
     const data = useDataStore()
     const ui = useUiStore()
     const { t } = useI18n()
+    const { announce } = useAnnounce()
 
     async function handleFileSelect() {
         const file = fileInput.value?.files?.[0]
@@ -31,6 +32,7 @@
             }
 
             data.importData(parsed.categories)
+            announce(t('imported'))
         } catch {
             ui.showError(t('importError'))
         } finally {
