@@ -6,6 +6,7 @@ export default defineNuxtConfig({
     head: {
       title: "",
       titleTemplate: '%s Tend',
+      link: [{ rel: 'icon', type: 'image/svg', href: '/tend.svg' }],
       script: [
         {
           // Render-blocking inline script: applies the user's saved theme

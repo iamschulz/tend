@@ -1,5 +1,5 @@
 <template>
-    <DialogWrapper ref="menuEl" class="menu" data-shadow="5" name="menu" title="🌱 Tend">
+    <DialogWrapper ref="menuEl" class="menu" data-shadow="5" name="menu" title="Tend" icon="tend">
         <details :open="!!data.categories.length" >
             <summary><h3>{{ $t('selectDay') }}</h3></summary>
             <TimeSelect v-if="ui.menuOpen" />
@@ -33,7 +33,7 @@
         </details>
 
         <div class="menu-footer">
-            <p><span class="appname">🌱 Tend</span> | made with ♥ | {{ new Date().getUTCFullYear() }}</p>
+            <p><span class="appname"><nuxt-icon name="tend" filled /> Tend</span> | made with ♥ | {{ new Date().getUTCFullYear() }}</p>
         </div>
     </DialogWrapper>
 </template>

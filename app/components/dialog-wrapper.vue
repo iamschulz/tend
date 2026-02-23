@@ -1,7 +1,10 @@
 <template>
     <dialog ref="dialogEl">
         <header>
-            <div class="headline"><h2 v-if="title">{{ title }}</h2></div>
+            <div class="headline">
+                <nuxt-icon v-if="icon" :name="icon" filled />
+                <h2 v-if="title">{{ title }}</h2>
+            </div>
             <button class="closeButton nobutton" @click="() => closeDialog()">
                 <nuxt-icon name="close" size="36" />
                 <span class="sr-only">{{ $t('close') }}</span>
@@ -31,6 +34,7 @@
     const props = defineProps<{
         name: GetterKey,
         title?: string,
+        icon?: string,
     }>()
 
     const name = props.name;
@@ -83,8 +87,13 @@
             }
 
             h2 {
+                display: inline-block;
                 margin-block: 0;
                 flex: 1 0 auto;
+            }
+
+            .nuxt-icon {
+                font-size: 1.5rem;
             }
 
             .closeButton {
