@@ -11,7 +11,7 @@ export default defineNuxtConfig({
           // Render-blocking inline script: applies the user's saved theme
           // preference before first paint to prevent a flash of wrong theme.
           // Runs outside of Nuxt/Vue — raw browser JS in <head>.
-          innerHTML: `(function(){var s=localStorage.getItem('force-scheme');if(s==='light'||s==='dark'){document.documentElement.setAttribute('force-scheme',s)}})()`,
+          innerHTML: `(function(){var s=localStorage.getItem('force-scheme');if(s==='light'||s==='dark'){document.documentElement.setAttribute('force-scheme',s)}var d=s==='dark'||(s!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches);var m=document.createElement('meta');m.name='theme-color';m.content=d?'#1B1b1B':'#E0E0E0';document.head.appendChild(m)})()`,
           tagPosition: 'head'
         }
       ]

@@ -17,14 +17,21 @@ onMounted(() => {
     }
 })
 
+function updateThemeColor(isDark: boolean) {
+    const meta = document.querySelector('meta[name="theme-color"]')
+    if (meta) meta.setAttribute('content', isDark ? '#1b1b1b' : '#e0e0e0')
+}
+
 function onThemeChange(e: Event) {
     const value = (e.target as HTMLSelectElement).value
     if (value === 'light' || value === 'dark') {
         localStorage.setItem('force-scheme', value)
         document.documentElement.setAttribute('force-scheme', value)
+        updateThemeColor(value === 'dark')
     } else {
         localStorage.removeItem('force-scheme')
         document.documentElement.removeAttribute('force-scheme')
+        updateThemeColor(matchMedia('(prefers-color-scheme:dark)').matches)
     }
 }
 </script>
