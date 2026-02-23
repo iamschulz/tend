@@ -72,6 +72,30 @@ export async function holdTrigger(page: Page, index = 0): Promise<void> {
   await page.mouse.up()
 }
 
+/** Get the current text from whichever announcer region is active. */
+export async function getAnnouncement(page: Page): Promise<string> {
+  return page.evaluate(() => {
+    const els = document.querySelectorAll('.announcer')
+    for (const el of els) {
+      const text = el.textContent?.trim()
+      if (text) return text
+    }
+    return ''
+  })
+}
+
+/** Wait for any announcer to contain the given text. */
+export async function waitForAnnouncement(page: Page, text: string): Promise<void> {
+  await page.waitForFunction(
+    (t: string) => {
+      const els = document.querySelectorAll('.announcer')
+      return Array.from(els).some((el) => el.textContent?.includes(t))
+    },
+    text,
+    { timeout: 5000 },
+  )
+}
+
 /** Get current ISO week string (YYYY-Www). */
 export function getCurrentWeekStr(): string {
   const d = new Date()

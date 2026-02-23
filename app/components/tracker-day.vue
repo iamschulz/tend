@@ -25,7 +25,6 @@
     import { useDataStore } from '~/stores/data';
     import TrackerEntry from './tracker-entry.vue';
     import { getDayRange } from '~/util/getDayRange';
-
     const props = defineProps<{
         date?: Date,
     }>()
@@ -50,6 +49,21 @@
         }
     }
 
+    const { t } = useI18n()
+    const { watchForAdd, watchForStop, watchForDelete } = useAnnounce()
+
+    const formatEntry = (entry: typeof entries.value[number]) => {
+        const time = new Date(entry.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        return t('entryAt', { category: entry.category?.title, time })
+    }
+
+    watchForAdd(entries, (entry) => {
+        const time = new Date(entry.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        return t(entry.running ? 'entryAtRunning' : 'entryAt', { category: entry.category?.title, time, duration: '' })
+    })
+    watchForStop(entries, (entry) => `${t('stopped')} ${formatEntry(entry)}`)
+    watchForDelete(entries, (entry) => `${t('deleted')} ${formatEntry(entry)}`)
+
     const loaderEl = ref<HTMLDialogElement | null>(null)
 
     const route = useRoute()
@@ -64,6 +78,7 @@
             })
         }
     })
+
 </script>
 
 <style scoped>

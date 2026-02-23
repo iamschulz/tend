@@ -7,7 +7,7 @@ import {
   closeBrowser,
   getPage,
 } from './_setup'
-import { addCategory, holdTrigger } from './_helpers'
+import { addCategory, holdTrigger, waitForAnnouncement, getAnnouncement } from './_helpers'
 
 describe('Entries', () => {
   let page: Page
@@ -47,6 +47,11 @@ describe('Entries', () => {
     // Should NOT have a running indicator (play icon)
     const runningIcon = await page.$('article.track .running-icon')
     expect(runningIcon).toBeNull()
+
+    // Announcer should mention the category
+    await waitForAnnouncement(page, 'Quick Task')
+    const announcement = await getAnnouncement(page)
+    expect(announcement).toContain('Quick Task')
   })
 
   it('hold starts a running timer', async () => {
@@ -60,6 +65,11 @@ describe('Entries', () => {
     // Should have a running indicator
     const runningIcon = await page.$('article.track .running-icon')
     expect(runningIcon).not.toBeNull()
+
+    // Announcer should mention the category
+    await waitForAnnouncement(page, 'Timed Task')
+    const announcement = await getAnnouncement(page)
+    expect(announcement).toContain('Timed Task')
   })
 
   it('stops a running entry', async () => {
@@ -80,6 +90,12 @@ describe('Entries', () => {
 
     const runningIcon = await page.$('article.track .running-icon')
     expect(runningIcon).toBeNull()
+
+    // Announcer should mention stop
+    await waitForAnnouncement(page, 'Stop')
+    const announcement = await getAnnouncement(page)
+    expect(announcement).toContain('Stop')
+    expect(announcement).toContain('Stop Test')
   })
 
   it('deletes a completed entry', async () => {
@@ -108,6 +124,12 @@ describe('Entries', () => {
 
     const entries = await page.$$('article.track')
     expect(entries.length).toBe(0)
+
+    // Announcer should mention delete
+    await waitForAnnouncement(page, 'Delete')
+    const announcement = await getAnnouncement(page)
+    expect(announcement).toContain('Delete')
+    expect(announcement).toContain('Delete Test')
   })
 
   it('trigger button shows running state', async () => {

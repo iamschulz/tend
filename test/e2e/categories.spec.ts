@@ -8,7 +8,7 @@ import {
   getPage,
   ensureCategoriesOpen,
 } from './_setup'
-import { addCategory, openMenu, closeMenu, quickClickTrigger } from './_helpers'
+import { addCategory, openMenu, closeMenu, quickClickTrigger, waitForAnnouncement, getAnnouncement } from './_helpers'
 
 describe('Categories', () => {
   let page: Page
@@ -46,6 +46,12 @@ describe('Categories', () => {
     // Trigger button should now appear (inside [data-avatar])
     const triggerButtons = await page.$$('[data-group] [data-avatar]:not(.allCategories) button')
     expect(triggerButtons.length).toBe(1)
+
+    // Announcer should mention the added category
+    await waitForAnnouncement(page, 'Meditation')
+    const announcement = await getAnnouncement(page)
+    expect(announcement.toLowerCase()).toContain('add')
+    expect(announcement).toContain('Meditation')
   })
 
   it('adds a second category', async () => {
@@ -99,7 +105,7 @@ describe('Categories', () => {
     expect(editInputs.length).toBe(1)
 
     // Click the delete button on the edit form (the non-submit button)
-    await page.click('dialog.menu li .categoryForm button:not([type="submit"]):not([aria-pressed])')
+    await page.click('dialog.menu li .categoryForm button:last-of-type')
 
     // Confirm dialog should appear
     await page.waitForSelector('dialog.confirm-dialog[open]', { timeout: 3000 })
@@ -115,6 +121,12 @@ describe('Categories', () => {
 
     editInputs = await page.$$('dialog.menu li .categoryForm input[type="text"]')
     expect(editInputs.length).toBe(0)
+
+    // Announcer should mention the deleted category
+    await waitForAnnouncement(page, 'Cooking')
+    const announcement = await getAnnouncement(page)
+    expect(announcement.toLowerCase()).toContain('delete')
+    expect(announcement).toContain('Cooking')
   })
 
   it('cancels category deletion', async () => {
@@ -123,7 +135,7 @@ describe('Categories', () => {
     await ensureCategoriesOpen(page)
 
     // Click the delete button
-    await page.click('dialog.menu li .categoryForm button:not([type="submit"]):not([aria-pressed])')
+    await page.click('dialog.menu li .categoryForm button:last-of-type')
 
     // Confirm dialog should appear
     await page.waitForSelector('dialog.confirm-dialog[open]', { timeout: 3000 })
@@ -157,15 +169,15 @@ describe('Categories', () => {
     // Open menu and toggle hide
     await openMenu(page)
     await ensureCategoriesOpen(page)
-    const hideBtn = await page.$('dialog.menu li .categoryForm button[aria-pressed]')
+    const hideBtn = await page.$('dialog.menu li .categoryForm button:nth-last-of-type(2)')
     expect(hideBtn).not.toBeNull()
     await hideBtn!.click()
 
-    // Wait for the store watcher debounce
+    // Wait for the hide button text to change to "Show" (meaning category is now hidden)
     await page.waitForFunction(
       () => {
-        const btn = document.querySelector('dialog.menu li .categoryForm button[aria-pressed]')
-        return btn?.getAttribute('aria-pressed') === 'true'
+        const btn = document.querySelector('dialog.menu li .categoryForm button:nth-last-of-type(2)')
+        return btn?.textContent?.trim() === 'Show'
       },
       { timeout: 3000 },
     )
@@ -192,12 +204,12 @@ describe('Categories', () => {
     // Hide the category
     await openMenu(page)
     await ensureCategoriesOpen(page)
-    const hideBtn = await page.$('dialog.menu li .categoryForm button[aria-pressed]')
+    const hideBtn = await page.$('dialog.menu li .categoryForm button:nth-last-of-type(2)')
     await hideBtn!.click()
     await page.waitForFunction(
       () => {
-        const btn = document.querySelector('dialog.menu li .categoryForm button[aria-pressed]')
-        return btn?.getAttribute('aria-pressed') === 'true'
+        const btn = document.querySelector('dialog.menu li .categoryForm button:nth-last-of-type(2)')
+        return btn?.textContent?.trim() === 'Show'
       },
       { timeout: 3000 },
     )
@@ -212,12 +224,12 @@ describe('Categories', () => {
     // Unhide the category
     await openMenu(page)
     await ensureCategoriesOpen(page)
-    const showBtn = await page.$('dialog.menu li .categoryForm button[aria-pressed]')
+    const showBtn = await page.$('dialog.menu li .categoryForm button:nth-last-of-type(2)')
     await showBtn!.click()
     await page.waitForFunction(
       () => {
-        const btn = document.querySelector('dialog.menu li .categoryForm button[aria-pressed]')
-        return btn?.getAttribute('aria-pressed') === 'false'
+        const btn = document.querySelector('dialog.menu li .categoryForm button:nth-last-of-type(2)')
+        return btn?.textContent?.trim() === 'Hide'
       },
       { timeout: 3000 },
     )

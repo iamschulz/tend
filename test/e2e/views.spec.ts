@@ -179,7 +179,7 @@ describe('Views', () => {
     // Delete the category
     await openMenu(page)
     await ensureCategoriesOpen(page)
-    await page.click('dialog.menu li .categoryForm button:not([type="submit"]):not([aria-pressed])')
+    await page.click('dialog.menu li .categoryForm button:last-of-type')
     await page.waitForSelector('dialog.confirm-dialog[open]', { timeout: 3000 })
     await page.click('dialog.confirm-dialog button[data-variant="primary"]')
 

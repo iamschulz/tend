@@ -11,6 +11,7 @@
             <slot />
         </div>
         <div class="backdrop" @click="() => closeDialog()" />
+        <div aria-live="assertive" class="announcer">{{ announcerText }}</div>
     </dialog>
 </template>
 
@@ -36,6 +37,9 @@
     const toggleFunction = `toggle${capitalize(name)}` as SetterKey;
     
     const dialogEl = ref<HTMLDialogElement | null>(null)
+
+    const { registerAnnouncer } = useAnnounce()
+    const announcerText = registerAnnouncer(`dialog-${name}`, () => dialogEl.value?.open ?? false)
 
     watch(
         () => ui[name],

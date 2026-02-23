@@ -4,6 +4,7 @@
             <summary><h3>{{ $t('selectDay') }}</h3></summary>
             <TimeSelect v-if="ui.menuOpen" />
         </details>
+
         <details :open="!data.categories.length">
             <summary><h3>{{ $t('categories') }}</h3></summary>
             <TransitionGroup name="list" tag="ul" class="nolist">
@@ -38,7 +39,7 @@
 </template>
 
 <script lang="ts" setup>
-import DisplaySettings from '~/assets/icons/display-settings.vue';
+    import DisplaySettings from '~/assets/icons/display-settings.vue';
 
     const ui = useUiStore();
     const data = useDataStore();

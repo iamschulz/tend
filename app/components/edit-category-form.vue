@@ -13,7 +13,7 @@
                 </option>
             </select>
             <input v-model="category.title" :aria-label="$t('selectCategoryTitle')" type="text" required>
-            <button :aria-pressed="category.hidden" @click.prevent="category.hidden = !category.hidden">
+            <button @click.prevent="category.hidden = !category.hidden">
                 <nuxt-icon :name="category.hidden ? 'visibility_off' : 'visibility'" />
                 <span class="sr-only">{{ category.hidden ? $t('show') : $t('hide') }}</span>
             </button>
@@ -46,6 +46,7 @@
     const ui = useUiStore();
 
     const { t } = useI18n();
+    const { announce } = useAnnounce();
 
     function handleActivityChange(e: Event) {
         const emoji = (e.target as HTMLSelectElement).value
@@ -56,6 +57,7 @@
     const handleDelete = async () => {
         if (await ui.requestConfirm(t('deleteCategory'))) {
             data.deleteCategory(category.id)
+            announce(`${t('deleted')} ${category.title}`)
         }
     }
 </script>

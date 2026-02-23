@@ -40,6 +40,8 @@ import { useDataStore } from '~/stores/data'
 import type { CategoryData, Activity } from '~/types/Category'
 
 const data = useDataStore()
+const { t } = useI18n()
+const { announce } = useAnnounce()
 
 const getRandomColor = (): string =>
   colors[Math.floor(Math.random() * colors.length)]!
@@ -54,7 +56,9 @@ const createEmptyCategory = (): CategoryData => ({
 const newCategoryData = ref<CategoryData>(createEmptyCategory())
 
 const onAddCategory = () => {
+    const title = newCategoryData.value.title
     data.addCategory(newCategoryData.value)
+    announce(`${t('added')} ${title}`)
 
     // Reset form with new random color
     newCategoryData.value = createEmptyCategory()

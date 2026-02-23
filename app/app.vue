@@ -5,10 +5,10 @@
   <LazyErrorDialog v-if="ready" />
   <main>
     <NuxtPage />
-    <NuxtRouteAnnouncer />
     <LazyTriggerGroup v-if="ready" />
   </main>
-  
+  <NuxtRouteAnnouncer />
+  <div aria-live="assertive" class="announcer">{{ announcement }}</div>
 </template>
 
 <script setup lang="ts">
@@ -16,6 +16,9 @@
     useHead({
         htmlAttrs: { lang: locale }
     })
+
+    const { registerAnnouncer } = useAnnounce()
+    const announcement = registerAnnouncer('root', () => !document.querySelector('dialog[open]'))
 
     const ready = ref(false)
     onNuxtReady(() => {
@@ -49,5 +52,15 @@
 
   main {
     padding-bottom: 8rem;
+  }
+
+  .announcer {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
   }
 </style>
