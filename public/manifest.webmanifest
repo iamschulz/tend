@@ -1,0 +1,16 @@
+{
+  "name": "Tend",
+  "short_name": "Tend",
+  "description": "A friendly habit tracker",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#E0E0E0",
+  "theme_color": "#E0E0E0",
+  "icons": [
+    {
+      "src": "/tend.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

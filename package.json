@@ -12,6 +12,7 @@
     "test": "vitest run",
     "test:unit": "vitest run",
     "test:e2e": "nuxt build && vitest run --config vitest.e2e.config.ts",
+    "test:e2e:pwa": "nuxt generate && vitest run --config vitest.e2e.config.ts test/e2e/pwa.spec.ts",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "seed": "tsx scripts/write-seed-data.ts"
