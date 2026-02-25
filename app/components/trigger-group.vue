@@ -109,6 +109,8 @@
         padding: 0;
         font-size: clamp(1.6rem, 3.5vw, 2rem);
         border: none;
+        height: 2.5em;
+        width: 2.5em;
 
         button {
             width: 100%;

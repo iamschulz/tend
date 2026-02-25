@@ -110,6 +110,7 @@
     [data-group].weekday {
         position: relative;
         gap: 0.6rem;
+        min-height: -webkit-fill-available; /* safari will not h-scroll entire container when days are empty or short */
 
         *:nth-of-type(2) {
             --br-tl: var(--border-radius);

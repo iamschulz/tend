@@ -6,6 +6,28 @@
     --body-width: 72rem;
 }
 
+/* fix automatic theme color in safatri */
+body {
+    background-color: var(--col-bg3);
+    position: relative;
+
+    &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-color: var(--col-bg);
+    }
+}
+
+/* fix horizontal scroll */
+body {
+    overflow-x: hidden;
+}
+
+#__nuxt {
+    width: calc(100% - 2rem);
+}
+
 [force-scheme="light"] {
     --col-fg: #222;
     color-scheme: light;
@@ -37,8 +59,4 @@
 
 :is(svg) {
     fill: currentColor;
-}
-
-body:not(:has(#__nuxt, #__next)), :is(#__nuxt, #__next) > footer {
-    margin-top: 0;
 }
