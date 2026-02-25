@@ -32,6 +32,8 @@
             </div>
         </details>
 
+        <InstallButton />
+
         <div class="menu-footer">
             <p><span class="appname"><nuxt-icon name="tend" filled /> Tend</span> | made with ♥ | {{ new Date().getUTCFullYear() }}</p>
         </div>

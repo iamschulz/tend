@@ -5,7 +5,6 @@ const CACHE_NAME = `tend-${VERSION}`
 const ASSETS: string[] = __ASSETS__
 
 self.addEventListener('install', (event: ExtendableEvent) => {
-  console.log('foo install')
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
   )
