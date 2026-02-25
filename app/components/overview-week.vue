@@ -76,13 +76,13 @@
     });
 
     // scroll to current day
-    const days = ref<HTMLElement[] | null>(null);
+    const days = ref<{ $el: HTMLElement }[] | null>(null);
 
     onMounted(async () => {
         if (!isCurrentWeek) return;
         await nextTick();
         const dayNumber = (new Date().getUTCDay() + 6) % 7;
-        const currentDayEl = days.value![dayNumber];
+        const currentDayEl = days.value![dayNumber]?.$el as HTMLElement | undefined;
         currentDayEl?.scrollIntoView({ inline: 'center', behavior: 'smooth'});
     })
 

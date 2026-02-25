@@ -11,7 +11,6 @@ self.addEventListener('install', (event: ExtendableEvent) => {
 })
 
 self.addEventListener('activate', (event: ExtendableEvent) => {
-  console.log('foo activate')
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(
@@ -25,7 +24,6 @@ self.addEventListener('activate', (event: ExtendableEvent) => {
 
 self.addEventListener('fetch', (event: FetchEvent) => {
   const { request } = event
-  console.log('foo request', request.url)
 
   if (request.mode === 'navigate') {
     event.respondWith(
