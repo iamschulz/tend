@@ -53,3 +53,37 @@ dialog {
         max-height var(--t-max-height, 0s) ease-out;
 }
 /* end fix */
+
+/* dialog h-scroll fix */
+dialog, [popover] {
+    &:has(> header) {
+        padding: 0;
+
+        & > * {
+            padding: 1rem;
+        }
+    }
+
+    header {
+        margin: 0;
+    }
+}
+/* end fix */
+
+/* dialog backdrop animation fix */
+@keyframes backdrop-fade-in {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }   
+}
+
+dialog:open {
+    &::backdrop {
+        animation: backdrop-fade-in .1s ease-out;
+    }
+}
+/* end fix */

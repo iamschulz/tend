@@ -93,17 +93,17 @@
     }
 
     dialog.menu {
-        --menu-width: 440px;
-        max-height: 100vh;
-        height: 100vh;
+        --menu-width: 28rem;
+        max-height: 100svh;
+        height: 100svh;
         border-radius: 0 var(--border-radius)(--border-radius) 0;
-        width: min(var(--menu-width), 80vw);
-        max-width: min(var(--menu-width), 80vw);
-        left: calc(-100% + min(var(--menu-width), 80vw));
+        width: min(var(--menu-width), 80svw);
+        max-width: min(var(--menu-width), 80svw);
+        left: calc(-100% + min(var(--menu-width), 80svw));
         @media (prefers-reduced-motion: no-preference) {
 	    	animation: dialog-fade-in 0.2s ease-out;
 	    }
-
+        
         &::backdrop {
             @media (prefers-reduced-motion: no-preference) {
                 animation: fade-in 0.2s ease-out;
@@ -133,7 +133,7 @@
         .menu-footer {
             margin-top: auto;
             width: 100%;
-            max-width: min(var(--menu-width), 80vw);
+            max-width: min(var(--menu-width), 80svw);
             color: var(--col-fg2);
 
             .appname {
@@ -148,20 +148,39 @@
     dialog[open].menu {
         display: flex;
         flex-direction: column;
-    }
 
-    dialog[open].menu .dialog-inner {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        overflow-y: auto;
-    }
+        /* fix overscroll transparency */
+        &::before {
+            content: "";
+            display: block;
+            position: fixed;
+            inset: 0;
+            width: min(var(--menu-width), 80svw);
+            height: 100%;
+            background: var(--col-bg);
+            z-index: -1;
+        }
 
-    dialog[open].menu .backdrop {
-        inset: unset;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        left: min(var(--menu-width), 80vw);
+        header {
+                position: sticky;
+                top: 0;
+                background-color: var(--col-bg);
+                box-shadow: 0 10px 10px 0 var(--col-bg);
+                z-index: 1;
+            }
+    
+        .dialog-inner {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+    
+        .backdrop {
+            inset: unset;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            left: min(var(--menu-width), 80svw);
+        }
     }
 </style>

@@ -19,11 +19,6 @@ body {
     }
 }
 
-/* fix horizontal scroll */
-body {
-    overflow-x: hidden;
-}
-
 #__nuxt {
     width: calc(100% - 2rem);
 }

@@ -74,6 +74,7 @@ const onAddCategory = () => {
 
     input[type="color"] {
         height: 2.2rem;
+        min-width: 6ch;
     }
 
     input[type="text"] {

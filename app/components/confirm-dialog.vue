@@ -13,10 +13,7 @@
 
 <style scoped>
     .confirm-dialog[open] {
-        height: fit-content;
-        width: unset;
         max-width: min(90vw, 24rem);
-        min-height: 0;
     }
 
     .confirm-actions {

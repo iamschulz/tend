@@ -63,4 +63,8 @@
     overflow: hidden;
     border: 0;
   }
+
+  .nuxt-route-announcer {
+    width: 1px;
+  }
 </style>

@@ -70,9 +70,6 @@
 
 <style scoped>
     dialog[open] {
-        width: 100%;
-        height: 100%;
-        min-height: 80vh;
         max-width: min(90vw, calc(var(--body-width) - 1rem));
 
         header {
@@ -87,7 +84,7 @@
             }
 
             h2 {
-                display: inline-block;
+                display: inline;
                 margin-block: 0;
                 flex: 1 0 auto;
             }
@@ -112,5 +109,9 @@
             opacity: 0.5;
             z-index: -1;
         }
+    }
+
+    .announcer {
+        padding: 0;
     }
 </style>

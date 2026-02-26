@@ -80,14 +80,13 @@
     }
     
     ul[data-group] {
+        position: fixed;
+        left: 0;
+        bottom: 2rem;
         display: flex;
         justify-content: flex-end;
-        position: fixed;
-        max-width: var(--body-width);
+        max-width: 100svw;
         width: 100%;
-        bottom: 2rem;
-        margin-block: 0;
-        margin-left: -1rem;
         padding: 0 1rem;
         z-index: 1;
         --t-opacity: var(--animation-duration);
