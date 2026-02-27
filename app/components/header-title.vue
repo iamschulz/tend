@@ -68,17 +68,17 @@
 <style scoped>
     .title {
         margin: 0;
-        font-size: 2rem;
+        font-size: 1.5em;
         display: flex;
         align-items: center;
         gap: 0.5ch;
     }
 
     .nav-link {
-        font-size: 0.75em;
+        font-size: 0.6em;
         text-decoration: none;
         color: inherit;
-        margin-bottom: -0.375rem;
+        margin-bottom: -0.125em;
 
         &:hover {
             color: var(--col-accent2);
@@ -87,7 +87,7 @@
 
     .short {
         display: inline;
-        font-size: 1.6rem;
+        font-size: 0.8em;
     }
 
     .long {
@@ -101,6 +101,10 @@
 
         .long {
             display: inline;
+        }
+
+        .nav-link {
+            margin-bottom: -0.375em;
         }
     }
 </style>
