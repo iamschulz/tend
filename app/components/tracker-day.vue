@@ -91,6 +91,7 @@
         --t-opacity: var(--animation-duration);
         --t-transform: var(--animation-duration);
         --t-scale: var(--animation-duration);
+        transition-timing-function: var(--animation-bounce);
     }
 
     .list-enter-from {

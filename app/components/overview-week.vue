@@ -137,16 +137,20 @@
         --t-opacity: var(--animation-duration);
         --t-transform: var(--animation-duration);
         --t-scale: var(--animation-duration);
+        transition-timing-function: var(--animation-bounce);
+        
     }
 
     .list-enter-from {
         opacity: 0;
         z-index: 2;
+        transform: translateY(-2.5rem);
     }
     .list-leave-to {
         opacity: 0;
         scale: 0.9;
         z-index: 0;
+        transform: translateY(0);
     }
     .list-leave-active {
         position: absolute;
