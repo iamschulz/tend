@@ -9,7 +9,10 @@
             />
         </li>
 
-        <li v-else-if="entries.length === 0" key="nothingtoday">{{ $t("nothingToday") }}</li>
+        <li v-else-if="entries.length === 0" key="nothingtoday" class="empty">
+            <nuxt-icon name="tend" />
+            {{ $t("nothingToday") }}
+        </li>
 
         <!-- display all entries from today -->
         <li v-for="(entry, index) in entries" :key="entry.id">
@@ -127,6 +130,21 @@
         width: 100%;
         margin-block: 1rem;
         z-index: 1;
+    }
+
+    .empty {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        color: var(--col-fg2);
+        border: 3px dashed var(--col-bg3);
+        border-radius: var(--border-radius);
+        text-align: center;
+        padding: 1rem;
+
+        .nuxt-icon {
+            font-size: 2rem;
+        }
     }
 
     .divider {

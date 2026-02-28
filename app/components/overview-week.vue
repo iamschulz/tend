@@ -8,7 +8,9 @@
             <li v-for="entry in day" :key="entry.id">
                 <WeekEntry :entry="entry" />
             </li>
-            <li v-if="!day.length" key="empty" class="empty" aria-label="No entries">{{ $t('nothingToday') }}</li>
+            <li v-if="!day.length" key="empty" class="empty" aria-label="No entries">
+                <nuxt-icon name="tend" />
+            </li>
         </TransitionGroup>
     </div>
 </template>
@@ -119,8 +121,14 @@
     }
 
     .empty {
-        color: var(--col-fg2);
+        color: var(--col-bg3);
         text-align: center;
+        border: 3px dashed var(--col-bg3);
+        border-radius: var(--border-radius);
+
+        .nuxt-icon {
+            font-size: 1.5rem;
+        }
     }
 
     .list-move,
