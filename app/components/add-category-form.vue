@@ -69,7 +69,7 @@ const onAddCategory = () => {
     .categoryForm {
         container-name: category-form;
         container-type: inline-size;
-        margin-block: 1rem;
+        margin-block-start: 1rem;
     }
 
     input[type="color"] {
@@ -78,7 +78,7 @@ const onAddCategory = () => {
     }
 
     input[type="text"] {
-            max-width: min(17ch, 50vw);
+        max-width: min(17ch, 50vw);
     }
 
     @container category-form (width < 22rem) {

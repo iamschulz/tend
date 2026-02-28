@@ -116,9 +116,10 @@
 
         details {
             margin-block: 1rem;
+            padding: 1rem;
 
-            summary + * {
-                margin-block-start: 2rem;
+            summary {
+                margin-block-end: 1rem;
             }
         }
 
