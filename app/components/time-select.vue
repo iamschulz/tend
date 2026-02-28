@@ -4,9 +4,9 @@
         <div data-group>
             <button class="shift" @click="shiftDate(-1, 'month')">&laquo;</button>
             <button class="shift" @click="shiftDate(-1, 'day')">&lsaquo;</button>
-            <input type="date" v-model="dateValue">
-            <button class="shift" @click="shiftDate(1, 'day')" :disabled="!canGoForwardDay">&rsaquo;</button>
-            <button class="shift" @click="shiftDate(1, 'month')" :disabled="!canGoForwardMonth">&raquo;</button>
+            <input v-model="dateValue" type="date">
+            <button class="shift" :disabled="!canGoForwardDay" @click="shiftDate(1, 'day')">&rsaquo;</button>
+            <button class="shift" :disabled="!canGoForwardMonth" @click="shiftDate(1, 'month')">&raquo;</button>
         </div>
         <div data-group>
             <button @click="onSelect('day')">{{ $t('day') }}</button>
