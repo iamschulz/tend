@@ -62,11 +62,11 @@ describe('Navigation', () => {
     // Open the "Select Day" details section (may be closed when no categories exist)
     await ensureSelectDayOpen(page)
 
-    // Click the "Week" link in the time select section
-    const links = await page.$$('dialog.menu .selectMenu a')
-    const weekLink = links[1] // Today, Week, Month, Year — index 1
-    expect(weekLink).not.toBeNull()
-    await weekLink!.click()
+    // Click the "Week" button in the time select section
+    const buttons = await page.$$('dialog.menu .selectMenu [data-group]:last-child button')
+    const weekButton = buttons[1] // Day, Week, Month, Year — index 1
+    expect(weekButton).not.toBeNull()
+    await weekButton!.click()
 
     await page.waitForFunction(() => window.location.pathname.startsWith('/week/'), { timeout: 5000 })
     expect(page.url()).toContain('/week/')
@@ -77,10 +77,10 @@ describe('Navigation', () => {
     await page.waitForSelector('dialog.menu[open]', { timeout: 3000 })
     await ensureSelectDayOpen(page)
 
-    const links = await page.$$('dialog.menu .selectMenu a')
-    const monthLink = links[2]
-    expect(monthLink).not.toBeNull()
-    await monthLink!.click()
+    const buttons = await page.$$('dialog.menu .selectMenu [data-group]:last-child button')
+    const monthButton = buttons[2] // Day, Week, Month, Year — index 2
+    expect(monthButton).not.toBeNull()
+    await monthButton!.click()
 
     await page.waitForFunction(() => window.location.pathname.startsWith('/month/'), { timeout: 5000 })
     expect(page.url()).toContain('/month/')
@@ -91,10 +91,10 @@ describe('Navigation', () => {
     await page.waitForSelector('dialog.menu[open]', { timeout: 3000 })
     await ensureSelectDayOpen(page)
 
-    const links = await page.$$('dialog.menu .selectMenu a')
-    const yearLink = links[3]
-    expect(yearLink).not.toBeNull()
-    await yearLink!.click()
+    const buttons = await page.$$('dialog.menu .selectMenu [data-group]:last-child button')
+    const yearButton = buttons[3] // Day, Week, Month, Year — index 3
+    expect(yearButton).not.toBeNull()
+    await yearButton!.click()
 
     await page.waitForFunction(() => window.location.pathname.startsWith('/year/'), { timeout: 5000 })
     expect(page.url()).toContain('/year/')
