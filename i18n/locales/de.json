@@ -17,6 +17,10 @@
     "year": "Jahr",
     "weekOf": "Woche vom {date}",
     "yearLabel": "Jahr {year}",
+    "monthBack": "Einen Monat zurück",
+    "dayBack": "Einen Tag zurück",
+    "dayForward": "Einen Tag vorwärts",
+    "monthForward": "Einen Monat vorwärts",
 
     "menu": "Menü",
     "previous": "Zurück",

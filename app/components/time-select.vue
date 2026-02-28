@@ -1,12 +1,24 @@
 <template>
     <section class="selectMenu">
         <NuxtLink href="/">{{ $t('today') }}</NuxtLink>
-        <div data-group>
-            <button class="shift" @click="shiftDate(-1, 'month')">&laquo;</button>
-            <button class="shift" @click="shiftDate(-1, 'day')">&lsaquo;</button>
+        <div data-group class="date-select">
+            <button class="shift" @click="shiftDate(-1, 'month')">
+                <nuxt-icon name="fast_rewind" size="48" />
+                <span class="sr-only">{{ $t("monthBack") }}</span>
+            </button>
+            <button class="shift" @click="shiftDate(-1, 'day')">
+                <nuxt-icon name="arrow_left" size="48" />
+                <span class="sr-only">{{ $t("dayBack") }}</span>
+            </button>
             <input v-model="dateValue" type="date">
-            <button class="shift" :disabled="!canGoForwardDay" @click="shiftDate(1, 'day')">&rsaquo;</button>
-            <button class="shift" :disabled="!canGoForwardMonth" @click="shiftDate(1, 'month')">&raquo;</button>
+            <button class="shift" :disabled="!canGoForwardDay" @click="shiftDate(1, 'day')">
+                <nuxt-icon name="arrow_right" size="48" />
+                <span class="sr-only">{{ $t("dayForward") }}</span>
+            </button>
+            <button class="shift" :disabled="!canGoForwardMonth" @click="shiftDate(1, 'month')">
+                <nuxt-icon name="fast_forward" size="48" />
+                <span class="sr-only">{{ $t("monthForward") }}</span>
+            </button>
         </div>
         <div data-group>
             <button @click="onSelect('day')">{{ $t('day') }}</button>
@@ -85,6 +97,12 @@
 
         &:hover {
             background-color: var(--col-accent2);
+        }
+    }
+
+    .date-select {
+        button {
+            font-size: 1.5rem;
         }
     }
 

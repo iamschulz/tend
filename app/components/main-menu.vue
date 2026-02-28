@@ -118,8 +118,8 @@
             margin-block: 1rem;
             padding: 1rem;
 
-            summary {
-                margin-block-end: 1rem;
+            summary + * {
+                margin-block-start: 1rem;
             }
         }
 

@@ -52,8 +52,8 @@ const handleMenuButtonClick = (): void => {
     gap: 1rem;
 
     svg {
-        width: 3em;
-        height: 3em;
+        width: 2em;
+        height: 2em;
     }
 }
 </style>
