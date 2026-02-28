@@ -43,6 +43,9 @@
             return;
         }
 
+        // prevent touch devices from also firing mousedown
+        if (event.type === "touchstart") { event.preventDefault(); }
+
         disableTriggers = true;
 
         const clickThreshold = 800; //ms
