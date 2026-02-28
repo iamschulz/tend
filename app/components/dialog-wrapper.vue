@@ -69,6 +69,16 @@
 </script>
 
 <style scoped>
+    @keyframes backdrop-fade-in {
+        from {
+            opacity: 0;
+        }
+        
+        to {
+            opacity: 1;
+        }
+    }
+
     dialog[open] {
         max-width: min(90vw, calc(var(--body-width) - 1rem));
 
@@ -105,9 +115,13 @@
         .backdrop {
             position: fixed;
             inset: 0;
-            z-index: 9999999;
-            opacity: 0.5;
             z-index: -1;
+        }
+
+        &::backdrop {
+            @media (prefers-reduced-motion: no-preference) {
+                animation: backdrop-fade-in 0.2s ease-out;
+            }
         }
     }
 

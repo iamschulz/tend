@@ -39,7 +39,6 @@ export default defineNuxtConfig({
   ],
 
   css: [
-    '~/assets/css/fixes.css',
     '~/assets/css/theme.css',
     '~/assets/css/srOnly.css',
     '~/assets/css/nolist.css',
