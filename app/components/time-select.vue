@@ -31,13 +31,45 @@
 
 <script lang="ts" setup>
     import { getIsoWeekString } from '~/util/getIsoWeekString'
+    import { getDateFromWeek } from '~/util/getDateFromWeek'
+
+    const route = useRoute()
 
     const now = new Date();
     const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-    const dateValue = ref<string>(today);
 
     const toIso = (d: Date) =>
         `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+    const dateFromRoute = computed(() => {
+        const path = route.path
+        const param = route.params.date
+        const dateStr = typeof param === 'string' ? param : null
+
+        if (path.startsWith('/day/') && dateStr && /^\d{4}-\d{2}-\d{2}$/.test(dateStr) && !Number.isNaN(Date.parse(dateStr))) {
+            return dateStr
+        }
+
+        if (path.startsWith('/week/') && dateStr && /^\d{4}-W\d{2}$/.test(dateStr)) {
+            return toIso(getDateFromWeek(dateStr))
+        }
+
+        if (path.startsWith('/month/') && dateStr && /^\d{4}-\d{2}$/.test(dateStr)) {
+            return `${dateStr}-01`
+        }
+
+        if (path.startsWith('/year/') && dateStr && /^\d{4}$/.test(dateStr)) {
+            return `${dateStr}-01-01`
+        }
+
+        return today
+    })
+
+    const dateValue = ref<string>(dateFromRoute.value)
+
+    watch(dateFromRoute, (val) => {
+        dateValue.value = val
+    })
 
     const shiftDate = (amount: number, unit: 'day' | 'month') => {
         const d = new Date(dateValue.value + 'T00:00:00');
