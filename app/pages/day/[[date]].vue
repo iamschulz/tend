@@ -8,8 +8,6 @@
 </template>
 
 <script setup lang="ts">
-    import { getDayRange } from '~/util/getDayRange'
-
     const route = useRoute()
     const dateParam = computed<string | null>(() => {
         const d = route.params.date
@@ -22,8 +20,10 @@
     // Fallback to current date if param is missing
     const date = new Date(dateParam.value || '');
 
-    // Compare by day range
-    const isInFuture = getDayRange(new Date())[1] <= date;
+    // Compare by local day, not UTC
+    const now = new Date()
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+    const isInFuture = !!dateParam.value && dateParam.value > todayStr;
 
     
     const routeValid = dateParam.value && isRealDate(dateParam.value);

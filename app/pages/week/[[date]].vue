@@ -8,7 +8,6 @@
 </template>
 
 <script setup lang="ts">
-    import { getWeekRange } from "~/util/getWeekRange"
     import { getDateFromWeek } from "~/util/getDateFromWeek"
 
     const route = useRoute()
@@ -40,10 +39,16 @@
         () => !weekParam.value || isRealWeek(weekParam.value)
     )
 
-    // Compare by week range
+    // Compare by local ISO week
     const isInFuture = computed(() => {
-        const [, endOfCurrentWeek] = getWeekRange(new Date())
-        return endOfCurrentWeek < date
+        if (!weekParam.value) return false
+        const now = new Date()
+        // calendar week 1 depends on 1st thursday (iso 8601)
+        const thu = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (4 - (now.getDay() || 7)))
+        const jan1 = new Date(thu.getFullYear(), 0, 1)
+        const week = Math.ceil(((thu.getTime() - jan1.getTime()) / 86400000 + 1) / 7)
+        const currentWeek = `${thu.getFullYear()}-W${String(week).padStart(2, '0')}`
+        return weekParam.value > currentWeek
     })
 
     const ui = useUiStore()

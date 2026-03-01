@@ -95,11 +95,12 @@ export async function closeBrowser(): Promise<void> {
  * Each page gets its own browser context, ensuring no state leaks
  * between tests (prevents pinia-plugin-persistedstate from restoring stale data).
  */
-export async function getPage(path: string): Promise<Page> {
+export async function getPage(path: string, contextOptions?: { timezoneId?: string }): Promise<Page> {
   if (!browser) throw new Error('Browser not launched')
   const context = await browser.newContext({
     viewport: { width: 1280, height: 800 },
     locale: 'en',
+    ...contextOptions,
   })
   const page = await context.newPage()
   await page.goto(`${baseUrl}${path}`, { waitUntil: 'networkidle' })

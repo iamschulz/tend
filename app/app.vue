@@ -48,6 +48,7 @@
 
   #__nuxt {
     overflow-x: initial;
+    transform: translate(0);
   }
 
   main {

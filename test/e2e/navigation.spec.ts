@@ -126,10 +126,18 @@ describe('Navigation', () => {
     expect(page.url()).not.toContain(yStr)
   })
 
-  it('future date shows future message', async () => {
-    await navigateTo(page, '/day/2099-01-01')
+  it('shows future message for future day', async () => {
+    // Close the default page and reopen in a timezone behind UTC (UTC-10).
+    // With the clock pinned to March 2 08:00 UTC (= March 1 22:00 HST),
+    // the local date is March 1, so March 2 is "tomorrow" for the user.
+    // The buggy UTC-based comparison in getDayRange treats March 2 as
+    // "today", hiding the future message.
+    await page.close()
+    page = await getPage('/', { timezoneId: 'Pacific/Honolulu' })
+    await page.clock.setFixedTime(new Date('2026-03-02T08:00:00Z'))
 
-    // The future message text should be visible
+    await navigateTo(page, '/day/2026-03-02')
+
     const text = await page.evaluate(() => {
       const paragraphs = document.querySelectorAll('#__nuxt p')
       return Array.from(paragraphs).map((p) => p.textContent?.trim()).join(' ')

@@ -8,8 +8,6 @@
 </template>
 
 <script setup lang="ts">
-    import { getYearRange } from '~/util/getYearRange'
-
     const route = useRoute()
     const yearParam = computed<string | null>(() => {
         const y = route.params.date
@@ -26,10 +24,9 @@
         () => !yearParam.value || isRealYear(yearParam.value)
     )
 
-    // Compare by year range
+    // Compare by local year
     const isInFuture = computed(() => {
-        const [, endOfCurrentYear] = getYearRange(new Date())
-        return endOfCurrentYear < date
+        return !!yearParam.value && Number(yearParam.value) > new Date().getFullYear()
     })
 
     const ui = useUiStore()

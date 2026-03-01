@@ -8,8 +8,6 @@
 </template>
 
 <script setup lang="ts">
-    import { getMonthRange } from '~/util/getMonthRange'
-
     const route = useRoute()
     const monthParam = computed<string | null>(() => {
         const m = route.params.date
@@ -31,10 +29,11 @@
         () => !monthParam.value || isRealMonth(monthParam.value)
     )
 
-    // Compare by month range
+    // Compare by local month
     const isInFuture = computed(() => {
-        const [, endOfCurrentMonth] = getMonthRange(new Date())
-        return endOfCurrentMonth < date
+        const now = new Date()
+        const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+        return !!monthParam.value && monthParam.value > currentMonth
     })
 
     const ui = useUiStore()
