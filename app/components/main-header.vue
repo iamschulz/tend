@@ -41,9 +41,12 @@ const handleMenuButtonClick = (): void => {
     box-shadow: 0 calc(5px * var(--scrolled)) calc(5px * var(--scrolled)) 0 var(--col-bg3);
     font-size: calc(1rem * (1 - var(--scrolled) * 0.2));
     padding-block: calc(1rem * (1 - var(--scrolled) * 0.8));
-    animation: scrolled ease-out both;
-    animation-timeline: scroll();
-    animation-range: 0px 20px;
+
+    @supports (animation-timeline: scroll()) {
+        animation: scrolled ease-out both;
+        animation-timeline: scroll();
+        animation-range: 0px 20px;
+    }
 }
 
 .header-inner {
