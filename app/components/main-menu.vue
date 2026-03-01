@@ -8,11 +8,11 @@
         <details :open="!data.categories.length">
             <summary><h3>{{ $t('categories') }}</h3></summary>
             <TransitionGroup name="list" tag="ul" class="nolist">
-            <li v-if="data.categories.length === 0" key="0">{{ $t('addCategoryPrompt') }}</li>
+                <li v-if="data.categories.length === 0" key="0">{{ $t('addCategoryPrompt') }}</li>
 
-            <li v-for="category in data.categories" :key="category.id">
-                <EditCategoryForm :category="category" />
-            </li>
+                <li v-for="category in data.categories" :key="category.id">
+                    <EditCategoryForm :category="category" />
+                </li>
             </TransitionGroup>
             <hr>
             <AddCategoryForm />
@@ -70,7 +70,6 @@
     }
     .list-leave-active {
         position: absolute;
-        left: 0;
     }
 
     @keyframes dialog-fade-in {
@@ -115,6 +114,7 @@
 
         li {
             margin-block: 1rem;
+            width: 100%;
         }
 
         .menu-footer {
