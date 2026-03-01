@@ -1,5 +1,5 @@
 <template>
-    <section data-dashedbox>
+    <section data-dashedbox class="error">
         <header><h3>{{ $t('error') }}</h3></header>
         <slot>{{ $t("somethingWrong") }}</slot>
     </section>

@@ -4,7 +4,7 @@ import { startServer, stopServer, launchBrowser, closeBrowser, getPage } from '.
 
 /** Assert the page shows the error notice and NOT the future message. */
 async function expectErrorNotice(page: Page) {
-  const errorNotice = await page.$('aside[data-callout]')
+  const errorNotice = await page.$('.error')
   expect(errorNotice).not.toBeNull()
 
   const hasFutureMessage = await page.evaluate(() => {
