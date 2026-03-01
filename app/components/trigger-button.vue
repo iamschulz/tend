@@ -1,25 +1,18 @@
 <template>
-    <button 
-        v-if="!data.hasRunningEntries(category)"
-        ref="startButton"
+    <button
         oncontextmenu="return false;"
-        v-bind="{ style: `--categoryColor: ${category.color}`, }"
+        :style="`--categoryColor: ${category.color}`"
+        :class="{ running: isRunning, pressing, releasing, loading }"
+        data-shadow="2-hover"
         @mousedown="onTriggerDown"
         @keydown="onTriggerDown"
         @touchstart="onTriggerDown"
         @mouseleave="abortTrigger"
+        @click="onStop"
+        @animationend="onAnimationEnd"
     >
         {{ category.activity.emoji }}
-        <span class="sr-only">{{ category.title }}</span>
-    </button>
-    <button 
-        v-else 
-        v-bind="{ style: `--categoryColor: ${category.color}`, }"
-        class="running"
-        @click="data.closeAllEntries(category.id)"
-    >
-        {{ category.activity.emoji }}
-        <span class="sr-only">{{ $t('stop') }} {{ category.title }}</span>
+        <span class="sr-only">{{ isRunning ? `${$t('stop')} ` : '' }}{{ category.title }}</span>
     </button>
 </template>
 
@@ -30,11 +23,29 @@
     const props = defineProps<{
         category: Category
     }>()
-    const startButton = useTemplateRef('startButton')
     const data = useDataStore();
     let disableTriggers = false;
 
+    const isRunning = computed(() => data.hasRunningEntries(props.category));
+    const pressing = ref(false);
+    const releasing = ref(false);
+    const loading = ref(false);
+
+    const onAnimationEnd = (e: AnimationEvent) => {
+        if (!e.pseudoElement) {
+            releasing.value = false;
+        }
+    }
+
+    const onStop = () => {
+        if (!isRunning.value || disableTriggers) { return; }
+        releasing.value = true;
+        data.closeAllEntries(props.category.id);
+    }
+
     const onTriggerDown = (event: TouchEvent | MouseEvent | KeyboardEvent) => {
+        if (isRunning.value) { return; }
+
         // only trigger once
         if (("repeat" in event && event.repeat) || disableTriggers) { return; }
 
@@ -58,10 +69,14 @@
         else if (event.type === "keydown") { upEvent = "keyup" }
         if (!upEvent) { return; }
 
-        startButton.value?.classList.add('loading');
+        releasing.value = false;
+        pressing.value = true;
+        loading.value = true;
 
         event.target?.addEventListener(upEvent, (event) => {
-            startButton.value?.classList.remove('loading');
+            pressing.value = false;
+            releasing.value = true;
+            loading.value = false;
             const triggerUpTime = event.timeStamp;
             addEvent(triggerUpTime - triggerDownTime > clickThreshold);
             window.setTimeout(() => {
@@ -71,7 +86,8 @@
     }
 
     const abortTrigger = () => {
-        startButton.value?.classList.remove('loading');
+        loading.value = false;
+        pressing.value = false;
         window.setTimeout(() => {
             disableTriggers = false;
         }, 10)
@@ -123,6 +139,12 @@
         }
     }
 
+    @keyframes bounce-release {
+        0%   { scale: 0.85; }
+        60%  { scale: 1.08; }
+        100% { scale: 1; }
+    }
+
     button {
         position: relative;
         background-color: var(--categoryColor, --col-accent);
@@ -132,11 +154,20 @@
         text-shadow: 0px 0px 1rem currentColor;
         user-select: none;
         border-radius: 99999px;
+        --t-scale: 0.15s;
+
+        &.pressing {
+            scale: 0.85;
+        }
+
+        &.releasing {
+            animation: bounce-release 0.4s var(--animation-bounce);
+        }
 
         &::before {
             content: "";
             position: absolute;
-            inset: 0;
+            inset: 3px;
             border: 4px solid currentColor;
             border-radius: 9999px;
             opacity: 0.7;

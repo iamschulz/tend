@@ -1,7 +1,7 @@
 <template>
     <TransitionGroup name="list" tag="ul" class="nolist" data-group>
         <li ref="loaderEl" key="loader" class="loader" />
-        <li v-for="(category, index) in visibleCategories" :key="index" data-avatar data-shadow="2-hover">
+        <li v-for="(category, index) in visibleCategories" :key="index" data-avatar>
             <trigger-button :category="category" />
         </li>
         <li v-if="hasHidden" key="0" data-avatar data-shadow="2" class="allCategories">
@@ -111,6 +111,8 @@
         border: none;
         height: 2.5em;
         width: 2.5em;
+        background: none;
+        overflow: visible;
 
         button {
             width: 100%;
