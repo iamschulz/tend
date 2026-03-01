@@ -3,7 +3,7 @@
         <loading-indicator v-if="!mounted" />
         <LazyOverviewMonth v-else-if="routeValid && !isInFuture" :date="date" />
         <p v-else-if="isInFuture">{{ $t('futureMessage') }}</p>
-        <p v-else-if="!routeValid">{{ $t('error') }}</p>
+        <ErrorNotice v-else-if="!routeValid" />
     </div>
 </template>
 
@@ -31,9 +31,10 @@
 
     // Compare by local month
     const isInFuture = computed(() => {
+        if (!monthParam.value || !routeValid.value) return false
         const now = new Date()
         const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
-        return !!monthParam.value && monthParam.value > currentMonth
+        return monthParam.value > currentMonth
     })
 
     const ui = useUiStore()

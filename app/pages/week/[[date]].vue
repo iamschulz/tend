@@ -3,7 +3,7 @@
         <loading-indicator v-if="!mounted" />
         <LazyOverviewWeek v-else-if="routeValid && !isInFuture" :date="date" />
         <p v-else-if="isInFuture">{{ $t('futureMessage') }}</p>
-        <p v-else-if="!routeValid">{{ $t('error') }}</p>
+        <ErrorNotice v-else-if="!routeValid" />
     </div>
 </template>
 
@@ -41,7 +41,7 @@
 
     // Compare by local ISO week
     const isInFuture = computed(() => {
-        if (!weekParam.value) return false
+        if (!weekParam.value || !routeValid.value) return false
         const now = new Date()
         // calendar week 1 depends on 1st thursday (iso 8601)
         const thu = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (4 - (now.getDay() || 7)))

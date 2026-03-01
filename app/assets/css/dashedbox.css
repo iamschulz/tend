@@ -1,0 +1,10 @@
+[data-dashedbox] {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    color: var(--col-fg2);
+    border: 3px dashed var(--col-bg3);
+    border-radius: var(--border-radius);
+    text-align: center;
+    padding: 1rem;
+}

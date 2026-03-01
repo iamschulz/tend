@@ -141,5 +141,7 @@
     "import": "Import",
     "export": "Export",
     "importConfirm": "Import will delete all existing data. Continue?",
-    "importError": "Invalid import file format."
+    "importError": "Invalid import file format.",
+
+    "somethingWrong": "Something went wrong here."
 }

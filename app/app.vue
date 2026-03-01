@@ -41,6 +41,7 @@
   @import "ssstyles/css/shadow.css" layer(components);
   @import "ssstyles/css/loading.css" layer(components);
   @import "ssstyles/css/autogrid.css" layer(components);
+  @import "ssstyles/css/callout.css" layer(components);
 
   body {
     margin: 0;
@@ -48,7 +49,7 @@
 
   #__nuxt {
     overflow-x: initial;
-    transform: translate(0);
+    isolation: isolate;
   }
 
   main {

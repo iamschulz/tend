@@ -88,7 +88,7 @@
         justify-content: flex-end;
         max-width: 100svw;
         width: 100%;
-        padding: 0 1rem;
+        padding: 0 2rem 0 1rem;
         z-index: 1;
         --t-opacity: var(--animation-duration);
         --t-transform: var(--animation-duration);

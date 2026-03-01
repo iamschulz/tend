@@ -43,6 +43,7 @@ export default defineNuxtConfig({
     '~/assets/css/srOnly.css',
     '~/assets/css/nolist.css',
     '~/assets/css/nobutton.css',
+    '~/assets/css/dashedbox.css',
   ],
 
   piniaPluginPersistedstate: {

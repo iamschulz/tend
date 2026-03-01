@@ -3,7 +3,7 @@
         <loading-indicator v-if="!mounted" />
         <LazyOverviewYear v-else-if="routeValid && !isInFuture" :date="date" />
         <p v-else-if="isInFuture">{{ $t('futureMessage') }}</p>
-        <p v-else-if="!routeValid">{{ $t('error') }}</p>
+        <ErrorNotice v-else-if="!routeValid" />
     </div>
 </template>
 

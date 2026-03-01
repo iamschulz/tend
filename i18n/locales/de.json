@@ -141,5 +141,7 @@
     "import": "Importieren",
     "export": "Exportieren",
     "importConfirm": "Der Import löscht alle bisherigen Daten. Fortfahren?",
-    "importError": "Ungültiges Dateiformat."
+    "importError": "Ungültiges Dateiformat.",
+
+    "somethingWrong": "Irgendwas ist hier schief gelaufen."
 }
