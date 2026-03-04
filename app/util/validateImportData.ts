@@ -1,4 +1,7 @@
-import type { Activity, Entry, CategoryWithEntries } from '~/types/Category'
+import type { Activity } from '~/types/Activity'
+import type { Entry } from '~/types/Entry'
+import type { Goal } from '~/types/Goal'
+import type { CategoryWithEntries } from '~/types/CategoryWithEntries'
 
 export type ImportData = {
     categories: CategoryWithEntries[]
@@ -23,6 +26,18 @@ function isEntry(value: unknown): value is Entry {
         && typeof obj.comment === 'string'
 }
 
+const validIntervals = new Set(['day', 'week', 'month'])
+
+function isGoal(value: unknown): value is Goal {
+    if (typeof value !== 'object' || value === null) { return false }
+    const obj = value as Record<string, unknown>
+    return typeof obj.count === 'number'
+        && typeof obj.interval === 'string'
+        && validIntervals.has(obj.interval)
+        && typeof obj.days === 'number'
+        && typeof obj.reminder === 'boolean'
+}
+
 function isCategory(value: unknown): value is CategoryWithEntries {
     if (typeof value !== 'object' || value === null) { return false }
     const obj = value as Record<string, unknown>
@@ -31,6 +46,7 @@ function isCategory(value: unknown): value is CategoryWithEntries {
         && isActivity(obj.activity)
         && typeof obj.color === 'string'
         && (obj.hidden === undefined || typeof obj.hidden === 'boolean')
+        && (obj.goals === undefined || (Array.isArray(obj.goals) && obj.goals.every(isGoal)))
         && Array.isArray(obj.entries)
         && obj.entries.every(isEntry)
 }

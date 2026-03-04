@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-    import type { EntryWithCategory } from '~/types/Category';
+    import type { EntryWithCategory } from '~/types/EntryWithCategory';
     import { getDayRange } from '~/util/getDayRange';
     import { getWeekRange } from '~/util/getWeekRange';
     import { getWeekdays } from '~/contants/weekdays';

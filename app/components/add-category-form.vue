@@ -37,7 +37,8 @@ import { ref } from 'vue'
 import activities from '~/contants/activities.json'
 import colors from '~/contants/colors.json'
 import { useDataStore } from '~/stores/data'
-import type { CategoryData, Activity } from '~/types/Category'
+import type { CategoryData } from '~/types/CategoryData'
+import type { Activity } from '~/types/Activity'
 
 const data = useDataStore()
 const { t } = useI18n()

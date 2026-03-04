@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-    import type { EntryWithCategory } from '~/types/Category';
+    import type { EntryWithCategory } from '~/types/EntryWithCategory';
     import { formatDuration } from '~/util/formatDuration';
     import { useSharedNow } from '~/composables/useSharedNow';
 

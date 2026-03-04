@@ -1,6 +1,10 @@
 import { defineStore } from 'pinia'
 import { shallowRef, computed } from 'vue'
-import type { Category, CategoryData, Entry, EntryWithCategory, CategoryWithEntries } from './../types/Category';
+import type { Category } from '~/types/Category'
+import type { CategoryData } from '~/types/CategoryData'
+import type { Entry } from '~/types/Entry'
+import type { EntryWithCategory } from '~/types/EntryWithCategory'
+import type { CategoryWithEntries } from '~/types/CategoryWithEntries'
 import { idbStorage } from '~/util/idbStorage';
 
 export const useDataStore = defineStore('data', () => {
@@ -41,6 +45,7 @@ export const useDataStore = defineStore('data', () => {
             title: data.title,
             activity: data.activity,
             color: data.color,
+            goals: [],
             hidden: false,
         }]
     }
@@ -56,6 +61,7 @@ export const useDataStore = defineStore('data', () => {
         if (data.title) { category.title = data.title }
         if (data.activity) { category.activity = data.activity }
         if (data.color) { category.color = data.color }
+        if (data.goals) { category.goals = data.goals }
         if (data.hidden !== undefined) { category.hidden = data.hidden }
 
         updated[index] = category
@@ -119,7 +125,7 @@ export const useDataStore = defineStore('data', () => {
 
         for (const cat of importCategories) {
             const { entries: catEntries, ...categoryData } = cat
-            newCategories.push({ ...categoryData, hidden: categoryData.hidden ?? false })
+            newCategories.push({ ...categoryData, goals: categoryData.goals ?? [], hidden: categoryData.hidden ?? false })
             newEntries.push(...catEntries)
         }
 

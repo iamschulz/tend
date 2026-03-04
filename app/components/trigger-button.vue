@@ -17,7 +17,8 @@
 </template>
 
 <script setup lang="ts">
-    import type { Category, Entry } from '~/types/Category'
+    import type { Category } from '~/types/Category'
+    import type { Entry } from '~/types/Entry'
     import { useDataStore } from '~/stores/data';
 
     const props = defineProps<{

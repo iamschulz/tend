@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useDataStore } from '~/stores/data'
-import type { Entry } from '~/types/Category'
+import type { Entry } from '~/types/Entry'
 
 // Stub crypto.randomUUID for deterministic IDs
 let uuidCounter = 0
@@ -46,6 +46,13 @@ describe('useDataStore', () => {
 
       expect(store.categories[0]!.hidden).toBe(false)
     })
+
+    it('initializes goals as empty array', () => {
+      const store = useDataStore()
+      store.addCategory({ title: 'Work', color: '#ff0000', activity: sampleActivity })
+
+      expect(store.categories[0]!.goals).toEqual([])
+    })
   })
 
   // --- updateCategory ---
@@ -73,6 +80,16 @@ describe('useDataStore', () => {
 
       store.updateCategory({ id, hidden: false })
       expect(store.categories[0]!.hidden).toBe(false)
+    })
+
+    it('can update goals', () => {
+      const store = useDataStore()
+      store.addCategory({ title: 'Work', color: '#ff0000', activity: sampleActivity })
+      const id = store.categories[0]!.id
+
+      const goals = [{ count: 3, interval: 'week' as const, days: 5, reminder: true }]
+      store.updateCategory({ id, goals })
+      expect(store.categories[0]!.goals).toEqual(goals)
     })
 
     it('no-ops when id is missing', () => {
@@ -324,6 +341,7 @@ describe('useDataStore', () => {
           title: 'Imported',
           activity: sampleActivity,
           color: '#0f0',
+          goals: [],
           hidden: false,
           entries: [makeEntry({ categoryId: 'imp-1' })],
         },
@@ -335,6 +353,24 @@ describe('useDataStore', () => {
       expect(store.categories[0]!.title).toBe('Imported')
       expect(store.categories[0]!.id).toBe('imp-1')
       expect(store.entries).toHaveLength(1)
+    })
+
+    it('defaults goals to empty array when missing from import', () => {
+      const store = useDataStore()
+      const imported = [
+        {
+          id: 'imp-1',
+          title: 'Legacy',
+          activity: sampleActivity,
+          color: '#0f0',
+          hidden: false,
+          entries: [],
+        },
+      ]
+
+      store.importData(imported)
+
+      expect(store.categories[0]!.goals).toEqual([])
     })
   })
 
