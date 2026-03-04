@@ -87,6 +87,21 @@
     animation-timing-function: var(--animation-bounce);
   }
 
+  ::view-transition-group(main-header),
+  ::view-transition-group(trigger-group) {
+    z-index: 2;
+  }
+
+  ::view-transition-old(main-header) {
+    display: none;
+  }
+
+  ::view-transition-new(main-header),
+  ::view-transition-old(trigger-group),
+  ::view-transition-new(trigger-group) {
+    animation: none;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     ::view-transition-group(*),
     ::view-transition-old(*),

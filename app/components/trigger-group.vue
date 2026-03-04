@@ -90,6 +90,7 @@
         width: 100%;
         padding: 0 2rem 0 1rem;
         z-index: 1;
+        view-transition-name: trigger-group;
         --t-opacity: var(--animation-duration);
         --t-transform: var(--animation-duration);
         opacity: 0;

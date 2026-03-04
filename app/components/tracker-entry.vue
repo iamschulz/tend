@@ -1,10 +1,10 @@
 <template>
     <article :id="`e-${entry.id}`" class="track" data-card data-shadow="1-hover" :style="{ viewTransitionName: `entry-card-${entry.id}` }">
         <NuxtLink data-card-link :to="`/entry/${entry.id}`" :aria-label="entry.category?.title" />
-        <span class="icon" :style="{ '--categoryColor': entry.category!.color, viewTransitionName: `entry-icon-${entry.id}` }">
+        <span class="icon" :style="{ '--categoryColor': entry.category!.color }">
             {{ entry.category!.activity.emoji }}
         </span>
-        <h2 class="title" :style="{ viewTransitionName: `entry-title-${entry.id}` }">
+        <h2 class="title">
             {{ entry.category!.title }}
         </h2>
         <div class="details">
@@ -20,6 +20,9 @@
             </span>
             <span v-if="entry.end && (entry.start !== entry.end) && !entry.running">
                 ({{ formatDuration(entry.start, entry.end, t) }})
+            </span>
+            <span v-if="entry.comment">
+                <nuxt-icon name="notes" />
             </span>
         </div>
         <div class="controls">

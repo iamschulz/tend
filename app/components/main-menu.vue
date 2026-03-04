@@ -41,7 +41,7 @@
 </template>
 
 <script lang="ts" setup>
-    import DisplaySettings from '~/assets/icons/display-settings.vue';
+    import DisplaySettings from '~/components/display-settings.vue';
 
     const ui = useUiStore();
     const data = useDataStore();

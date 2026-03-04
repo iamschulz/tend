@@ -2,10 +2,10 @@
     <loading-indicator v-if="!mounted" />
     <section v-else-if="entry" data-card data-shadow="1" :style="{ viewTransitionName: `entry-card-${entry.id}` }">
         <header>
-            <span class="icon" :style="{ '--categoryColor': entry.category!.color, viewTransitionName: `entry-icon-${entry.id}` }">
+            <span class="icon" :style="{ '--categoryColor': entry.category!.color }">
                 {{ entry.category!.activity.emoji }}
             </span>
-            <h2 class="title" :style="{ viewTransitionName: `entry-title-${entry.id}` }">
+            <h2 class="title">
                 {{ entry.category!.title }}
             </h2>
             <button @click="handleDelete">
