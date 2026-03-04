@@ -8,6 +8,7 @@ const validEntry = {
     end: 2000,
     running: false,
     categoryId: 'cat-1',
+    comment: '',
 }
 
 const validActivity = { title: 'Work', icon: 'briefcase', emoji: '💼' }
@@ -253,6 +254,25 @@ describe('validateImportData', () => {
             expect(validateImportData({
                 categories: [{ ...validCategory, entries: [validEntry, bad] }],
             })).toBe(false)
+        })
+
+        it('returns false when entry comment is missing', () => {
+            const { comment: _, ...rest } = validEntry
+            expect(validateImportData({
+                categories: [{ ...validCategory, entries: [rest] }],
+            })).toBe(false)
+        })
+
+        it('returns false when entry comment is a number', () => {
+            expect(validateImportData({
+                categories: [{ ...validCategory, entries: [{ ...validEntry, comment: 123 }] }],
+            })).toBe(false)
+        })
+
+        it('accepts entry with non-empty comment', () => {
+            expect(validateImportData({
+                categories: [{ ...validCategory, entries: [{ ...validEntry, comment: 'hello' }] }],
+            })).toBe(true)
         })
     })
 })

@@ -29,6 +29,7 @@
     "cancel": "Cancel",
     "confirm": "Confirm",
     "stop": "Stop",
+    "started": "Started",
     "stopped": "Stopped",
     "delete": "Delete",
     "deleted": "Deleted",
@@ -63,6 +64,7 @@
     "entryAtRunning": "{category} at {time}, running for {duration}",
     "entry": "entry",
     "entries": "entries",
+    "notes": "Notes",
 
     "durationD": "d",
     "durationH": "h",

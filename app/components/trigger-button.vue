@@ -103,6 +103,7 @@
             end: running ? null : now,
             running: running,
             categoryId: props.category.id,
+            comment: "",
         }
         data.addEntry(newEntry);
     }

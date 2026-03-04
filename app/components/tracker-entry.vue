@@ -1,5 +1,6 @@
 <template>
     <article :id="`e-${entry.id}`" class="track" data-card data-shadow="1-hover">
+        <NuxtLink data-card-link :to="`/entry/${entry.id}`" :aria-label="entry.category?.title" />
         <span class="icon" v-bind="{ style: `--categoryColor: ${entry.category!.color}`, }">
             {{ entry.category!.activity.emoji }}
         </span>
@@ -103,6 +104,7 @@
         background-color: var(--categoryColor);
         color: oklch(from var(--categoryColor) round(calc(1 - l)) 0 0);
         text-shadow: 0px 0px 1rem currentColor;
+        margin: 0;
         padding: 0 0.5rem;
         border-radius: var(--br-tl, var(--border-radius)) 0 0 var(--br-bl, var(--border-radius));
     }
@@ -137,5 +139,6 @@
         margin: 0;
         display: grid;
         place-items: center;
+        z-index: 3;
     }
 </style>

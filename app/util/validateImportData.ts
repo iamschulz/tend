@@ -20,6 +20,7 @@ function isEntry(value: unknown): value is Entry {
         && (obj.end === null || typeof obj.end === 'number')
         && typeof obj.running === 'boolean'
         && typeof obj.categoryId === 'string'
+        && typeof obj.comment === 'string'
 }
 
 function isCategory(value: unknown): value is CategoryWithEntries {

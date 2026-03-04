@@ -29,6 +29,7 @@
     "cancel": "Abbrechen",
     "confirm": "Bestätigen",
     "stop": "Stopp",
+    "started": "Gestartet",
     "stopped": "Gestoppt",
     "delete": "Löschen",
     "deleted": "Gelöscht",
@@ -63,6 +64,7 @@
     "entryAtRunning": "{category} um {time}, läuft seit {duration}",
     "entry": "Eintrag",
     "entries": "Einträge",
+    "notes": "Notizen",
 
     "durationD": " T",
     "durationH": " Std",

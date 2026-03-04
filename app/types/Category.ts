@@ -10,6 +10,7 @@ export type Entry = {
     end: number | null;
     running: boolean;
     categoryId: string;
+    comment: string;
 }
 
 export type Category = {

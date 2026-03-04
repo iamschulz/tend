@@ -127,6 +127,30 @@ export const useDataStore = defineStore('data', () => {
         entries.value = newEntries
     }
 
+    function updateEntryStart(id: string, start: number): void {
+        entries.value = entries.value.map(entry =>
+            entry.id === id
+                ? { ...entry, start }
+                : entry
+        )
+    }
+
+    function updateEntryEnd(id: string, end: number): void {
+        entries.value = entries.value.map(entry =>
+            entry.id === id
+                ? { ...entry, end }
+                : entry
+        )
+    }
+
+    function updateEntryComment(id: string, comment: string): void {
+        entries.value = entries.value.map(entry =>
+            entry.id === id
+                ? { ...entry, comment }
+                : entry
+        )
+    }
+
     function closeAllEntries(categoryId: string): void {
         const now = Date.now()
         entries.value = entries.value.map(entry =>
@@ -153,6 +177,9 @@ export const useDataStore = defineStore('data', () => {
         hasRunningEntries,
         closeEntry,
         importData,
+        updateEntryStart,
+        updateEntryEnd,
+        updateEntryComment,
         closeAllEntries,
     }
 }, {

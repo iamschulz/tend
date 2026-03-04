@@ -129,7 +129,9 @@
 
     li {
         width: 100%;
+        max-width: var(--narrow-width);
         margin-block: 1rem;
+        margin-inline: auto;
         z-index: 1;
     }
 

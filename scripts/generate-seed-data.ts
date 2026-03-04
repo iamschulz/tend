@@ -9,6 +9,7 @@ type Entry = {
   end: number;
   running: boolean;
   categoryId: string;
+  comment: string;
 };
 type Category = {
   id: string;
@@ -138,6 +139,62 @@ export function generateSeedData(): SeedData {
     return `seed-entry-${String(entryCounter).padStart(4, "0")}`;
   }
 
+  const commentPool: Record<string, string[]> = {
+    'seed-cat-1': [
+      'Sprint planning meeting',
+      'Code review session',
+      'Deployed new feature to staging',
+      'Fixed production bug',
+      'Pair programming with Alex',
+      'Wrote unit tests for auth module',
+      'Database migration',
+      'Client call went well',
+      'Refactored payment flow',
+      'Onboarding new team member',
+    ],
+    'seed-cat-2': [
+      'Slept great',
+      'Woke up once during the night',
+      'Couldn\'t fall asleep easily',
+      'Had a weird dream',
+      'Tried new pillow',
+      'Need to fix the blinds',
+    ],
+    'seed-cat-3': [
+      'Leg day',
+      'Upper body focus',
+      '5k run in the park',
+      'Yoga session',
+      'HIIT workout',
+      'Swimming laps',
+      'Felt really good today',
+      'Pushed through the last set',
+    ],
+    'seed-cat-4': [
+      'Oat milk latte',
+      'Double espresso',
+      'Tried the new blend',
+      'Cold brew',
+      'Decaf for once',
+      'Coffee with Sarah',
+    ],
+    'seed-cat-5': [
+      'Heavy traffic today',
+      'Took the train instead',
+      'Listened to a great podcast',
+      'Nice weather for cycling',
+      'Bus was late again',
+      'Road works on the highway',
+    ],
+  }
+
+  function pickComment(categoryId: string): string {
+    if (!chance(0.3)) return ''
+    const pool = commentPool[categoryId]
+    if (!pool) return ''
+    return pool[randInt(0, pool.length - 1)]!
+  }
+
   function makeEntry(
     categoryId: string,
     start: number,
@@ -150,6 +207,7 @@ export function generateSeedData(): SeedData {
       end,
       running: false,
       categoryId,
+      comment: pickComment(categoryId),
     };
   }
 
