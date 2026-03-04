@@ -69,4 +69,54 @@
   .nuxt-route-announcer {
     width: 1px;
   }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+
+  ::view-transition-group(*) {
+    animation-duration: var(--animation-duration);
+    animation-timing-function: var(--animation-bounce);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+      animation: none !important;
+    }
+
+    .list-move,
+    .list-enter-active,
+    .list-leave-active {
+      transition: none !important;
+    }
+
+    .list-enter-from,
+    .list-leave-to {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+
+  body.reduced-motion {
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+      animation: none !important;
+    }
+
+    .list-move,
+    .list-enter-active,
+    .list-leave-active {
+      transition: none !important;
+    }
+
+    .list-enter-from,
+    .list-leave-to {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
 </style>

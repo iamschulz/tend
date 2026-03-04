@@ -1,10 +1,10 @@
 <template>
-    <article :id="`e-${entry.id}`" class="track" data-card data-shadow="1-hover">
+    <article :id="`e-${entry.id}`" class="track" data-card data-shadow="1-hover" :style="{ viewTransitionName: `entry-card-${entry.id}` }">
         <NuxtLink data-card-link :to="`/entry/${entry.id}`" :aria-label="entry.category?.title" />
-        <span class="icon" v-bind="{ style: `--categoryColor: ${entry.category!.color}`, }">
+        <span class="icon" :style="{ '--categoryColor': entry.category!.color, viewTransitionName: `entry-icon-${entry.id}` }">
             {{ entry.category!.activity.emoji }}
         </span>
-        <h2 class="title">
+        <h2 class="title" :style="{ viewTransitionName: `entry-title-${entry.id}` }">
             {{ entry.category!.title }}
         </h2>
         <div class="details">

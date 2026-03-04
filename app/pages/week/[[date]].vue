@@ -57,11 +57,9 @@
     })
 
 
-    const mounted = ref(false)
+    const nuxtApp = useNuxtApp()
+    const mounted = ref(!nuxtApp.isHydrating)
     onNuxtReady(() => {
         mounted.value = true
-    })
-    onBeforeUnmount(() => {
-        mounted.value = false
     })
 </script>

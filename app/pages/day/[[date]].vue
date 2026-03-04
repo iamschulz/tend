@@ -34,13 +34,10 @@
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
 
-    const mounted = ref(false)
+    const nuxtApp = useNuxtApp()
+    const mounted = ref(!nuxtApp.isHydrating)
 
     onNuxtReady(() => {
         mounted.value = true
-    })
-
-    onBeforeUnmount(() => {
-        mounted.value = false
     })
 </script>

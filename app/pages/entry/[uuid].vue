@@ -1,11 +1,11 @@
 <template>
     <loading-indicator v-if="!mounted" />
-    <section v-else-if="entry" data-card data-shadow="1">
+    <section v-else-if="entry" data-card data-shadow="1" :style="{ viewTransitionName: `entry-card-${entry.id}` }">
         <header>
-            <span class="icon" v-bind="{ style: `--categoryColor: ${entry.category!.color}`, }">
+            <span class="icon" :style="{ '--categoryColor': entry.category!.color, viewTransitionName: `entry-icon-${entry.id}` }">
                 {{ entry.category!.activity.emoji }}
             </span>
-            <h2 class="title">
+            <h2 class="title" :style="{ viewTransitionName: `entry-title-${entry.id}` }">
                 {{ entry.category!.title }}
             </h2>
             <button @click="handleDelete">
@@ -153,14 +153,11 @@
 
     const duration = computed(() => formatDuration(entry.value!.start, now.value, t))
 
-    const mounted = ref(false)
+    const nuxtApp = useNuxtApp()
+    const mounted = ref(!nuxtApp.isHydrating)
 
     onNuxtReady(() => {
         mounted.value = true
-    })
-
-    onBeforeUnmount(() => {
-        mounted.value = false
     })
 </script>
 

@@ -108,6 +108,7 @@
     .list-leave-active {
         position: absolute;
         left: 0;
+        right: 0;
     }
 
     .tutorial-emoji {

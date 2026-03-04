@@ -6,7 +6,8 @@
 </template>
 
 <script setup lang="ts">
-    const ready = ref(false)
+    const nuxtApp = useNuxtApp()
+    const ready = ref(!nuxtApp.isHydrating)
     onNuxtReady(() => {
         ready.value = true
     })

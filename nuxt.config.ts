@@ -60,6 +60,10 @@ export default defineNuxtConfig({
     },
   },
 
+  experimental: {
+    viewTransition: true,
+  },
+
   i18n: {
     defaultLocale: 'en',
     detectBrowserLanguage: {},
