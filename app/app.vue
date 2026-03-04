@@ -24,6 +24,13 @@
     onNuxtReady(() => {
         ready.value = true
     })
+
+    const router = useRouter()
+    router.beforeEach((to) => {
+        document.documentElement.style.setProperty('--bounce-factor',
+            to.path.startsWith('/entry/') ? '0.3' : ''
+        )
+    })
 </script>
 
 <style>

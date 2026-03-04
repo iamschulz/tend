@@ -5,7 +5,8 @@
     --animation-duration: 0.3s;   
     --body-width: 68rem;
     --narrow-width: 40rem;
-    --animation-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --bounce-factor: 0.56;
+    --animation-bounce: cubic-bezier(0.34, calc(1 + var(--bounce-factor)), 0.64, 1);
 }
 
 /* fix automatic theme color in safatri */

@@ -17,6 +17,28 @@ const ui = useUiStore();
 const handleMenuButtonClick = (): void => {
     ui.toggleMenu(true);
 }
+
+const headerEl = ref<HTMLElement | null>(null)
+const scrolled = ref(0)
+
+/* collapse on scroll */
+const onScroll = () => {
+    scrolled.value = Math.min(window.scrollY / 20, 1)
+}
+
+onMounted(() => {
+    headerEl.value = document.querySelector('#__nuxt > header')
+    window.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+})
+
+onUnmounted(() => {
+    window.removeEventListener('scroll', onScroll)
+})
+
+watch(scrolled, (amount) => {
+    headerEl.value?.style.setProperty('--scrolled', String(amount))
+})
 </script>
 
 <style>
@@ -24,12 +46,6 @@ const handleMenuButtonClick = (): void => {
     syntax: "<number>";
     inherits: true;
     initial-value: 0;
-}
-
-@keyframes scrolled {
-    to {
-        --scrolled: 1;
-    }
 }
 
 #__nuxt > header {
@@ -41,12 +57,7 @@ const handleMenuButtonClick = (): void => {
     box-shadow: 0 calc(5px * var(--scrolled)) calc(5px * var(--scrolled)) 0 var(--col-bg3);
     font-size: calc(1rem * (1 - var(--scrolled) * 0.2));
     padding-block: calc(1rem * (1 - var(--scrolled) * 0.8));
-
-    @supports (animation-timeline: scroll()) {
-        animation: scrolled ease-out both;
-        animation-timeline: scroll();
-        animation-range: 0px 20px;
-    }
+    transition: --scrolled var(--animation-duration) var(--animation-bounce);
 }
 
 .header-inner {
