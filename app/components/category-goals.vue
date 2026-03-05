@@ -2,8 +2,8 @@
     <div>
         <TransitionGroup v-if="goals.length" tag="ul" name="goal" class="nolist goals-list">
             <li v-for="(goal, i) in goals" :key="i" data-card data-shadow="1" class="goal-item">
-                <span>{{ goal.count }}x / {{ $t(`per${goal.interval.charAt(0).toUpperCase()}${goal.interval.slice(1)}`) }}</span>
-                <AnimatedProgress :value="goalProgress(goal)" :max="goal.count" :color="categoryColor" />
+                <span>{{ goal.count }}{{ unitSuffix[goal.unit] }} / {{ $t(`per${goal.interval.charAt(0).toUpperCase()}${goal.interval.slice(1)}`) }}</span>
+                <AnimatedProgress :goal="goal" :category-id="categoryId" />
                 <span class="goal-days">
                     <span v-for="(key, di) in weekdayKeys" :key="key" :class="{ active: goal.days & (1 << di) }">{{ $t(key) }}</span>
                 </span>
@@ -22,6 +22,12 @@
                 :placeholder="$t('goalCount')"
                 required
             >
+            <select v-model="newGoal.unit" :aria-label="$t('goalUnit')">
+                <option value="event">{{ $t('unitEvent') }}</option>
+                <option value="minutes">{{ $t('unitMinutes') }}</option>
+                <option value="hours">{{ $t('unitHours') }}</option>
+                <option value="days">{{ $t('unitDays') }}</option>
+            </select>
             <select v-model="newGoal.interval" :aria-label="$t('goalInterval')">
                 <option value="day">{{ $t('perDay') }}</option>
                 <option value="week">{{ $t('perWeek') }}</option>
@@ -48,9 +54,6 @@
 <script setup lang="ts">
     import type { Goal } from '~/types/Goal';
     import { useDataStore } from '~/stores/data';
-    import { getDayRange } from '~/util/getDayRange';
-    import { getWeekRange } from '~/util/getWeekRange';
-    import { getMonthRange } from '~/util/getMonthRange';
 
     const props = defineProps<{
         categoryId: string
@@ -58,31 +61,15 @@
     }>()
 
     const data = useDataStore()
-    const categoryColor = computed(() => data.getCategoryById(props.categoryId)?.color)
 
-    const rangeFns = {
-        day: getDayRange,
-        week: getWeekRange,
-        month: getMonthRange,
-    } as const
-
-    const goalProgress = (goal: Goal): number => {
-        const [start, end] = rangeFns[goal.interval](new Date())
-        const rangeStart = start.getTime()
-        const rangeEnd = end.getTime()
-        return data.entries.filter(e => {
-            if (e.categoryId !== props.categoryId) return false
-            const eStart = new Date(e.start).getTime()
-            const eEnd = e.end ? new Date(e.end).getTime() : Infinity
-            return eStart <= rangeEnd && eEnd >= rangeStart
-        }).length
-    }
+    const unitSuffix = { event: 'x', minutes: 'm', hours: 'h', days: 'd' } as const
 
     const weekdayKeys = ['weekdayMoShort', 'weekdayTuShort', 'weekdayWeShort', 'weekdayThShort', 'weekdayFrShort', 'weekdaySaShort', 'weekdaySuShort'] as const
 
     const createEmptyGoal = (): Goal => ({
         count: 1,
         interval: 'week',
+        unit: 'event',
         days: 127,
         reminder: false,
     })

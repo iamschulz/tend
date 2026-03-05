@@ -1,16 +1,65 @@
 <template>
-    <progress :value="animated" :max="max" class="animated-progress" :style="color ? { accentColor: color } : undefined">
-        {{ value }} / {{ max }}
+    <progress :value="animated" :max="props.goal.count" class="animated-progress" :style="color ? { accentColor: color } : undefined">
+        {{ progress }} / {{ props.goal.count }}
     </progress>
 </template>
 
 <script setup lang="ts">
+    import type { Goal } from '~/types/Goal';
+    import { useDataStore } from '~/stores/data';
+    import { getDayRange } from '~/util/getDayRange';
+    import { getWeekRange } from '~/util/getWeekRange';
+    import { getMonthRange } from '~/util/getMonthRange';
+
     const props = defineProps<{
-        value: number
-        max: number
-        color?: string
+        goal: Goal
+        categoryId: string
     }>()
 
+    const data = useDataStore()
+    const color = computed(() => data.getCategoryById(props.categoryId)?.color)
+
+    const rangeFns = {
+        day: getDayRange,
+        week: getWeekRange,
+        month: getMonthRange,
+    } as const
+
+    const msPerUnit = { minutes: 60_000, hours: 3_600_000, days: 86_400_000 } as const
+
+    const now = ref(Date.now())
+    const hasRunning = computed(() => data.entries.some(e => e.categoryId === props.categoryId && e.running))
+    let tickInterval: ReturnType<typeof setInterval> | null = null
+
+    watch(hasRunning, (running) => {
+        if (running && !tickInterval) {
+            tickInterval = setInterval(() => { now.value = Date.now() }, 1000)
+        } else if (!running && tickInterval) {
+            clearInterval(tickInterval)
+            tickInterval = null
+        }
+    }, { immediate: true })
+
+    const progress = computed(() => {
+        const [start, end] = rangeFns[props.goal.interval](new Date())
+        const rangeStart = start.getTime()
+        const rangeEnd = end.getTime()
+        const matching = data.entries.filter(e => {
+            if (e.categoryId !== props.categoryId) return false
+            const eStart = new Date(e.start).getTime()
+            const eEnd = e.end ? new Date(e.end).getTime() : Infinity
+            return eStart <= rangeEnd && eEnd >= rangeStart
+        })
+
+        if (props.goal.unit === 'event') return matching.length
+
+        const totalMs = matching.reduce((sum, e) => {
+            return sum + ((e.end ?? now.value) - e.start)
+        }, 0)
+        return totalMs / msPerUnit[props.goal.unit]
+    })
+
+    // Animation
     const animated = ref(0)
     let frameId: number | null = null
 
@@ -34,12 +83,13 @@
         frameId = requestAnimationFrame(step)
     }
 
-    watch(() => props.value, (to) => {
+    watch(progress, (to) => {
         animateTo(animated.value, to)
     }, { immediate: true })
 
     onUnmounted(() => {
         if (frameId) cancelAnimationFrame(frameId)
+        if (tickInterval) clearInterval(tickInterval)
     })
 </script>
 

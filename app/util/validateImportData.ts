@@ -27,6 +27,7 @@ function isEntry(value: unknown): value is Entry {
 }
 
 const validIntervals = new Set(['day', 'week', 'month'])
+const validUnits = new Set(['event', 'minutes', 'hours', 'days'])
 
 function isGoal(value: unknown): value is Goal {
     if (typeof value !== 'object' || value === null) { return false }
@@ -34,6 +35,8 @@ function isGoal(value: unknown): value is Goal {
     return typeof obj.count === 'number'
         && typeof obj.interval === 'string'
         && validIntervals.has(obj.interval)
+        && typeof obj.unit === 'string'
+        && validUnits.has(obj.unit)
         && typeof obj.days === 'number'
         && typeof obj.reminder === 'boolean'
 }
