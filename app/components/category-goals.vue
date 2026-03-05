@@ -1,8 +1,9 @@
 <template>
     <div>
-        <ul v-if="goals.length" class="nolist goals-list">
+        <TransitionGroup v-if="goals.length" tag="ul" name="goal" class="nolist goals-list">
             <li v-for="(goal, i) in goals" :key="i" data-card data-shadow="1" class="goal-item">
                 <span>{{ goal.count }}x / {{ $t(`per${goal.interval.charAt(0).toUpperCase()}${goal.interval.slice(1)}`) }}</span>
+                <AnimatedProgress :value="goalProgress(goal)" :max="goal.count" :color="categoryColor" />
                 <span class="goal-days">
                     <span v-for="(key, di) in weekdayKeys" :key="key" :class="{ active: goal.days & (1 << di) }">{{ $t(key) }}</span>
                 </span>
@@ -10,7 +11,7 @@
                     <nuxt-icon name="delete" />
                 </button>
             </li>
-        </ul>
+        </TransitionGroup>
 
         <form class="goal-form" data-group @submit.prevent="onAddGoal">
             <input
@@ -47,6 +48,9 @@
 <script setup lang="ts">
     import type { Goal } from '~/types/Goal';
     import { useDataStore } from '~/stores/data';
+    import { getDayRange } from '~/util/getDayRange';
+    import { getWeekRange } from '~/util/getWeekRange';
+    import { getMonthRange } from '~/util/getMonthRange';
 
     const props = defineProps<{
         categoryId: string
@@ -54,6 +58,25 @@
     }>()
 
     const data = useDataStore()
+    const categoryColor = computed(() => data.getCategoryById(props.categoryId)?.color)
+
+    const rangeFns = {
+        day: getDayRange,
+        week: getWeekRange,
+        month: getMonthRange,
+    } as const
+
+    const goalProgress = (goal: Goal): number => {
+        const [start, end] = rangeFns[goal.interval](new Date())
+        const rangeStart = start.getTime()
+        const rangeEnd = end.getTime()
+        return data.entries.filter(e => {
+            if (e.categoryId !== props.categoryId) return false
+            const eStart = new Date(e.start).getTime()
+            const eEnd = e.end ? new Date(e.end).getTime() : Infinity
+            return eStart <= rangeEnd && eEnd >= rangeStart
+        }).length
+    }
 
     const weekdayKeys = ['weekdayMoShort', 'weekdayTuShort', 'weekdayWeShort', 'weekdayThShort', 'weekdayFrShort', 'weekdaySaShort', 'weekdaySuShort'] as const
 
@@ -88,6 +111,7 @@
         flex-direction: column;
         gap: 0.5rem;
         margin-bottom: 1rem;
+        position: relative;
     }
 
     .goal-item {
@@ -95,25 +119,45 @@
         align-items: center;
         gap: 1rem;
         padding: 0.5rem 0.75rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .goal-enter-from {
+        opacity: 0;
+        transform: translateY(0.5rem);
+    }
+
+    .goal-leave-to {
+        opacity: 0;
+        transform: translateY(0.5rem);
+    }
+
+    .goal-leave-active {
+        position: absolute;
+        left: 0;
     }
 
     .goal-days {
         display: flex;
         gap: 0.25rem;
         font-size: 0.75rem;
+        margin: 0;
 
         span {
             color: var(--col-fg3);
+            text-decoration: line-through;
         }
 
         .active {
             color: var(--col-fg);
             font-weight: 700;
+            text-decoration: none;
         }
     }
 
     .delete-goal {
-        margin-left: auto;
+        margin: 0;
     }
 
     .goal-form {
