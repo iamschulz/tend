@@ -13,17 +13,13 @@
                 </option>
             </select>
             <input v-model="category.title" :aria-label="$t('selectCategoryTitle')" type="text" required>
-            <NuxtLink :to="`/category/${category.id}`" :aria-label="category.title">
-                <nuxt-icon name="arrow_right" />
-            </NuxtLink>
             <button @click.prevent="category.hidden = !category.hidden">
                 <nuxt-icon :name="category.hidden ? 'visibility_off' : 'visibility'" />
                 <span class="sr-only">{{ category.hidden ? $t('show') : $t('hide') }}</span>
             </button>
-            <button @click.prevent="handleDelete">
-                <nuxt-icon name="delete" />
-                <span class="sr-only">{{ $t('delete') }}</span>
-            </button>
+            <NuxtLink :to="`/category/${category.id}`" :aria-label="category.title" data-button>
+                <nuxt-icon name="edit" />
+            </NuxtLink>
         </form>
     </div>
 </template>
@@ -46,22 +42,11 @@
     }, { deep: true })
 
     const data = useDataStore();
-    const ui = useUiStore();
-
-    const { t } = useI18n();
-    const { announce } = useAnnounce();
 
     function handleActivityChange(e: Event) {
         const emoji = (e.target as HTMLSelectElement).value
         const match = activities.find(a => a.emoji === emoji)
         if (match) { category.activity = match }
-    }
-
-    const handleDelete = async () => {
-        if (await ui.requestConfirm(t('deleteCategory'))) {
-            data.deleteCategory(category.id)
-            announce(`${t('deleted')} ${category.title}`)
-        }
     }
 </script>
 
@@ -77,6 +62,11 @@
 
     input[type="text"] {
             max-width: min(16ch, 50vw);
+    }
+
+    a {
+        display: grid;
+        place-items: center;
     }
 
     @container category-form (width < 22rem) {
@@ -116,7 +106,7 @@
                 grid-area: 2 / 3;
             }
 
-            :nth-child(6) { /* delete */
+            :nth-child(6) { /* edit */
                 grid-area: 3 / 3;
                 --br-br: var(--border-radius);
             }

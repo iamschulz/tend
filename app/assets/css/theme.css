@@ -50,7 +50,7 @@ main {
     color-scheme: dark;
 }
 
-:is(button) {
+:where(button, [data-button]) {
     display: grid;
     place-items: center;
     background-image: none; /* remove gradient */

@@ -1,7 +1,5 @@
 <template>
     <div>
-        <h3>{{ $t('goals') }}</h3>
-
         <ul v-if="goals.length" class="nolist goals-list">
             <li v-for="(goal, i) in goals" :key="i" data-card data-shadow="1" class="goal-item">
                 <span>{{ goal.count }}x / {{ $t(`per${goal.interval.charAt(0).toUpperCase()}${goal.interval.slice(1)}`) }}</span>
