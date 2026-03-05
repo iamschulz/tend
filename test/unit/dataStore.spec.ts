@@ -53,6 +53,13 @@ describe('useDataStore', () => {
 
       expect(store.categories[0]!.goals).toEqual([])
     })
+
+    it('initializes comment as empty string', () => {
+      const store = useDataStore()
+      store.addCategory({ title: 'Work', color: '#ff0000', activity: sampleActivity })
+
+      expect(store.categories[0]!.comment).toBe('')
+    })
   })
 
   // --- updateCategory ---
@@ -90,6 +97,25 @@ describe('useDataStore', () => {
       const goals = [{ count: 3, interval: 'week' as const, days: 5, reminder: true }]
       store.updateCategory({ id, goals })
       expect(store.categories[0]!.goals).toEqual(goals)
+    })
+
+    it('can update comment', () => {
+      const store = useDataStore()
+      store.addCategory({ title: 'Work', color: '#ff0000', activity: sampleActivity })
+      const id = store.categories[0]!.id
+
+      store.updateCategory({ id, comment: 'A note about this category' })
+      expect(store.categories[0]!.comment).toBe('A note about this category')
+    })
+
+    it('can set comment to empty string', () => {
+      const store = useDataStore()
+      store.addCategory({ title: 'Work', color: '#ff0000', activity: sampleActivity })
+      const id = store.categories[0]!.id
+
+      store.updateCategory({ id, comment: 'Some note' })
+      store.updateCategory({ id, comment: '' })
+      expect(store.categories[0]!.comment).toBe('')
     })
 
     it('no-ops when id is missing', () => {
@@ -371,6 +397,44 @@ describe('useDataStore', () => {
       store.importData(imported)
 
       expect(store.categories[0]!.goals).toEqual([])
+    })
+
+    it('defaults comment to empty string when missing from import', () => {
+      const store = useDataStore()
+      const imported = [
+        {
+          id: 'imp-1',
+          title: 'Legacy',
+          activity: sampleActivity,
+          color: '#0f0',
+          hidden: false,
+          entries: [],
+        },
+      ]
+
+      store.importData(imported)
+
+      expect(store.categories[0]!.comment).toBe('')
+    })
+
+    it('preserves comment from imported data', () => {
+      const store = useDataStore()
+      const imported = [
+        {
+          id: 'imp-1',
+          title: 'Imported',
+          activity: sampleActivity,
+          color: '#0f0',
+          goals: [],
+          hidden: false,
+          comment: 'Imported note',
+          entries: [],
+        },
+      ]
+
+      store.importData(imported)
+
+      expect(store.categories[0]!.comment).toBe('Imported note')
     })
   })
 

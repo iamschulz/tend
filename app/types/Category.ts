@@ -8,4 +8,5 @@ export type Category = {
     color: string;
     goals: Goal[];
     hidden: boolean;
+    comment: string;
 }

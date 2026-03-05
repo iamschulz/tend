@@ -13,6 +13,9 @@
                 </option>
             </select>
             <input v-model="category.title" :aria-label="$t('selectCategoryTitle')" type="text" required>
+            <NuxtLink :to="`/category/${category.id}`" :aria-label="category.title">
+                <nuxt-icon name="arrow_right" />
+            </NuxtLink>
             <button @click.prevent="category.hidden = !category.hidden">
                 <nuxt-icon :name="category.hidden ? 'visibility_off' : 'visibility'" />
                 <span class="sr-only">{{ category.hidden ? $t('show') : $t('hide') }}</span>
@@ -104,13 +107,17 @@
                 --br-bl: var(--border-radius);
             }
 
-            :nth-child(4) { /* hide */
+            :nth-child(4) { /* info link */
                 grid-area: 1 / 3;
                 --br-tr: var(--border-radius);
             }
 
-            :nth-child(5) { /* delete */
+            :nth-child(5) { /* hide */
                 grid-area: 2 / 3;
+            }
+
+            :nth-child(6) { /* delete */
+                grid-area: 3 / 3;
                 --br-br: var(--border-radius);
             }
         }

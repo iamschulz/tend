@@ -46,6 +46,7 @@ function isCategory(value: unknown): value is CategoryWithEntries {
         && isActivity(obj.activity)
         && typeof obj.color === 'string'
         && (obj.hidden === undefined || typeof obj.hidden === 'boolean')
+        && (obj.comment === undefined || typeof obj.comment === 'string')
         && (obj.goals === undefined || (Array.isArray(obj.goals) && obj.goals.every(isGoal)))
         && Array.isArray(obj.entries)
         && obj.entries.every(isEntry)

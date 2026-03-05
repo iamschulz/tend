@@ -17,6 +17,7 @@ type Category = {
   activity: Activity;
   color: string;
   hidden: boolean;
+  comment: string;
 };
 
 export type SeedData = { categories: Category[]; entries: Entry[] };
@@ -46,6 +47,7 @@ const CATEGORIES_DEF: Category[] = [
     activity: { title: "work", icon: "factory", emoji: "\u{1F3ED}" },
     color: "#00aaff",
     hidden: false,
+    comment: 'All work-related tasks and meetings',
   },
   {
     id: "seed-cat-2",
@@ -53,6 +55,7 @@ const CATEGORIES_DEF: Category[] = [
     activity: { title: "sleep", icon: "bed", emoji: "\u{1F634}" },
     color: "#8700b8",
     hidden: false,
+    comment: '',
   },
   {
     id: "seed-cat-3",
@@ -60,6 +63,7 @@ const CATEGORIES_DEF: Category[] = [
     activity: { title: "excercise", icon: "exercise", emoji: "\u{1F3CB}\u{FE0F}" },
     color: "#00ff73",
     hidden: false,
+    comment: 'Gym, running, yoga, and other physical activities',
   },
   {
     id: "seed-cat-4",
@@ -67,6 +71,7 @@ const CATEGORIES_DEF: Category[] = [
     activity: { title: "coffee", icon: "coffee", emoji: "\u2615" },
     color: "#ffc400",
     hidden: false,
+    comment: '',
   },
   {
     id: "seed-cat-5",
@@ -74,6 +79,7 @@ const CATEGORIES_DEF: Category[] = [
     activity: { title: "commute", icon: "commute", emoji: "\u{1F68C}" },
     color: "#ff0059",
     hidden: false,
+    comment: 'Daily commute to and from the office',
   },
 ];
 

@@ -130,6 +130,25 @@ describe('validateImportData', () => {
                 categories: [{ ...validCategory, hidden: 'yes' }],
             })).toBe(false)
         })
+
+        it('passes validation with comment string', () => {
+            expect(validateImportData({
+                categories: [{ ...validCategory, comment: 'A note' }],
+            })).toBe(true)
+        })
+
+        it('passes validation without comment (optional)', () => {
+            const { comment: _, ...rest } = validCategory as Record<string, unknown>
+            expect(validateImportData({
+                categories: [rest],
+            })).toBe(true)
+        })
+
+        it('fails validation with comment: 123 (wrong type)', () => {
+            expect(validateImportData({
+                categories: [{ ...validCategory, comment: 123 }],
+            })).toBe(false)
+        })
     })
 
     describe('activity validation', () => {

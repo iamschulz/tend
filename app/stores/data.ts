@@ -47,6 +47,7 @@ export const useDataStore = defineStore('data', () => {
             color: data.color,
             goals: [],
             hidden: false,
+            comment: '',
         }]
     }
 
@@ -63,6 +64,7 @@ export const useDataStore = defineStore('data', () => {
         if (data.color) { category.color = data.color }
         if (data.goals) { category.goals = data.goals }
         if (data.hidden !== undefined) { category.hidden = data.hidden }
+        if (data.comment !== undefined) { category.comment = data.comment }
 
         updated[index] = category
         categories.value = updated
@@ -125,7 +127,7 @@ export const useDataStore = defineStore('data', () => {
 
         for (const cat of importCategories) {
             const { entries: catEntries, ...categoryData } = cat
-            newCategories.push({ ...categoryData, goals: categoryData.goals ?? [], hidden: categoryData.hidden ?? false })
+            newCategories.push({ ...categoryData, goals: categoryData.goals ?? [], hidden: categoryData.hidden ?? false, comment: categoryData.comment ?? '' })
             newEntries.push(...catEntries)
         }
 
