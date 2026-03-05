@@ -19,7 +19,11 @@
 <script setup lang="ts">
     import type { Category } from '~/types/Category'
     import type { Entry } from '~/types/Entry'
+    import type { Goal } from '~/types/Goal'
     import { useDataStore } from '~/stores/data';
+    import { getDayRange } from '~/util/getDayRange';
+    import { getWeekRange } from '~/util/getWeekRange';
+    import { getMonthRange } from '~/util/getMonthRange';
 
     const props = defineProps<{
         category: Category
@@ -95,6 +99,26 @@
         // todo: remove event listeners
     }
 
+    const { addToast } = useToast()
+
+    const rangeFns = { day: getDayRange, week: getWeekRange, month: getMonthRange } as const
+    const msPerUnit = { minutes: 60_000, hours: 3_600_000, days: 86_400_000 } as const
+
+    function getGoalProgress(goal: Goal, categoryId: string): number {
+        const [start, end] = rangeFns[goal.interval](new Date())
+        const rangeStart = start.getTime()
+        const rangeEnd = end.getTime()
+        const matching = data.entries.filter(e => {
+            if (e.categoryId !== categoryId) return false
+            const eStart = new Date(e.start).getTime()
+            const eEnd = e.end ? new Date(e.end).getTime() : Infinity
+            return eStart <= rangeEnd && eEnd >= rangeStart
+        })
+        if (goal.unit === 'event') return matching.length
+        const totalMs = matching.reduce((sum, e) => sum + ((e.end ?? Date.now()) - e.start), 0)
+        return totalMs / msPerUnit[goal.unit]
+    }
+
     const addEvent = (running: boolean) => {
         data.closeAllEntries(props.category.id);
         const now = Date.now();
@@ -107,6 +131,19 @@
             comment: "",
         }
         data.addEntry(newEntry);
+
+        const todayIndex = (new Date().getDay() + 6) % 7
+        const activeGoals = props.category.goals.filter(goal =>
+            (goal.days & (1 << todayIndex))
+            && (running || goal.unit === 'event')
+            && getGoalProgress(goal, props.category.id) < goal.count
+        )
+        if (activeGoals.length) {
+            addToast(`${props.category.activity.emoji} ${props.category.title}`, {
+                categoryId: props.category.id,
+                goals: activeGoals,
+            })
+        }
     }
 </script>
 

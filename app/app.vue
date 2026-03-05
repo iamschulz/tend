@@ -3,6 +3,22 @@
   <LazyMainMenu v-if="ready" />
   <LazyConfirmDialog v-if="ready" />
   <LazyErrorDialog v-if="ready" />
+  <ToastNotification
+    v-for="(toast, i) in toasts"
+    :key="toast.id"
+    :toast="toast"
+    :index="i"
+    @close="removeToast"
+  >
+    <div v-if="toast.goals?.length" class="toast-goal">
+      <span>{{ toast.message }}</span>
+      <div v-for="(goal, gi) in toast.goals" :key="gi" class="toast-goal-row">
+        <span class="toast-goal-label">{{ goal.count }}{{ unitSuffix[goal.unit] }} / {{ $t(`per${goal.interval.charAt(0).toUpperCase()}${goal.interval.slice(1)}`) }}</span>
+        <AnimatedProgress :goal="goal" :category-id="toast.categoryId!" />
+      </div>
+    </div>
+    <span v-else>{{ toast.message }}</span>
+  </ToastNotification>
   <main>
     <NuxtPage />
     <LazyTriggerGroup v-if="ready" />
@@ -19,6 +35,9 @@
 
     const { registerAnnouncer } = useAnnounce()
     const announcement = registerAnnouncer('root', () => !document.querySelector('dialog[open]'))
+
+    const { toasts, removeToast } = useToast()
+    const unitSuffix: Record<string, string> = { event: 'x', minutes: 'm', hours: 'h', days: 'd' }
 
     const ready = ref(false)
     onNuxtReady(() => {
@@ -75,6 +94,24 @@
 
   .nuxt-route-announcer {
     width: 1px;
+  }
+
+  .toast-goal {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .toast-goal-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .toast-goal-label {
+    flex-shrink: 0;
+    font-size: 0.85rem;
+    white-space: nowrap;
   }
 
   ::view-transition-old(root),

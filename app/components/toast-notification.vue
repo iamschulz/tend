@@ -1,0 +1,98 @@
+<template>
+    <div
+        ref="popoverEl"
+        popover="manual"
+        role="status"
+        class="toast"
+        :style="{ '--toast-index': index }"
+        data-shadow="5"
+    >
+        <slot>{{ toast.message }}</slot>
+        <button class="closeButton nobutton" @click="close">
+            <nuxt-icon name="close" size="36" />
+            <span class="sr-only">{{ $t('close') }}</span>
+        </button>
+    </div>
+</template>
+
+<script setup lang="ts">
+    import type { Toast } from '~/composables/useToast'
+
+    const props = defineProps<{
+        toast: Toast
+        index: number
+    }>()
+
+    const emit = defineEmits<{
+        close: [id: string]
+    }>()
+
+    const popoverEl = ref<HTMLElement | null>(null)
+    let timerId: ReturnType<typeof setTimeout> | null = null
+
+    const close = () => {
+        popoverEl.value?.hidePopover()
+        emit('close', props.toast.id)
+    }
+
+    onMounted(() => {
+        popoverEl.value?.showPopover()
+
+        if (props.toast.duration > 0) {
+            timerId = setTimeout(close, props.toast.duration)
+        }
+    })
+
+    onUnmounted(() => {
+        if (timerId) clearTimeout(timerId)
+    })
+</script>
+
+<style scoped>
+    .toast {
+        inset: unset;
+        margin: 0 auto;
+        position: fixed;
+        top: calc(0.75rem + var(--toast-index) * 4rem);
+        left: 0;
+        right: 0;
+
+        width: calc(100% - 2rem);
+        max-width: min(60vw, calc(var(--body-width) - 1rem));
+
+        border: 1px solid var(--col-accent);
+        border-radius: var(--border-radius);
+        padding: 0.75rem 3rem 0.75rem 1rem;
+
+        background-color: var(--col-bg);
+        color: var(--col-fg);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+        opacity: 1;
+
+        transition:
+            opacity var(--animation-duration) ease-out,
+            translate var(--animation-duration) var(--animation-bounce),
+            display var(--animation-duration) allow-discrete;
+
+        @starting-style {
+            opacity: 0;
+            translate: 0 -1rem;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+        }
+    }
+
+    .closeButton {
+        position: absolute;
+        top: 0.25rem;
+        right: 0.25rem;
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: 2rem;
+        display: grid;
+        place-content: center;
+    }
+</style>
