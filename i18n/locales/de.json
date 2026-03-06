@@ -78,10 +78,13 @@
     "unitMinutes": "Minuten",
     "unitHours": "Stunden",
     "unitDays": "Tage",
+    "goalReached": "Ziel erreicht!",
     "perDay": "Tag",
     "perWeek": "Woche",
     "perMonth": "Monat",
 
+    "loading": "Laden",
+    "noEntries": "Keine Einträge",
     "durationD": " T",
     "durationH": " Std",
     "durationM": " Min",

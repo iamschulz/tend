@@ -9,6 +9,7 @@ export function useGoalCompletionWatcher() {
     const data = useDataStore()
     const { entries, categories } = storeToRefs(data)
     const { addToast } = useToast()
+    const { t } = useI18n()
 
     const notifiedSet = new Set<string>()
 
@@ -18,7 +19,7 @@ export function useGoalCompletionWatcher() {
     }
 
     function notifyCompletion(category: Category, goal: Goal) {
-        addToast(`${category.activity.emoji} ${category.title} — goal reached!`, {
+        addToast(`${category.activity.emoji} ${category.title} — ${t('goalReached')}`, {
             duration: 5000,
             categoryId: category.id,
             goals: [goal],

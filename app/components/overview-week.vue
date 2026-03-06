@@ -8,7 +8,7 @@
             <li v-for="entry in day" :key="entry.id">
                 <WeekEntry :entry="entry" />
             </li>
-            <li v-if="!day.length" key="empty" class="empty" aria-label="No entries">
+            <li v-if="!day.length" key="empty" class="empty" :aria-label="t('noEntries')">
                 <nuxt-icon name="tend" />
             </li>
         </TransitionGroup>

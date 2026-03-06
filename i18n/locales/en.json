@@ -78,10 +78,13 @@
     "unitMinutes": "minutes",
     "unitHours": "hours",
     "unitDays": "days",
+    "goalReached": "goal reached!",
     "perDay": "day",
     "perWeek": "week",
     "perMonth": "month",
 
+    "loading": "Loading",
+    "noEntries": "No entries",
     "durationD": "d",
     "durationH": "h",
     "durationM": "m",

@@ -26,6 +26,10 @@ vi.stubGlobal('useToast', () => ({
   removeToast: vi.fn(),
 }))
 
+vi.stubGlobal('useI18n', () => ({
+  t: (key: string) => key,
+}))
+
 const sampleActivity = { title: 'Work', icon: 'briefcase', emoji: '💼' }
 
 function makeGoal(overrides: Partial<Goal> = {}): Goal {
@@ -178,7 +182,7 @@ describe('useGoalCompletionWatcher', () => {
       await nextTick()
 
       expect(mockAddToast).toHaveBeenCalledWith(
-        '💼 Work — goal reached!',
+        '💼 Work — goalReached',
         expect.any(Object),
       )
     })
