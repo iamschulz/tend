@@ -39,6 +39,7 @@
         [key: string]: EntryWithCategory[]
     }
 
+    /** @param date - The date to get the localized weekday name for */
     const getWeekDayName = (date: Date): string => weekdays[(date.getUTCDay() + 6) % 7]!.full;
     const today = new Date();
     const isCurrentWeek = today >= weekRange[0] && today <= weekRange[1];

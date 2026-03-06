@@ -14,6 +14,7 @@
     const { t } = useI18n()
     const { announce } = useAnnounce()
 
+    /** Handles file input change: validates and imports the selected JSON file. */
     async function handleFileSelect() {
         const file = fileInput.value?.files?.[0]
         if (!file) { return }

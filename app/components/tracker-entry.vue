@@ -56,10 +56,12 @@
 
     const duration = computed(() => formatDuration(props.entry.start, now.value, t))
 
+    /** Stops the running entry. */
     const handleStop = () => {
         data.closeEntry(props.entry.id)
     }
 
+    /** Prompts for confirmation then deletes the entry. */
     const handleDelete = async () => {
         if (await ui.requestConfirm(t('deleteEntry'))) {
             data.deleteEntry(props.entry.id)

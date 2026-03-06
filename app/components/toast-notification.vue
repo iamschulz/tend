@@ -30,6 +30,7 @@
     const popoverEl = ref<HTMLElement | null>(null)
     let timerId: ReturnType<typeof setTimeout> | null = null
 
+    /** Hides the popover and emits the close event. */
     const close = () => {
         popoverEl.value?.hidePopover()
         emit('close', props.toast.id)

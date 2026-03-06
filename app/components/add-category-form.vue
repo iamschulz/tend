@@ -44,10 +44,11 @@ const data = useDataStore()
 const { t } = useI18n()
 const { announce } = useAnnounce()
 
+/** Picks a random color from the predefined palette. */
 const getRandomColor = (): string =>
   colors[Math.floor(Math.random() * colors.length)]!
 
-// Factory function for clean resets
+/** Creates a blank category data object with a random color. */
 const createEmptyCategory = (): CategoryData => ({
     title: '',
     color: getRandomColor(),
@@ -56,6 +57,7 @@ const createEmptyCategory = (): CategoryData => ({
 
 const newCategoryData = ref<CategoryData>(createEmptyCategory())
 
+/** Adds the new category and resets the form. */
 const onAddCategory = () => {
     const title = newCategoryData.value.title
     data.addCategory(newCategoryData.value)

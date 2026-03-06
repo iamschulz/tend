@@ -106,6 +106,7 @@
         return `${yyyy}-${mm}-${dd}T${hh}:${min}`
     })
 
+    /** @param e - The input event from the start date picker */
     function onStartDateChange(e: Event) {
         const value = (e.target as HTMLInputElement).value
         if (!value || !uuid.value || !entry.value) return
@@ -129,6 +130,7 @@
         return `${yyyy}-${mm}-${dd}T${hh}:${min}`
     })
 
+    /** @param e - The input event from the end date picker */
     function onEndDateChange(e: Event) {
         const value = (e.target as HTMLInputElement).value
         if (!value || !uuid.value || !entry.value) return
@@ -138,10 +140,12 @@
         data.updateEntryEnd(uuid.value, Math.min(Math.max(ts, entry.value.start), max))
     }
 
+    /** Stops the running entry. */
     function stopEntry() {
         if (uuid.value) data.closeEntry(uuid.value)
     }
 
+    /** Prompts for confirmation then deletes the entry. */
     const handleDelete = async () => {
         if (await ui.requestConfirm(t('deleteEntry'))) {
             data.deleteEntry(entry.value!.id)

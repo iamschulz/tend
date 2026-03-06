@@ -43,6 +43,7 @@
 
     const data = useDataStore();
 
+    /** @param e - The change event from the activity select */
     function handleActivityChange(e: Event) {
         const emoji = (e.target as HTMLSelectElement).value
         const match = activities.find(a => a.emoji === emoji)

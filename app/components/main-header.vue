@@ -14,6 +14,7 @@
 import { useUiStore } from '~/stores/ui';
 
 const ui = useUiStore();
+/** Opens the main menu. */
 const handleMenuButtonClick = (): void => {
     ui.toggleMenu(true);
 }
@@ -21,7 +22,7 @@ const handleMenuButtonClick = (): void => {
 const headerEl = ref<HTMLElement | null>(null)
 const scrolled = ref(0)
 
-/* collapse on scroll */
+/** Updates the scroll progress value for the header collapse effect. */
 const onScroll = () => {
     scrolled.value = Math.min(window.scrollY / 20, 1)
 }

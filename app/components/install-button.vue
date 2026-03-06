@@ -6,6 +6,7 @@
     const canInstall = ref(false);
     const deferredPrompt = ref<BeforeInstallPromptEvent | null>(null);
 
+    /** Prompts the user to install the PWA. */
     const onClick = () => {
         deferredPrompt.value?.prompt();
     }

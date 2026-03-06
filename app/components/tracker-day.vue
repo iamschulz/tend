@@ -36,6 +36,7 @@
     const data = useDataStore();
     const entries = computed(() => data.getEntriesForRange(dateRange[0], dateRange[1]));
 
+    /** @param index - Entry index; returns the hour if it differs from the next entry's hour */
     const displayBeforeTime = (index: number): number | undefined => {
         const entry = entries.value[index]!;
         const hour = new Date(entry.start).getHours();
@@ -55,6 +56,7 @@
     const { t } = useI18n()
     const { watchForAdd, watchForStop, watchForDelete } = useAnnounce()
 
+    /** @param entry - The entry to format as an announcement string */
     const formatEntry = (entry: typeof entries.value[number]) => {
         const time = new Date(entry.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         return t('entryAt', { category: entry.category?.title, time })

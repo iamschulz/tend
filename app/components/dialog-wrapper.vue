@@ -62,6 +62,7 @@
         dialogEl.value!.addEventListener('close', closeDialog)
     })
 
+    /** Closes the dialog and updates the UI store. */
     const closeDialog = () => {
         ui[toggleFunction](false as StoreObject);
         dialogEl.value!.blur();

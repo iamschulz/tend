@@ -101,6 +101,7 @@
         return formatDuration(0, total, t)
     })
 
+    /** @param e - The change event from the activity select */
     const onActivityChange = (e: Event) => {
         const emoji = (e.target as HTMLSelectElement).value
         const match = activities.find(a => a.emoji === emoji)
@@ -112,10 +113,12 @@
         if (category.value && val) data.updateCategory({ id: category.value.id, title: val })
     })
 
+    /** Toggles the category's hidden state. */
     const toggleHidden = () => {
         if (category.value) data.updateCategory({ id: category.value.id, hidden: !category.value.hidden })
     }
 
+    /** Prompts for confirmation then deletes the category. */
     const handleDelete = async () => {
         if (category.value && await ui.requestConfirm(t('deleteCategory'))) {
             const { id, title: categoryTitle } = category.value

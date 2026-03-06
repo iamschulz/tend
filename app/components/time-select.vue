@@ -38,6 +38,7 @@
     const now = new Date();
     const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
+    /** @param d - The date to format as YYYY-MM-DD */
     const toIso = (d: Date) =>
         `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
@@ -71,6 +72,10 @@
         dateValue.value = val
     })
 
+    /**
+     * @param amount - The number of units to shift (positive = forward, negative = backward)
+     * @param unit - The time unit to shift by
+     */
     const shiftDate = (amount: number, unit: 'day' | 'month') => {
         const d = new Date(dateValue.value + 'T00:00:00');
         if (unit === 'day') d.setDate(d.getDate() + amount);
@@ -86,6 +91,7 @@
         return toIso(d) <= today;
     });
 
+    /** @param period - The time period to navigate to */
     const onSelect = (period: 'day' | 'week' | 'month' | 'year') => {
         const value = dateValue.value;
         if (!value) return;

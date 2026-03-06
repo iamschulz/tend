@@ -67,6 +67,7 @@
 
     const weekdayKeys = ['weekdayMoShort', 'weekdayTuShort', 'weekdayWeShort', 'weekdayThShort', 'weekdayFrShort', 'weekdaySaShort', 'weekdaySuShort'] as const
 
+    /** Creates a default goal with all days enabled. */
     const createEmptyGoal = (): Goal => ({
         count: 1,
         interval: 'week',
@@ -77,16 +78,19 @@
 
     const newGoal = ref<Goal>(createEmptyGoal())
 
+    /** @param dayIndex - The day index (0=Mon, 6=Sun) to toggle */
     const toggleDay = (dayIndex: number) => {
         newGoal.value.days ^= (1 << dayIndex)
     }
 
+    /** Adds the new goal to the category and resets the form. */
     const onAddGoal = () => {
         const goals = [...props.goals, { ...newGoal.value }]
         data.updateCategory({ id: props.categoryId, goals })
         newGoal.value = createEmptyGoal()
     }
 
+    /** @param index - The index of the goal to remove */
     const removeGoal = (index: number) => {
         const goals = props.goals.filter((_, i) => i !== index)
         data.updateCategory({ id: props.categoryId, goals })

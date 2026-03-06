@@ -17,7 +17,7 @@
         return typeof w === 'string' ? w : null
     })
 
-    // ISO week validation: YYYY-Www
+    /** @param s - The week string to validate as YYYY-Www */
     const isRealWeek = (s: string) =>
         /^\d{4}-W\d{2}$/.test(s) &&
         (() => {

@@ -33,18 +33,21 @@
     const releasing = ref(false);
     const loading = ref(false);
 
+    /** @param e - The animation event; clears the releasing state when the main element finishes */
     const onAnimationEnd = (e: AnimationEvent) => {
         if (!e.pseudoElement) {
             releasing.value = false;
         }
     }
 
+    /** Stops all running entries for this category. */
     const onStop = () => {
         if (!isRunning.value || disableTriggers) { return; }
         releasing.value = true;
         data.closeAllEntries(props.category.id);
     }
 
+    /** @param event - The pointer/keyboard down event that starts a new entry */
     const onTriggerDown = (event: TouchEvent | MouseEvent | KeyboardEvent) => {
         if (isRunning.value) { return; }
 
@@ -87,6 +90,7 @@
         }, { once: true });
     }
 
+    /** Cancels a trigger in progress (e.g. on mouse leave). */
     const abortTrigger = () => {
         loading.value = false;
         pressing.value = false;
@@ -99,6 +103,7 @@
     const { addToast } = useToast()
 
 
+    /** @param running - Whether the new entry should be a running timer */
     const addEvent = (running: boolean) => {
         data.closeAllEntries(props.category.id);
         const now = Date.now();

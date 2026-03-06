@@ -5,7 +5,7 @@ import jsdoc from 'eslint-plugin-jsdoc'
 export default withNuxt(
   {
     plugins: { jsdoc },
-    files: ['**/*.ts'],
+    files: ['**/*.ts', '**/*.vue'],
     rules: {
       'jsdoc/require-jsdoc': ['warn', {
         require: {

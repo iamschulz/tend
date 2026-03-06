@@ -17,11 +17,13 @@ onMounted(() => {
     }
 })
 
+/** @param isDark - Whether dark mode is active */
 function updateThemeColor(isDark: boolean) {
     const meta = document.querySelector('meta[name="theme-color"]')
     if (meta) meta.setAttribute('content', isDark ? '#1b1b1b' : '#e0e0e0')
 }
 
+/** @param e - The change event from the theme select */
 function onThemeChange(e: Event) {
     const value = (e.target as HTMLSelectElement).value
     if (value === 'light' || value === 'dark') {

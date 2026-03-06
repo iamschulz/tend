@@ -38,13 +38,20 @@
     const animated = ref(0)
     let frameId: number | null = null
 
+    /**
+     * Animates the progress bar between two values.
+     * @param from - The starting value
+     * @param to - The target value
+     */
     function animateTo(from: number, to: number) {
         if (frameId) cancelAnimationFrame(frameId)
 
         const duration = 400
         const startTime = performance.now()
+        /** @param t - Normalized time (0-1) */
         const easeOut = (t: number) => 1 - (1 - t) ** 3
 
+        /** @param now - The current timestamp from requestAnimationFrame */
         function step(now: number) {
             const t = Math.min((now - startTime) / duration, 1)
             animated.value = from + (to - from) * easeOut(t)

@@ -14,7 +14,7 @@
         return typeof y === 'string' ? y : null
     })
 
-    // YYYY validation
+    /** @param s - The year string to validate as YYYY */
     const isRealYear = (s: string) => /^\d{4}$/.test(s)
 
     // Fallback to current year if param missing

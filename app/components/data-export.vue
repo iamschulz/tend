@@ -9,6 +9,7 @@
     const { t } = useI18n()
     const { announce } = useAnnounce()
 
+    /** Triggers a JSON file download of all data. */
     function handleExport() {
         downloadExportData(data.categories, data.entries)
         announce(t('exported'))

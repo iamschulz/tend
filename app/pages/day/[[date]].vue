@@ -14,7 +14,7 @@
         return typeof d === 'string' ? d : null
     })
 
-    // YYYY-MM-DD validation
+    /** @param s - The date string to validate as YYYY-MM-DD */
     const isRealDate = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s))
 
     // Fallback to current date if param is missing

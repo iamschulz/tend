@@ -33,6 +33,7 @@
     const mq40 = window.matchMedia('(min-width: 40rem)')
     const mq85 = window.matchMedia('(min-width: 85rem)')
 
+    /** Adjusts the visible trigger count based on viewport width. */
     const updateCount = () => {
         visibleCount.value = mq85.matches ? 9 : mq40.matches ? 7 : 5
     }

@@ -14,7 +14,7 @@
         return typeof m === 'string' ? m : null
     })
 
-    // YYYY-MM validation
+    /** @param s - The month string to validate as YYYY-MM */
     const isRealMonth = (s: string) =>
         /^\d{4}-\d{2}$/.test(s) &&
         (() => {
