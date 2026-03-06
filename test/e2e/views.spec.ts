@@ -172,35 +172,6 @@ describe('Views', () => {
     expect(dotStyle).toContain('ff0000')
   })
 
-  it('category deletion removes dots from overview', async () => {
-    await addCategory(page, 'DeleteDots')
-    await quickClickTrigger(page)
-
-    // Delete the category
-    await openMenu(page)
-    await ensureCategoriesOpen(page)
-    await page.click('dialog.menu li .categoryForm button:last-of-type')
-    await page.waitForSelector('dialog.confirm-dialog[open]', { timeout: 3000 })
-    await page.click('dialog.confirm-dialog button[data-variant="primary"]')
-
-    await page.waitForFunction(
-      () => document.querySelectorAll('dialog.menu li .categoryForm input[type="text"]').length === 0,
-      { timeout: 5000 },
-    )
-
-    await closeMenu(page)
-
-    await navigateTo(page, `/month/${getCurrentMonthStr()}`)
-
-    // Today's cell should NOT have any category dots
-    const dot = await page.$('td.today .category-dot')
-    expect(dot).toBeNull()
-
-    // No entry count either
-    const count = await page.$('td.today .entry-count')
-    expect(count).toBeNull()
-  })
-
   it('adding entries from two categories shows two dots on month view', async () => {
     await addCategory(page, 'Cat One')
     await addCategory(page, 'Cat Two')

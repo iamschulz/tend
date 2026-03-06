@@ -216,6 +216,140 @@ describe('validateImportData', () => {
         })
     })
 
+    describe('goal validation', () => {
+        const validGoal = {
+            count: 3,
+            interval: 'week',
+            unit: 'event',
+            days: 127,
+            reminder: true,
+        }
+
+        it('accepts category with valid goal', () => {
+            expect(validateImportData({
+                categories: [{ ...validCategory, goals: [validGoal] }],
+            })).toBe(true)
+        })
+
+        it('accepts category with multiple valid goals', () => {
+            const second = { ...validGoal, interval: 'day', unit: 'minutes', count: 30 }
+            expect(validateImportData({
+                categories: [{ ...validCategory, goals: [validGoal, second] }],
+            })).toBe(true)
+        })
+
+        it('accepts category with empty goals array', () => {
+            expect(validateImportData({
+                categories: [{ ...validCategory, goals: [] }],
+            })).toBe(true)
+        })
+
+        it('accepts category without goals property (optional)', () => {
+            expect(validateImportData({
+                categories: [validCategory],
+            })).toBe(true)
+        })
+
+        it('rejects goal with missing count', () => {
+            const { count: _, ...rest } = validGoal
+            expect(validateImportData({
+                categories: [{ ...validCategory, goals: [rest] }],
+            })).toBe(false)
+        })
+
+        it('rejects goal with string count', () => {
+            expect(validateImportData({
+                categories: [{ ...validCategory, goals: [{ ...validGoal, count: '3' }] }],
+            })).toBe(false)
+        })
+
+        it('rejects goal with missing interval', () => {
+            const { interval: _, ...rest } = validGoal
+            expect(validateImportData({
+                categories: [{ ...validCategory, goals: [rest] }],
+            })).toBe(false)
+        })
+
+        it('rejects goal with invalid interval value', () => {
+            expect(validateImportData({
+                categories: [{ ...validCategory, goals: [{ ...validGoal, interval: 'year' }] }],
+            })).toBe(false)
+        })
+
+        it('accepts all valid interval values', () => {
+            for (const interval of ['day', 'week', 'month']) {
+                expect(validateImportData({
+                    categories: [{ ...validCategory, goals: [{ ...validGoal, interval }] }],
+                })).toBe(true)
+            }
+        })
+
+        it('rejects goal with missing unit', () => {
+            const { unit: _, ...rest } = validGoal
+            expect(validateImportData({
+                categories: [{ ...validCategory, goals: [rest] }],
+            })).toBe(false)
+        })
+
+        it('rejects goal with invalid unit value', () => {
+            expect(validateImportData({
+                categories: [{ ...validCategory, goals: [{ ...validGoal, unit: 'seconds' }] }],
+            })).toBe(false)
+        })
+
+        it('accepts all valid unit values', () => {
+            for (const unit of ['event', 'minutes', 'hours', 'days']) {
+                expect(validateImportData({
+                    categories: [{ ...validCategory, goals: [{ ...validGoal, unit }] }],
+                })).toBe(true)
+            }
+        })
+
+        it('rejects goal with missing days', () => {
+            const { days: _, ...rest } = validGoal
+            expect(validateImportData({
+                categories: [{ ...validCategory, goals: [rest] }],
+            })).toBe(false)
+        })
+
+        it('rejects goal with string days', () => {
+            expect(validateImportData({
+                categories: [{ ...validCategory, goals: [{ ...validGoal, days: 'Monday' }] }],
+            })).toBe(false)
+        })
+
+        it('rejects goal with missing reminder', () => {
+            const { reminder: _, ...rest } = validGoal
+            expect(validateImportData({
+                categories: [{ ...validCategory, goals: [rest] }],
+            })).toBe(false)
+        })
+
+        it('rejects goal with string reminder', () => {
+            expect(validateImportData({
+                categories: [{ ...validCategory, goals: [{ ...validGoal, reminder: 'true' }] }],
+            })).toBe(false)
+        })
+
+        it('rejects null as a goal', () => {
+            expect(validateImportData({
+                categories: [{ ...validCategory, goals: [null] }],
+            })).toBe(false)
+        })
+
+        it('rejects string as a goal', () => {
+            expect(validateImportData({
+                categories: [{ ...validCategory, goals: ['not-a-goal'] }],
+            })).toBe(false)
+        })
+
+        it('rejects when one goal in array is invalid', () => {
+            expect(validateImportData({
+                categories: [{ ...validCategory, goals: [validGoal, { ...validGoal, count: 'bad' }] }],
+            })).toBe(false)
+        })
+    })
+
     describe('entry validation', () => {
         it('accepts entry with null end', () => {
             expect(validateImportData({

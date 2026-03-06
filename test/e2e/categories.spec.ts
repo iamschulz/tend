@@ -95,67 +95,6 @@ describe('Categories', () => {
     expect(value).toBe('Yoga')
   })
 
-  it('deletes a category with confirm', async () => {
-    await addCategory(page, 'Cooking', { keepMenuOpen: true })
-
-    await ensureCategoriesOpen(page)
-
-    // Category should be in the list
-    let editInputs = await page.$$('dialog.menu li .categoryForm input[type="text"]')
-    expect(editInputs.length).toBe(1)
-
-    // Click the delete button on the edit form (the non-submit button)
-    await page.click('dialog.menu li .categoryForm button:last-of-type')
-
-    // Confirm dialog should appear
-    await page.waitForSelector('dialog.confirm-dialog[open]', { timeout: 3000 })
-
-    // Click confirm
-    await page.click('dialog.confirm-dialog button[data-variant="primary"]')
-
-    // Wait for the category to disappear
-    await page.waitForFunction(
-      () => document.querySelectorAll('dialog.menu li .categoryForm input[type="text"]').length === 0,
-      { timeout: 5000 },
-    )
-
-    editInputs = await page.$$('dialog.menu li .categoryForm input[type="text"]')
-    expect(editInputs.length).toBe(0)
-
-    // Announcer should mention the deleted category
-    await waitForAnnouncement(page, 'Cooking')
-    const announcement = await getAnnouncement(page)
-    expect(announcement.toLowerCase()).toContain('delete')
-    expect(announcement).toContain('Cooking')
-  })
-
-  it('cancels category deletion', async () => {
-    await addCategory(page, 'Swimming', { keepMenuOpen: true })
-
-    await ensureCategoriesOpen(page)
-
-    // Click the delete button
-    await page.click('dialog.menu li .categoryForm button:last-of-type')
-
-    // Confirm dialog should appear
-    await page.waitForSelector('dialog.confirm-dialog[open]', { timeout: 3000 })
-
-    // Click cancel (first button in confirm-actions)
-    const cancelBtn = await page.$('dialog.confirm-dialog .confirm-actions button:first-child')
-    expect(cancelBtn).not.toBeNull()
-    await cancelBtn!.click()
-
-    // Wait for confirm dialog to close
-    await page.waitForFunction(
-      () => !document.querySelector('dialog.confirm-dialog[open]'),
-      { timeout: 3000 },
-    )
-
-    // Category should still exist
-    const editInputs = await page.$$('dialog.menu li .categoryForm input[type="text"]')
-    expect(editInputs.length).toBe(1)
-  })
-
   it('hides a category', async () => {
     await addCategory(page, 'Yoga')
     await quickClickTrigger(page, 0)
@@ -169,15 +108,15 @@ describe('Categories', () => {
     // Open menu and toggle hide
     await openMenu(page)
     await ensureCategoriesOpen(page)
-    const hideBtn = await page.$('dialog.menu li .categoryForm button:nth-last-of-type(2)')
+    const hideBtn = await page.$('dialog.menu li .categoryForm button')
     expect(hideBtn).not.toBeNull()
     await hideBtn!.click()
 
     // Wait for the hide button text to change to "Show" (meaning category is now hidden)
     await page.waitForFunction(
       () => {
-        const btn = document.querySelector('dialog.menu li .categoryForm button:nth-last-of-type(2)')
-        return btn?.textContent?.trim() === 'Show'
+        const btn = document.querySelector('dialog.menu li .categoryForm button')
+        return btn?.textContent?.includes('Show')
       },
       { timeout: 3000 },
     )
@@ -204,12 +143,12 @@ describe('Categories', () => {
     // Hide the category
     await openMenu(page)
     await ensureCategoriesOpen(page)
-    const hideBtn = await page.$('dialog.menu li .categoryForm button:nth-last-of-type(2)')
+    const hideBtn = await page.$('dialog.menu li .categoryForm button')
     await hideBtn!.click()
     await page.waitForFunction(
       () => {
-        const btn = document.querySelector('dialog.menu li .categoryForm button:nth-last-of-type(2)')
-        return btn?.textContent?.trim() === 'Show'
+        const btn = document.querySelector('dialog.menu li .categoryForm button')
+        return btn?.textContent?.includes('Show')
       },
       { timeout: 3000 },
     )
@@ -224,12 +163,12 @@ describe('Categories', () => {
     // Unhide the category
     await openMenu(page)
     await ensureCategoriesOpen(page)
-    const showBtn = await page.$('dialog.menu li .categoryForm button:nth-last-of-type(2)')
+    const showBtn = await page.$('dialog.menu li .categoryForm button')
     await showBtn!.click()
     await page.waitForFunction(
       () => {
-        const btn = document.querySelector('dialog.menu li .categoryForm button:nth-last-of-type(2)')
-        return btn?.textContent?.trim() === 'Hide'
+        const btn = document.querySelector('dialog.menu li .categoryForm button')
+        return btn?.textContent?.includes('Hide')
       },
       { timeout: 3000 },
     )

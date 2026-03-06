@@ -96,6 +96,49 @@ export async function waitForAnnouncement(page: Page, text: string): Promise<voi
   )
 }
 
+/** Navigate to the category detail page via the edit link in the menu. */
+export async function openCategoryPage(page: Page): Promise<void> {
+  await openMenu(page)
+  await ensureCategoriesOpen(page)
+
+  const editLink = await page.$('dialog.menu li .categoryForm a[data-button]')
+  expect(editLink).not.toBeNull()
+  await editLink!.click()
+
+  await page.waitForFunction(
+    () => window.location.pathname.startsWith('/category/'),
+    undefined,
+    { timeout: 5000 },
+  )
+  await page.waitForFunction(() => !document.querySelector('[data-loading]'), undefined, { timeout: 10_000 })
+}
+
+/** Wait for a toast notification to appear. Returns the toast element text. */
+export async function waitForToast(page: Page, timeout = 5000): Promise<string> {
+  await page.waitForSelector('.toast[popover]', { timeout })
+  return page.evaluate(() => {
+    const toast = document.querySelector('.toast[popover]')
+    return toast?.textContent?.trim() ?? ''
+  })
+}
+
+/** Get all currently visible toasts' text content. */
+export async function getToasts(page: Page): Promise<string[]> {
+  return page.evaluate(() => {
+    const toasts = document.querySelectorAll('.toast[popover]')
+    return Array.from(toasts).map(t => t.textContent?.trim() ?? '')
+  })
+}
+
+/** Wait for all toasts to disappear. */
+export async function waitForNoToasts(page: Page, timeout = 8000): Promise<void> {
+  await page.waitForFunction(
+    () => document.querySelectorAll('.toast[popover]').length === 0,
+    undefined,
+    { timeout },
+  )
+}
+
 /** Get current ISO week string (YYYY-Www). */
 export function getCurrentWeekStr(): string {
   const d = new Date()
