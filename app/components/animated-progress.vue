@@ -7,9 +7,7 @@
 <script setup lang="ts">
     import type { Goal } from '~/types/Goal';
     import { useDataStore } from '~/stores/data';
-    import { getDayRange } from '~/util/getDayRange';
-    import { getWeekRange } from '~/util/getWeekRange';
-    import { getMonthRange } from '~/util/getMonthRange';
+    import { getGoalProgress } from '~/util/getGoalProgress';
 
     const props = defineProps<{
         goal: Goal
@@ -18,14 +16,6 @@
 
     const data = useDataStore()
     const color = computed(() => data.getCategoryById(props.categoryId)?.color)
-
-    const rangeFns = {
-        day: getDayRange,
-        week: getWeekRange,
-        month: getMonthRange,
-    } as const
-
-    const msPerUnit = { minutes: 60_000, hours: 3_600_000, days: 86_400_000 } as const
 
     const now = ref(Date.now())
     const hasRunning = computed(() => data.entries.some(e => e.categoryId === props.categoryId && e.running))
@@ -40,24 +30,9 @@
         }
     }, { immediate: true })
 
-    const progress = computed(() => {
-        const [start, end] = rangeFns[props.goal.interval](new Date())
-        const rangeStart = start.getTime()
-        const rangeEnd = end.getTime()
-        const matching = data.entries.filter(e => {
-            if (e.categoryId !== props.categoryId) return false
-            const eStart = new Date(e.start).getTime()
-            const eEnd = e.end ? new Date(e.end).getTime() : Infinity
-            return eStart <= rangeEnd && eEnd >= rangeStart
-        })
-
-        if (props.goal.unit === 'event') return matching.length
-
-        const totalMs = matching.reduce((sum, e) => {
-            return sum + ((e.end ?? now.value) - e.start)
-        }, 0)
-        return totalMs / msPerUnit[props.goal.unit]
-    })
+    const progress = computed(() =>
+        getGoalProgress(props.goal, data.entries, props.categoryId, now.value)
+    )
 
     // Animation
     const animated = ref(0)

@@ -56,18 +56,14 @@
         top: calc(0.75rem + var(--toast-index) * 4rem);
         left: 0;
         right: 0;
-
         width: calc(100% - 2rem);
         max-width: min(60vw, calc(var(--body-width) - 1rem));
-
-        border: 1px solid var(--col-accent);
+        border: 1px solid var(--col-bg3);
         border-radius: var(--border-radius);
         padding: 0.75rem 3rem 0.75rem 1rem;
-
         background-color: var(--col-bg);
         color: var(--col-fg);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-
         opacity: 1;
 
         transition:
@@ -94,5 +90,9 @@
         font-size: 2rem;
         display: grid;
         place-content: center;
+
+        .nuxt_icon {
+            font-size: 1.4rem;
+        }
     }
 </style>

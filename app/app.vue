@@ -40,8 +40,10 @@
     const unitSuffix: Record<string, string> = { event: 'x', minutes: 'm', hours: 'h', days: 'd' }
 
     const ready = ref(false)
+    const scope = getCurrentScope()
     onNuxtReady(() => {
         ready.value = true
+        scope!.run(() => useGoalCompletionWatcher())
     })
 
     const router = useRouter()
