@@ -72,7 +72,7 @@ describe('useGoalCompletionWatcher', () => {
 
   function initWatcher() {
     scope = effectScope()
-    scope.run(() => useGoalCompletionWatcher())
+    scope.run(() => useGoalCompletionWatcher((key: string) => key))
   }
 
   beforeEach(() => {

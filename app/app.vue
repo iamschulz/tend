@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-    const { locale } = useI18n()
+    const { locale, t } = useI18n()
     useHead({
         htmlAttrs: { lang: locale }
     })
@@ -43,7 +43,7 @@
     const scope = getCurrentScope()
     onNuxtReady(() => {
         ready.value = true
-        scope!.run(() => useGoalCompletionWatcher())
+        scope!.run(() => useGoalCompletionWatcher(t))
     })
 
     const router = useRouter()

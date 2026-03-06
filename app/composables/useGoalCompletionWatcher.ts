@@ -5,11 +5,10 @@ import { getGoalProgress, getGoalPeriodKey } from '~/util/getGoalProgress'
 import type { Goal } from '~/types/Goal'
 import type { Category } from '~/types/Category'
 
-export function useGoalCompletionWatcher() {
+export function useGoalCompletionWatcher(t: (key: string) => string) {
     const data = useDataStore()
     const { entries, categories } = storeToRefs(data)
     const { addToast } = useToast()
-    const { t } = useI18n()
 
     const notifiedSet = new Set<string>()
 
