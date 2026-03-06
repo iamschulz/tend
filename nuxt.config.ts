@@ -54,7 +54,7 @@ export default defineNuxtConfig({
     prerender: {
       // Disable link crawling — the prev/next date nav links create infinite
       // chains (/day/2025-02-24 → /day/2025-02-23 → …) that OOM the crawler.
-      // This is a client-side SPA; the 200.html fallback handles all routes.
+      // This is a client-side SPA; the index.html fallback handles all routes.
       crawlLinks: false,
       routes: ['/'],
     },
