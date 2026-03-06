@@ -5,6 +5,10 @@ import { getGoalProgress, getGoalPeriodKey } from '~/util/getGoalProgress'
 import type { Goal } from '~/types/Goal'
 import type { Category } from '~/types/Category'
 
+/**
+ * Watches for goal completions and triggers toast notifications.
+ * @param t - Translation function
+ */
 export function useGoalCompletionWatcher(t: (key: string) => string) {
     const data = useDataStore()
     const { entries, categories } = storeToRefs(data)
@@ -12,11 +16,21 @@ export function useGoalCompletionWatcher(t: (key: string) => string) {
 
     const notifiedSet = new Set<string>()
 
-    // Returns a key unique per goal per period, so notifications reset at each new day/week/month boundary.
+    /**
+     * Returns a key unique per goal per period, so notifications reset at each new day/week/month boundary.
+     * @param categoryId - The category ID
+     * @param goalIndex - Index of the goal within the category
+     * @param goal - The goal definition
+     */
     function deduplicateKey(categoryId: string, goalIndex: number, goal: Goal): string {
         return `${categoryId}:${goalIndex}:${getGoalPeriodKey(goal.interval)}`
     }
 
+    /**
+     * Fires a toast notification for a completed goal.
+     * @param category - The category that owns the goal
+     * @param goal - The completed goal
+     */
     function notifyCompletion(category: Category, goal: Goal) {
         addToast(`${category.activity.emoji} ${category.title} — ${t('goalReached')}`, {
             duration: 5000,
@@ -25,6 +39,11 @@ export function useGoalCompletionWatcher(t: (key: string) => string) {
         })
     }
 
+    /**
+     * Scans all goals and notifies newly completed ones.
+     * @param notify - Whether to fire toast notifications
+     * @param now - Current timestamp for progress calculation
+     */
     function scanGoals(notify: boolean, now: number = Date.now()) {
         const todayIndex = (new Date().getDay() + 6) % 7
 

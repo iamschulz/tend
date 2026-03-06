@@ -7,6 +7,13 @@ import { getMonthRange } from '~/util/getMonthRange'
 const rangeFns = { day: getDayRange, week: getWeekRange, month: getMonthRange } as const
 const msPerUnit = { minutes: 60_000, hours: 3_600_000, days: 86_400_000 } as const
 
+/**
+ * Calculates how much progress has been made toward a goal in its current period.
+ * @param goal - The goal definition
+ * @param entries - All tracked entries
+ * @param categoryId - The category to filter entries by
+ * @param now - Current timestamp, used for running entries
+ */
 export function getGoalProgress(
     goal: Goal,
     entries: readonly Entry[],
@@ -27,6 +34,10 @@ export function getGoalProgress(
     return totalMs / msPerUnit[goal.unit]
 }
 
+/**
+ * Returns a deduplication key for a goal's current period (e.g. "day:1720656000000").
+ * @param interval - The goal interval (day, week, or month)
+ */
 export function getGoalPeriodKey(interval: Goal['interval']): string {
     const [start] = rangeFns[interval](new Date())
     return `${interval}:${start.getTime()}`

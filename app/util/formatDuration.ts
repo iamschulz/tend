@@ -1,5 +1,11 @@
 import type { TranslateFunction } from '~/types/TranslateFunction'
 
+/**
+ * Formats a duration between two timestamps as a human-readable string (e.g. "2h 30m").
+ * @param start - Start timestamp in milliseconds
+ * @param end - End timestamp in milliseconds
+ * @param t - Translation function for unit suffixes
+ */
 export function formatDuration(start: number, end: number, t: TranslateFunction): string {
     const diff = Math.abs(end - start);
 

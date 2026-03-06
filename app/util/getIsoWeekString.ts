@@ -1,3 +1,7 @@
+/**
+ * Returns the ISO week string (e.g. "2025-W01") for the given date.
+ * @param d - The date to get the ISO week string for
+ */
 export const getIsoWeekString = (d: Date): string => {
     const date = new Date(d.getTime())
     const dayNum = date.getUTCDay() || 7

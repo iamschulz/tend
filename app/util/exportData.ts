@@ -2,6 +2,7 @@ import type { Category } from '~/types/Category'
 import type { Entry } from '~/types/Entry'
 import type { CategoryWithEntries } from '~/types/CategoryWithEntries'
 
+/** Generates a timestamped filename for data export (e.g. "06-03-2026.tend.json"). */
 export function buildExportFilename(): string {
     const now = new Date()
     const dd = String(now.getDate()).padStart(2, '0')
@@ -10,6 +11,11 @@ export function buildExportFilename(): string {
     return `${dd}-${mm}-${yyyy}.tend.json`
 }
 
+/**
+ * Exports categories and entries as a JSON download.
+ * @param categories - The categories to export
+ * @param entries - The entries to export
+ */
 export function downloadExportData(categories: Category[], entries: Entry[]): void {
     // Re-nest entries into categories for backward-compatible export format
     const nested: CategoryWithEntries[] = categories.map(cat => ({

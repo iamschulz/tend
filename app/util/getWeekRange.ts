@@ -1,3 +1,7 @@
+/**
+ * Returns the UTC start (Monday) and end (Sunday) timestamps for the ISO week containing the given date.
+ * @param d - The date to get the week range for
+ */
 export const getWeekRange = (d: Date) => {
     const date = new Date(d)
     const day = date.getUTCDay() || 7

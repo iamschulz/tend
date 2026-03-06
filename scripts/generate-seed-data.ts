@@ -26,6 +26,10 @@ export type SeedData = { categories: Category[]; entries: Entry[] };
 // Seeded PRNG — mulberry32
 // ---------------------------------------------------------------------------
 
+/**
+ * Seeded PRNG using the mulberry32 algorithm.
+ * @param seed - The initial seed value
+ */
 function mulberry32(seed: number) {
   return () => {
     seed |= 0;
@@ -123,13 +127,23 @@ const edgeCases: EdgeCase[] = [
 // generateSeedData
 // ---------------------------------------------------------------------------
 
+/** Generates deterministic seed data for development/testing. */
 export function generateSeedData(): SeedData {
   const rand = mulberry32(42);
 
+  /**
+   * Returns a random integer in [min, max].
+   * @param min - Minimum value (inclusive)
+   * @param max - Maximum value (inclusive)
+   */
   function randInt(min: number, max: number): number {
     return Math.floor(rand() * (max - min + 1)) + min;
   }
 
+  /**
+   * Returns true with the given probability.
+   * @param probability - A value between 0 and 1
+   */
   function chance(probability: number): boolean {
     return rand() < probability;
   }
@@ -140,6 +154,7 @@ export function generateSeedData(): SeedData {
 
   let entryCounter = 0;
 
+  /** Returns a sequential entry ID. */
   function nextEntryId(): string {
     entryCounter++;
     return `seed-entry-${String(entryCounter).padStart(4, "0")}`;
@@ -194,6 +209,10 @@ export function generateSeedData(): SeedData {
     ],
   }
 
+  /**
+   * Picks a random comment for a category (30% chance of having one).
+   * @param categoryId - The category to pick a comment for
+   */
   function pickComment(categoryId: string): string {
     if (!chance(0.3)) return ''
     const pool = commentPool[categoryId]
@@ -201,6 +220,13 @@ export function generateSeedData(): SeedData {
     return pool[randInt(0, pool.length - 1)]!
   }
 
+  /**
+   * Creates an entry object.
+   * @param categoryId - The category this entry belongs to
+   * @param start - Start timestamp
+   * @param end - End timestamp
+   * @param id - Optional custom ID
+   */
   function makeEntry(
     categoryId: string,
     start: number,
@@ -217,16 +243,35 @@ export function generateSeedData(): SeedData {
     };
   }
 
-  /** Day of week: 0 = Sunday, 6 = Saturday */
+  /**
+   * Day of week: 0 = Sunday, 6 = Saturday.
+   * @param year - The year
+   * @param month - The month (0-indexed)
+   * @param day - The day of the month
+   */
   function dayOfWeek(year: number, month: number, day: number): number {
     return new Date(Date.UTC(year, month, day)).getUTCDay();
   }
 
+  /**
+   * Checks if a date falls on a weekend.
+   * @param year - The year
+   * @param month - The month (0-indexed)
+   * @param day - The day of the month
+   */
   function isWeekend(year: number, month: number, day: number): boolean {
     const dow = dayOfWeek(year, month, day);
     return dow === 0 || dow === 6;
   }
 
+  /**
+   * Shorthand for Date.UTC.
+   * @param year - The year
+   * @param month - The month (0-indexed)
+   * @param day - The day of the month
+   * @param hours - Hours
+   * @param minutes - Minutes
+   */
   function utc(
     year: number,
     month: number,
@@ -241,6 +286,12 @@ export function generateSeedData(): SeedData {
   // Entry generators (per day)
   // -------------------------------------------------------------------------
 
+  /**
+   * Generates sleep entries for a given day.
+   * @param year - The year
+   * @param month - The month (0-indexed)
+   * @param day - The day of the month
+   */
   function generateSleepEntries(
     year: number,
     month: number,
@@ -301,6 +352,12 @@ export function generateSeedData(): SeedData {
     return entries;
   }
 
+  /**
+   * Generates work entries for a given weekday.
+   * @param year - The year
+   * @param month - The month (0-indexed)
+   * @param day - The day of the month
+   */
   function generateWorkEntries(
     year: number,
     month: number,
@@ -330,6 +387,12 @@ export function generateSeedData(): SeedData {
     return entries;
   }
 
+  /**
+   * Generates commute entries for a given weekday.
+   * @param year - The year
+   * @param month - The month (0-indexed)
+   * @param day - The day of the month
+   */
   function generateCommuteEntries(
     year: number,
     month: number,
@@ -360,6 +423,12 @@ export function generateSeedData(): SeedData {
     return entries;
   }
 
+  /**
+   * Generates exercise entries for a given day (~40% chance).
+   * @param year - The year
+   * @param month - The month (0-indexed)
+   * @param day - The day of the month
+   */
   function generateExerciseEntries(
     year: number,
     month: number,
@@ -380,6 +449,12 @@ export function generateSeedData(): SeedData {
     return entries;
   }
 
+  /**
+   * Generates coffee (instant) entries for a given day.
+   * @param year - The year
+   * @param month - The month (0-indexed)
+   * @param day - The day of the month
+   */
   function generateCoffeeEntries(
     year: number,
     month: number,
@@ -423,6 +498,7 @@ export function generateSeedData(): SeedData {
 
   // Collect all days to generate: the fixed range + yesterday + today (deduplicated via Set)
   const daySet = new Set<number>();
+  /** @param d - The date to add to the set */
   const addDay = (d: Date) => daySet.add(d.getTime());
 
   const cursor = new Date(startDate);

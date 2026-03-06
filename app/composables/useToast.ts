@@ -12,7 +12,16 @@ export interface Toast {
 const toasts = ref<Toast[]>([])
 let nextId = 0
 
+/** Provides reactive toast notification state and helpers. */
 export function useToast() {
+    /**
+     * Adds a toast notification.
+     * @param message - The message to display
+     * @param options - Toast options
+     * @param options.duration - How long to show the toast in ms
+     * @param options.categoryId - Associated category ID
+     * @param options.goals - Goals to display in the toast
+     */
     const addToast = (message: string, options: { duration?: number, categoryId?: string, goals?: readonly Goal[] } = {}): string => {
         const id = String(nextId++)
         const { duration = 3000, ...rest } = options
@@ -20,6 +29,10 @@ export function useToast() {
         return id
     }
 
+    /**
+     * Removes a toast by ID.
+     * @param id - The toast ID to remove
+     */
     const removeToast = (id: string) => {
         toasts.value = toasts.value.filter(t => t.id !== id)
     }

@@ -8,6 +8,12 @@ export interface TitleInfo {
     nextLink: string | null
 }
 
+/**
+ * Builds title and navigation links for a day view.
+ * @param date - The day to build a title for
+ * @param t - Translation function
+ * @param locale - The locale string for date formatting
+ */
 export const titleForDay = (date: Date, t: TranslateFunction, locale: string): TitleInfo => {
     const today = new Date()
     const todayUtc = today.toISOString().slice(0, 10)

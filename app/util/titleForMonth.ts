@@ -1,6 +1,11 @@
 import { toUtcDateStr } from './toUtcDateStr'
 import type { TitleInfo } from './titleForDay'
 
+/**
+ * Builds title and navigation links for a month view.
+ * @param monthStr - Month string in "YYYY-MM" format
+ * @param locale - The locale string for date formatting
+ */
 export const titleForMonth = (monthStr: string, locale: string): TitleInfo | null => {
     const date = new Date(`${monthStr}-01`)
     if (Number.isNaN(date.getTime())) return null

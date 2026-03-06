@@ -1,5 +1,9 @@
 import type { TranslateFunction } from '~/types/TranslateFunction'
 
+/**
+ * Returns localized weekday labels (Monday–Sunday).
+ * @param t - Translation function
+ */
 export const getWeekdays = (t: TranslateFunction) => [
     { short: t('weekdayMoShort'), full: t('weekdayMo') },
     { short: t('weekdayTuShort'), full: t('weekdayTu') },

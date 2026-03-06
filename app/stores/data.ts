@@ -39,6 +39,10 @@ export const useDataStore = defineStore('data', () => {
 
     // --- Actions ---
 
+    /**
+     * Creates a new category.
+     * @param data - The category data (title, activity, color)
+     */
     function addCategory(data: CategoryData): void {
         categories.value = [...categories.value, {
             id: crypto.randomUUID(),
@@ -51,6 +55,10 @@ export const useDataStore = defineStore('data', () => {
         }]
     }
 
+    /**
+     * Partially updates an existing category by ID.
+     * @param data - The fields to update (must include id)
+     */
     function updateCategory(data: Partial<Category>): void {
         if (!data.id) { return }
         const index = categories.value.findIndex(x => x.id === data.id)
@@ -70,19 +78,36 @@ export const useDataStore = defineStore('data', () => {
         categories.value = updated
     }
 
+    /**
+     * Deletes a category and all its entries.
+     * @param id - The category ID to delete
+     */
     function deleteCategory(id: string): void {
         categories.value = categories.value.filter(x => x.id !== id)
         entries.value = entries.value.filter(x => x.categoryId !== id)
     }
 
+    /**
+     * Adds an entry.
+     * @param entry - The entry to add
+     */
     function addEntry(entry: Entry): void {
         entries.value = [...entries.value, entry]
     }
 
+    /**
+     * Deletes an entry by ID.
+     * @param entryId - The entry ID to delete
+     */
     function deleteEntry(entryId: string): void {
         entries.value = entries.value.filter(x => x.id !== entryId)
     }
 
+    /**
+     * Returns entries (with their category) that overlap a given date range.
+     * @param start - Range start date
+     * @param end - Range end date
+     */
     function getEntriesForRange(start: Date, end: Date): EntryWithCategory[] {
         const rangeStart = start.getTime()
         const rangeEnd = end.getTime()
@@ -109,10 +134,18 @@ export const useDataStore = defineStore('data', () => {
             .sort((x, y) => y.start - x.start)
     }
 
+    /**
+     * Checks whether a category has any running entries.
+     * @param category - The category to check
+     */
     function hasRunningEntries(category: Category): boolean {
         return entries.value.some(entry => entry.categoryId === category.id && entry.running)
     }
 
+    /**
+     * Stops a running entry by setting its end time to now.
+     * @param id - The entry ID to close
+     */
     function closeEntry(id: string): void {
         entries.value = entries.value.map(entry =>
             entry.id === id
@@ -121,6 +154,10 @@ export const useDataStore = defineStore('data', () => {
         )
     }
 
+    /**
+     * Replaces all data with imported categories and entries.
+     * @param importCategories - Categories (with nested entries) to import
+     */
     function importData(importCategories: CategoryWithEntries[]): void {
         const newCategories: Category[] = []
         const newEntries: Entry[] = []
@@ -135,6 +172,11 @@ export const useDataStore = defineStore('data', () => {
         entries.value = newEntries
     }
 
+    /**
+     * Updates the start timestamp of an entry.
+     * @param id - The entry ID
+     * @param start - New start timestamp in milliseconds
+     */
     function updateEntryStart(id: string, start: number): void {
         entries.value = entries.value.map(entry =>
             entry.id === id
@@ -143,6 +185,11 @@ export const useDataStore = defineStore('data', () => {
         )
     }
 
+    /**
+     * Updates the end timestamp of an entry.
+     * @param id - The entry ID
+     * @param end - New end timestamp in milliseconds
+     */
     function updateEntryEnd(id: string, end: number): void {
         entries.value = entries.value.map(entry =>
             entry.id === id
@@ -151,6 +198,11 @@ export const useDataStore = defineStore('data', () => {
         )
     }
 
+    /**
+     * Updates the comment of an entry.
+     * @param id - The entry ID
+     * @param comment - New comment text
+     */
     function updateEntryComment(id: string, comment: string): void {
         entries.value = entries.value.map(entry =>
             entry.id === id
@@ -159,6 +211,10 @@ export const useDataStore = defineStore('data', () => {
         )
     }
 
+    /**
+     * Closes all running entries for a category.
+     * @param categoryId - The category whose entries to close
+     */
     function closeAllEntries(categoryId: string): void {
         const now = Date.now()
         entries.value = entries.value.map(entry =>

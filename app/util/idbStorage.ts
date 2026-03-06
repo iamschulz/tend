@@ -11,10 +11,19 @@ const timers = new Map<string, ReturnType<typeof setTimeout>>()
 const DEBOUNCE_MS = 500
 
 export const idbStorage = {
+    /**
+     * Reads a value from the in-memory cache.
+     * @param key - The storage key
+     */
     getItem(key: string): string | null {
         return cache.get(key) ?? null
     },
 
+    /**
+     * Writes a value to the cache and debounce-flushes it to IndexedDB.
+     * @param key - The storage key
+     * @param value - The value to store
+     */
     setItem(key: string, value: string): void {
         cache.set(key, value)
 
@@ -29,6 +38,10 @@ export const idbStorage = {
         }, DEBOUNCE_MS))
     },
 
+    /**
+     * Removes a value from the cache and IndexedDB.
+     * @param key - The storage key
+     */
     removeItem(key: string): void {
         cache.delete(key)
         const existing = timers.get(key)
@@ -37,7 +50,10 @@ export const idbStorage = {
     },
 }
 
-/** Pre-load IDB values into the cache. Must be called before Pinia hydrates. */
+/**
+ * Pre-load IDB values into the cache. Must be called before Pinia hydrates.
+ * @param keys - The storage keys to preload
+ */
 export async function preloadIdbCache(keys: string[]): Promise<void> {
     const results = await Promise.all(keys.map(k => get<string>(k)))
     for (let i = 0; i < keys.length; i++) {

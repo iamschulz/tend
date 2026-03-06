@@ -1,6 +1,11 @@
 const announcers = new Map<string, { text: Ref<string>, isActive: () => boolean }>()
 
+/** Provides aria-live announcement helpers for screen readers. */
 export default function useAnnounce() {
+  /**
+   * Sends text to the currently active aria-live announcer.
+   * @param text - The text to announce
+   */
   const announce = (text: string) => {
     // Find the active announcer: last registered whose isActive() returns true.
     // Dialog announcers register after root, so they naturally take priority.
@@ -17,6 +22,11 @@ export default function useAnnounce() {
     })
   }
 
+  /**
+   * Registers an aria-live region that can receive announcements.
+   * @param id - Unique identifier for the announcer
+   * @param isActive - Callback that returns whether this announcer is currently active
+   */
   const registerAnnouncer = (id: string, isActive: () => boolean): Ref<string> => {
     const text = ref('')
     announcers.set(id, { text, isActive })
@@ -30,7 +40,11 @@ export default function useAnnounce() {
     return text
   }
 
-  /** Announce when an item is added to a list. */
+  /**
+   * Announce when an item is added to a list.
+   * @param list - Reactive list to watch
+   * @param getText - Callback to produce announcement text from the added item
+   */
   const watchForAdd = <T>(list: Ref<T[]>, getText: (item: T) => string) => {
     watch(list, (newList, oldList) => {
       if (newList.length > oldList.length) {
@@ -39,7 +53,11 @@ export default function useAnnounce() {
     })
   }
 
-  /** Announce when an item is removed from a list. */
+  /**
+   * Announce when an item is removed from a list.
+   * @param list - Reactive list to watch
+   * @param getText - Callback to produce announcement text from the removed item
+   */
   const watchForDelete = <T extends { id: string }>(list: Ref<T[]>, getText: (item: T) => string) => {
     watch(list, (newList, oldList) => {
       if (newList.length < oldList.length) {
@@ -50,7 +68,11 @@ export default function useAnnounce() {
     })
   }
 
-  /** Announce when a running entry stops. */
+  /**
+   * Announce when a running entry stops.
+   * @param list - Reactive list to watch
+   * @param getText - Callback to produce announcement text from the stopped item
+   */
   const watchForStop = <T extends { running: boolean }>(list: Ref<T[]>, getText: (item: T) => string) => {
     watch(list, (newList, oldList) => {
       if (newList.length !== oldList.length) return

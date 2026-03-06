@@ -7,6 +7,10 @@ export type ImportData = {
     categories: CategoryWithEntries[]
 }
 
+/**
+ * Type guard for Activity objects.
+ * @param value - The value to check
+ */
 function isActivity(value: unknown): value is Activity {
     if (typeof value !== 'object' || value === null) { return false }
     const obj = value as Record<string, unknown>
@@ -15,6 +19,10 @@ function isActivity(value: unknown): value is Activity {
         && typeof obj.emoji === 'string'
 }
 
+/**
+ * Type guard for Entry objects.
+ * @param value - The value to check
+ */
 function isEntry(value: unknown): value is Entry {
     if (typeof value !== 'object' || value === null) { return false }
     const obj = value as Record<string, unknown>
@@ -29,6 +37,10 @@ function isEntry(value: unknown): value is Entry {
 const validIntervals = new Set(['day', 'week', 'month'])
 const validUnits = new Set(['event', 'minutes', 'hours', 'days'])
 
+/**
+ * Type guard for Goal objects.
+ * @param value - The value to check
+ */
 function isGoal(value: unknown): value is Goal {
     if (typeof value !== 'object' || value === null) { return false }
     const obj = value as Record<string, unknown>
@@ -41,6 +53,10 @@ function isGoal(value: unknown): value is Goal {
         && typeof obj.reminder === 'boolean'
 }
 
+/**
+ * Type guard for CategoryWithEntries objects.
+ * @param value - The value to check
+ */
 function isCategory(value: unknown): value is CategoryWithEntries {
     if (typeof value !== 'object' || value === null) { return false }
     const obj = value as Record<string, unknown>
@@ -55,6 +71,10 @@ function isCategory(value: unknown): value is CategoryWithEntries {
         && obj.entries.every(isEntry)
 }
 
+/**
+ * Validates that unknown data conforms to the ImportData shape.
+ * @param data - The data to validate
+ */
 export function validateImportData(data: unknown): data is ImportData {
     if (typeof data !== 'object' || data === null) { return false }
     const obj = data as Record<string, unknown>

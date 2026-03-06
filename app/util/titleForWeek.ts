@@ -3,6 +3,12 @@ import { getDateFromWeek } from './getDateFromWeek'
 import { getIsoWeekString } from './getIsoWeekString'
 import type { TitleInfo } from './titleForDay'
 
+/**
+ * Builds title and navigation links for a week view.
+ * @param weekStr - ISO week string (e.g. "2025-W01")
+ * @param t - Translation function
+ * @param locale - The locale string for date formatting
+ */
 export const titleForWeek = (weekStr: string, t: TranslateFunction, locale: string): TitleInfo | null => {
     const monday = getDateFromWeek(weekStr)
     if (Number.isNaN(monday.getTime())) return null
