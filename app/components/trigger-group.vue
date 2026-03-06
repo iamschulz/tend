@@ -82,12 +82,12 @@
     
     ul[data-group] {
         position: fixed;
-        left: 0;
+        right: 0;
         bottom: 2rem;
         display: flex;
         justify-content: flex-end;
         max-width: 100svw;
-        width: 100%;
+        width: auto;
         padding: 0 2rem 0 1rem;
         z-index: 1;
         view-transition-name: trigger-group;
@@ -104,6 +104,7 @@
 
     ul[data-autogrid] {
         grid-template-columns: repeat(auto-fit, 4.5rem);
+        width: 100%;
     }
 
     [data-avatar] {
@@ -118,6 +119,7 @@
         button {
             width: 100%;
             height: 100%;
+            border-radius: 99999px;
         }
     }
 </style>
