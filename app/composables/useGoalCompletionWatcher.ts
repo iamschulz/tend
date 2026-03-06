@@ -1,4 +1,4 @@
-import { watch, computed, onUnmounted } from 'vue'
+import { watch, computed, onScopeDispose } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useDataStore } from '~/stores/data'
 import { getGoalProgress, getGoalPeriodKey } from '~/util/getGoalProgress'
@@ -70,7 +70,7 @@ export function useGoalCompletionWatcher(t: (key: string) => string) {
         }
     }, { immediate: true })
 
-    onUnmounted(() => {
+    onScopeDispose(() => {
         if (tickInterval) {
             clearInterval(tickInterval)
             tickInterval = null

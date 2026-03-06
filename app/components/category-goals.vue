@@ -9,6 +9,7 @@
                 </span>
                 <button class="delete-goal" @click="removeGoal(i)">
                     <nuxt-icon name="delete" />
+                    <span class="sr-only">{{ $t("delete") }}</span>
                 </button>
             </li>
         </TransitionGroup>
