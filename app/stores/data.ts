@@ -11,6 +11,37 @@ export const useDataStore = defineStore('data', () => {
     const categories = shallowRef<Category[]>([])
     const entries = shallowRef<Entry[]>([])
 
+    // --- Server sync ---
+
+    const config = useRuntimeConfig()
+    const isServerMode = config.public.backendMode === 'server'
+
+    /**
+     * Fire-and-forget API call. Swallows errors so the optimistic
+     * local update stays in place even when offline (PWA).
+     * @param url - The API endpoint path
+     * @param opts - $fetch options (method, body, etc.)
+     */
+    function sync(url: string, opts?: Parameters<typeof $fetch>[1]) {
+        if (!isServerMode) return
+        $fetch(url, opts).catch((err) => {
+            console.warn(`[sync] ${opts?.method ?? 'GET'} ${url} failed:`, err)
+        })
+    }
+
+    /**
+     * Fetches all categories and entries from the server and replaces
+     * the local store state. Used on initial load and reconnect.
+     */
+    async function hydrateFromServer(): Promise<void> {
+        const [serverCategories, serverEntries] = await Promise.all([
+            $fetch<Category[]>('/api/categories'),
+            $fetch<Entry[]>('/api/entries'),
+        ])
+        categories.value = serverCategories
+        entries.value = serverEntries
+    }
+
     // --- Getters ---
 
     const getAllCategories = computed((): Category[] => categories.value)
@@ -44,7 +75,7 @@ export const useDataStore = defineStore('data', () => {
      * @param data - The category data (title, activity, color)
      */
     function addCategory(data: CategoryData): void {
-        categories.value = [...categories.value, {
+        const category: Category = {
             id: crypto.randomUUID(),
             title: data.title,
             activity: data.activity,
@@ -52,7 +83,9 @@ export const useDataStore = defineStore('data', () => {
             goals: [],
             hidden: false,
             comment: '',
-        }]
+        }
+        categories.value = [...categories.value, category]
+        sync('/api/categories', { method: 'POST', body: category })
     }
 
     /**
@@ -76,6 +109,7 @@ export const useDataStore = defineStore('data', () => {
 
         updated[index] = category
         categories.value = updated
+        sync(`/api/categories/${data.id}`, { method: 'PUT', body: data })
     }
 
     /**
@@ -85,6 +119,7 @@ export const useDataStore = defineStore('data', () => {
     function deleteCategory(id: string): void {
         categories.value = categories.value.filter(x => x.id !== id)
         entries.value = entries.value.filter(x => x.categoryId !== id)
+        sync(`/api/categories/${id}`, { method: 'DELETE' })
     }
 
     /**
@@ -93,6 +128,7 @@ export const useDataStore = defineStore('data', () => {
      */
     function addEntry(entry: Entry): void {
         entries.value = [...entries.value, entry]
+        sync('/api/entries', { method: 'POST', body: entry })
     }
 
     /**
@@ -101,6 +137,7 @@ export const useDataStore = defineStore('data', () => {
      */
     function deleteEntry(entryId: string): void {
         entries.value = entries.value.filter(x => x.id !== entryId)
+        sync(`/api/entries/${entryId}`, { method: 'DELETE' })
     }
 
     /**
@@ -147,11 +184,13 @@ export const useDataStore = defineStore('data', () => {
      * @param id - The entry ID to close
      */
     function closeEntry(id: string): void {
+        const now = Date.now()
         entries.value = entries.value.map(entry =>
             entry.id === id
-                ? { ...entry, end: Date.now(), running: false }
+                ? { ...entry, end: now, running: false }
                 : entry
         )
+        sync(`/api/entries/${id}`, { method: 'PUT', body: { id, end: now, running: false } })
     }
 
     /**
@@ -170,6 +209,7 @@ export const useDataStore = defineStore('data', () => {
 
         categories.value = newCategories
         entries.value = newEntries
+        sync('/api/data/import', { method: 'POST', body: { categories: importCategories } })
     }
 
     /**
@@ -183,6 +223,7 @@ export const useDataStore = defineStore('data', () => {
                 ? { ...entry, start }
                 : entry
         )
+        sync(`/api/entries/${id}`, { method: 'PUT', body: { id, start } })
     }
 
     /**
@@ -196,6 +237,7 @@ export const useDataStore = defineStore('data', () => {
                 ? { ...entry, end }
                 : entry
         )
+        sync(`/api/entries/${id}`, { method: 'PUT', body: { id, end } })
     }
 
     /**
@@ -209,6 +251,7 @@ export const useDataStore = defineStore('data', () => {
                 ? { ...entry, comment }
                 : entry
         )
+        sync(`/api/entries/${id}`, { method: 'PUT', body: { id, comment } })
     }
 
     /**
@@ -217,16 +260,20 @@ export const useDataStore = defineStore('data', () => {
      */
     function closeAllEntries(categoryId: string): void {
         const now = Date.now()
-        entries.value = entries.value.map(entry =>
-            entry.categoryId === categoryId && (entry.running || !entry.end)
-                ? { ...entry, end: now, running: false }
-                : entry
-        )
+        entries.value = entries.value.map(entry => {
+            if (entry.categoryId === categoryId && (entry.running || !entry.end)) {
+                const closed = { ...entry, end: now, running: false }
+                sync(`/api/entries/${entry.id}`, { method: 'PUT', body: { id: entry.id, end: now, running: false } })
+                return closed
+            }
+            return entry
+        })
     }
 
     return {
         categories,
         entries,
+        isServerMode,
         getAllCategories,
         visibleCategories,
         getCategoryById,
@@ -245,6 +292,7 @@ export const useDataStore = defineStore('data', () => {
         updateEntryEnd,
         updateEntryComment,
         closeAllEntries,
+        hydrateFromServer,
     }
 }, {
     persist: [

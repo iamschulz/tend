@@ -1,17 +1,16 @@
-import { categoryCreateSchema } from '~~/shared/schemas/category'
+import { categorySchema } from '~~/shared/schemas/category'
 import { categories } from '~~/server/database/schema'
 
 /**
- * POST /api/categories — Creates a new category. Generates a server-side UUID.
- * @param event.body - Category data validated against `categoryCreateSchema`
+ * POST /api/categories — Creates a new category with a client-provided UUID.
+ * @param event.body - Category data validated against `categorySchema`
  */
 export default defineEventHandler(async (event) => {
-    const body = await readValidatedBody(event, categoryCreateSchema.parse)
-    const id = crypto.randomUUID()
+    const body = await readValidatedBody(event, categorySchema.parse)
 
     const db = useDb()
     db.insert(categories).values({
-        id,
+        id: body.id,
         title: body.title,
         activityTitle: body.activity.title,
         activityIcon: body.activity.icon,
@@ -22,5 +21,5 @@ export default defineEventHandler(async (event) => {
         comment: body.comment,
     }).run()
 
-    return rowToCategory(db.select().from(categories).where(eq(categories.id, id)).get()!)
+    return rowToCategory(db.select().from(categories).where(eq(categories.id, body.id)).get()!)
 })
