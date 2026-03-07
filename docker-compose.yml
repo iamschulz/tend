@@ -1,0 +1,21 @@
+services:
+  tend:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - tend-data:/data
+    environment:
+      - NUXT_PUBLIC_BACKEND_MODE=server
+      - NUXT_SESSION_PASSWORD=${NUXT_SESSION_PASSWORD}
+      - NUXT_ADMIN_USERNAME=${NUXT_ADMIN_USERNAME}
+      - NUXT_ADMIN_PASSWORD=${NUXT_ADMIN_PASSWORD}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/auth/session"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  tend-data:
