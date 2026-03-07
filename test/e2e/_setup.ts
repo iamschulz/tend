@@ -23,7 +23,7 @@ async function getFreePort(): Promise<number> {
 }
 
 /** Start nuxt preview server on a random port. Resolves once the server is listening. */
-export async function startServer(): Promise<string> {
+export async function startServer(envOverrides?: Record<string, string>): Promise<string> {
   const port = await getFreePort()
   baseUrl = `http://localhost:${port}`
 
@@ -31,7 +31,7 @@ export async function startServer(): Promise<string> {
     const child = spawn('npx', ['nuxt', 'preview', '--port', String(port)], {
       cwd: process.cwd(),
       stdio: ['ignore', 'pipe', 'pipe'],
-      env: { ...process.env, NODE_ENV: 'production', NUXT_TELEMETRY_DISABLED: '1' },
+      env: { ...process.env, NODE_ENV: 'production', NUXT_TELEMETRY_DISABLED: '1', ...envOverrides },
     })
 
     serverProcess = child
