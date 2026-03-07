@@ -44,9 +44,15 @@ function mulberry32(seed: number) {
 // Constants — 5 categories
 // ---------------------------------------------------------------------------
 
+const CAT_WORK     = '00000000-0000-4000-8000-000000000001'
+const CAT_SLEEP    = '00000000-0000-4000-8000-000000000002'
+const CAT_EXERCISE = '00000000-0000-4000-8000-000000000003'
+const CAT_COFFEE   = '00000000-0000-4000-8000-000000000004'
+const CAT_COMMUTE  = '00000000-0000-4000-8000-000000000005'
+
 const CATEGORIES_DEF: Category[] = [
   {
-    id: "seed-cat-1",
+    id: CAT_WORK,
     title: "Work",
     activity: { title: "work", icon: "factory", emoji: "\u{1F3ED}" },
     color: "#00aaff",
@@ -54,7 +60,7 @@ const CATEGORIES_DEF: Category[] = [
     comment: 'All work-related tasks and meetings',
   },
   {
-    id: "seed-cat-2",
+    id: CAT_SLEEP,
     title: "Sleep",
     activity: { title: "sleep", icon: "bed", emoji: "\u{1F634}" },
     color: "#8700b8",
@@ -62,7 +68,7 @@ const CATEGORIES_DEF: Category[] = [
     comment: '',
   },
   {
-    id: "seed-cat-3",
+    id: CAT_EXERCISE,
     title: "Exercise",
     activity: { title: "excercise", icon: "exercise", emoji: "\u{1F3CB}\u{FE0F}" },
     color: "#00ff73",
@@ -70,7 +76,7 @@ const CATEGORIES_DEF: Category[] = [
     comment: 'Gym, running, yoga, and other physical activities',
   },
   {
-    id: "seed-cat-4",
+    id: CAT_COFFEE,
     title: "Coffee",
     activity: { title: "coffee", icon: "coffee", emoji: "\u2615" },
     color: "#ffc400",
@@ -78,7 +84,7 @@ const CATEGORIES_DEF: Category[] = [
     comment: '',
   },
   {
-    id: "seed-cat-5",
+    id: CAT_COMMUTE,
     title: "Commute",
     activity: { title: "commute", icon: "commute", emoji: "\u{1F68C}" },
     color: "#ff0059",
@@ -102,24 +108,24 @@ interface EdgeCase {
 const edgeCases: EdgeCase[] = [
   {
     label: "2-day work entry (Jun 15 22:00 → Jun 16 02:00)",
-    categoryId: "seed-cat-1",
+    categoryId: CAT_WORK,
     start: Date.UTC(2025, 5, 15, 22, 0),
     end: Date.UTC(2025, 5, 16, 2, 0),
-    id: "seed-edge-2day",
+    id: "00000000-0000-4000-8000-e00000000001",
   },
   {
     label: "3-day entry (Aug 1 Fri 20:00 → Aug 3 Sun 10:00)",
-    categoryId: "seed-cat-2",
+    categoryId: CAT_SLEEP,
     start: Date.UTC(2025, 7, 1, 20, 0),
     end: Date.UTC(2025, 7, 3, 10, 0),
-    id: "seed-edge-3day",
+    id: "00000000-0000-4000-8000-e00000000002",
   },
   {
     label: "8-day vacation entry (Oct 10 08:00 → Oct 17 18:00)",
-    categoryId: "seed-cat-1",
+    categoryId: CAT_WORK,
     start: Date.UTC(2025, 9, 10, 8, 0),
     end: Date.UTC(2025, 9, 17, 18, 0),
-    id: "seed-edge-8day",
+    id: "00000000-0000-4000-8000-e00000000003",
   },
 ];
 
@@ -154,14 +160,15 @@ export function generateSeedData(): SeedData {
 
   let entryCounter = 0;
 
-  /** Returns a sequential entry ID. */
+  /** Returns a sequential entry ID as a valid UUID. */
   function nextEntryId(): string {
     entryCounter++;
-    return `seed-entry-${String(entryCounter).padStart(4, "0")}`;
+    const hex = entryCounter.toString(16).padStart(12, "0");
+    return `00000000-0000-4000-8000-${hex}`;
   }
 
   const commentPool: Record<string, string[]> = {
-    'seed-cat-1': [
+    [CAT_WORK]: [
       'Sprint planning meeting',
       'Code review session',
       'Deployed new feature to staging',
@@ -173,7 +180,7 @@ export function generateSeedData(): SeedData {
       'Refactored payment flow',
       'Onboarding new team member',
     ],
-    'seed-cat-2': [
+    [CAT_SLEEP]: [
       'Slept great',
       'Woke up once during the night',
       'Couldn\'t fall asleep easily',
@@ -181,7 +188,7 @@ export function generateSeedData(): SeedData {
       'Tried new pillow',
       'Need to fix the blinds',
     ],
-    'seed-cat-3': [
+    [CAT_EXERCISE]: [
       'Leg day',
       'Upper body focus',
       '5k run in the park',
@@ -191,7 +198,7 @@ export function generateSeedData(): SeedData {
       'Felt really good today',
       'Pushed through the last set',
     ],
-    'seed-cat-4': [
+    [CAT_COFFEE]: [
       'Oat milk latte',
       'Double espresso',
       'Tried the new blend',
@@ -199,7 +206,7 @@ export function generateSeedData(): SeedData {
       'Decaf for once',
       'Coffee with Sarah',
     ],
-    'seed-cat-5': [
+    [CAT_COMMUTE]: [
       'Heavy traffic today',
       'Took the train instead',
       'Listened to a great podcast',
@@ -346,7 +353,7 @@ export function generateSeedData(): SeedData {
     );
 
     if (end > start) {
-      entries.push(makeEntry("seed-cat-2", start, end));
+      entries.push(makeEntry(CAT_SLEEP, start, end));
     }
 
     return entries;
@@ -369,7 +376,7 @@ export function generateSeedData(): SeedData {
     // Morning block: 08:30–09:30 start, 12:00–13:00 end
     const morningStart = utc(year, month, day, randInt(8, 9), randInt(0, 59));
     const morningEnd = utc(year, month, day, 12, randInt(0, 59));
-    entries.push(makeEntry("seed-cat-1", morningStart, morningEnd));
+    entries.push(makeEntry(CAT_WORK, morningStart, morningEnd));
 
     // Afternoon block (~85% of days)
     if (chance(0.85)) {
@@ -381,7 +388,7 @@ export function generateSeedData(): SeedData {
         randInt(16, 18),
         randInt(0, 59)
       );
-      entries.push(makeEntry("seed-cat-1", afternoonStart, afternoonEnd));
+      entries.push(makeEntry(CAT_WORK, afternoonStart, afternoonEnd));
     }
 
     return entries;
@@ -407,7 +414,7 @@ export function generateSeedData(): SeedData {
       const durationMin = randInt(30, 90);
       const start = utc(year, month, day, 7, startMin);
       const end = start + durationMin * 60_000;
-      entries.push(makeEntry("seed-cat-5", start, end));
+      entries.push(makeEntry(CAT_COMMUTE, start, end));
     }
 
     // Evening commute (~75%)
@@ -417,7 +424,7 @@ export function generateSeedData(): SeedData {
       const durationMin = randInt(30, 90);
       const start = utc(year, month, day, startHour, startMin);
       const end = start + durationMin * 60_000;
-      entries.push(makeEntry("seed-cat-5", start, end));
+      entries.push(makeEntry(CAT_COMMUTE, start, end));
     }
 
     return entries;
@@ -444,7 +451,7 @@ export function generateSeedData(): SeedData {
     const durationMin = randInt(30, 90);
     const start = utc(year, month, day, startHour, startMin);
     const end = start + durationMin * 60_000;
-    entries.push(makeEntry("seed-cat-3", start, end));
+    entries.push(makeEntry(CAT_EXERCISE, start, end));
 
     return entries;
   }
@@ -469,7 +476,7 @@ export function generateSeedData(): SeedData {
       const min = randInt(0, 59);
       const ts = utc(year, month, day, hour, min);
       // Instant entries: start === end
-      entries.push(makeEntry("seed-cat-4", ts, ts));
+      entries.push(makeEntry(CAT_COFFEE, ts, ts));
     }
 
     return entries;

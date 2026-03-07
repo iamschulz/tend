@@ -26,6 +26,7 @@
                     class="title-input"
                     type="text"
                     :aria-label="$t('selectCategoryTitle')"
+                    maxlength="200"
                     required
                 >
                 <button @click="toggleHidden">
@@ -39,7 +40,7 @@
             </header>
 
             <label for="comment">{{ $t('notes') }}:</label>
-            <textarea id="comment" v-model="categoryComment" />
+            <textarea id="comment" v-model="categoryComment" maxlength="5000" />
 
             <dl class="stats" data-autogrid="1/2">
                 <div>

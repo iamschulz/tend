@@ -12,7 +12,7 @@
                     {{ activity.emoji }}
                 </option>
             </select>
-            <input v-model="category.title" :aria-label="$t('selectCategoryTitle')" type="text" required>
+            <input v-model="category.title" :aria-label="$t('selectCategoryTitle')" type="text" maxlength="200" required>
             <button @click.prevent="category.hidden = !category.hidden">
                 <nuxt-icon :name="category.hidden ? 'visibility_off' : 'visibility'" />
                 <span class="sr-only">{{ category.hidden ? $t('show') : $t('hide') }}</span>

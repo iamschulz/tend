@@ -21,6 +21,7 @@
                 type="text"
                 :aria-label="$t('selectCategoryTitle')"
                 :placeholder="$t('placeholder')"
+                maxlength="200"
                 required
             >
 

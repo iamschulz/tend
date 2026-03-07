@@ -2,19 +2,22 @@ import { describe, it, expect } from 'vitest'
 import { validateImportData } from '~/util/validateImportData'
 import { generateSeedData } from '../../scripts/generate-seed-data'
 
+const CAT_ID = '00000000-0000-4000-8000-000000000001'
+const ENTRY_ID = '00000000-0000-4000-8000-000000000002'
+
 const validEntry = {
-    id: 'entry-1',
+    id: ENTRY_ID,
     start: 1000,
     end: 2000,
     running: false,
-    categoryId: 'cat-1',
+    categoryId: CAT_ID,
     comment: '',
 }
 
 const validActivity = { title: 'Work', icon: 'briefcase', emoji: '💼' }
 
 const validCategory = {
-    id: 'cat-1',
+    id: CAT_ID,
     title: 'Work',
     activity: validActivity,
     color: '#ff0000',
@@ -29,7 +32,7 @@ describe('validateImportData', () => {
         })
 
         it('returns true for valid data with multiple categories', () => {
-            const second = { ...validCategory, id: 'cat-2', title: 'Play', entries: [] }
+            const second = { ...validCategory, id: '00000000-0000-4000-8000-000000000003', title: 'Play', entries: [] }
             expect(validateImportData({ categories: [validCategory, second] })).toBe(true)
         })
 
@@ -396,7 +399,7 @@ describe('validateImportData', () => {
         })
 
         it('returns true with multiple valid entries', () => {
-            const second = { ...validEntry, id: 'entry-2', start: 3000, end: 4000 }
+            const second = { ...validEntry, id: '00000000-0000-4000-8000-000000000004', start: 3000, end: 4000 }
             expect(validateImportData({
                 categories: [{ ...validCategory, entries: [validEntry, second] }],
             })).toBe(true)

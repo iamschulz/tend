@@ -45,7 +45,7 @@
             </button>
         </div>
         <label for="comment">{{ $t("notes") }}:</label>
-        <textarea id="comment" v-model="comment" />
+        <textarea id="comment" v-model="comment" maxlength="5000" />
     </section>
     <ErrorNotice v-else />
 </template>
