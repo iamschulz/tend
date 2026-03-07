@@ -167,5 +167,12 @@
     "somethingWrong": "Something went wrong here.",
     "pageNotFound": "Page not found",
     "pageNotFoundMessage": "The page you're looking for doesn't exist.",
-    "goBack": "Go back"
+    "goBack": "Go back",
+
+    "login": {
+        "username": "Username",
+        "password": "Password",
+        "submit": "Log in",
+        "error": "Invalid username or password"
+    }
 }

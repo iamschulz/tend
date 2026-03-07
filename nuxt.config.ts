@@ -4,6 +4,12 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     dbPath: './data/tend.db',
+    adminUsername: '',
+    adminPassword: '',
+    session: {
+      password: '',
+      maxAge: 60 * 60 * 24 * 365, // 1 year
+    },
     public: {
       backendMode: 'standalone',
     },
@@ -43,6 +49,7 @@ export default defineNuxtConfig({
     '@nuxt/a11y',
     '@nuxt/eslint',
     '@nuxt/hints',
+    'nuxt-auth-utils',
   ],
 
   css: [

@@ -167,5 +167,12 @@
     "somethingWrong": "Irgendwas ist hier schief gelaufen.",
     "pageNotFound": "Seite nicht gefunden",
     "pageNotFoundMessage": "Die Seite, die du suchst, existiert nicht.",
-    "goBack": "Zurück"
+    "goBack": "Zurück",
+
+    "login": {
+        "username": "Benutzername",
+        "password": "Passwort",
+        "submit": "Anmelden",
+        "error": "Ungültiger Benutzername oder Passwort"
+    }
 }

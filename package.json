@@ -30,6 +30,7 @@
     "eslint": "^9.39.2",
     "idb-keyval": "^6.2.2",
     "nuxt": "^4.3.0",
+    "nuxt-auth-utils": "^0.5.29",
     "nuxt-icons": "^4.0.0",
     "pinia": "^3.0.4",
     "pinia-plugin-persistedstate": "^4.7.1",
