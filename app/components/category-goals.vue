@@ -4,9 +4,9 @@
             <li v-for="(goal, i) in goals" :key="i" data-card data-shadow="1" class="goal-item">
                 <span>{{ goal.count }}{{ unitSuffix[goal.unit] }} / {{ $t(`per${goal.interval.charAt(0).toUpperCase()}${goal.interval.slice(1)}`) }}</span>
                 <AnimatedProgress :goal="goal" :category-id="categoryId" />
-                <span class="goal-days">
+                <!--<span class="goal-days">
                     <span v-for="(key, di) in weekdayKeys" :key="key" :class="{ active: goal.days & (1 << di) }">{{ $t(key) }}</span>
-                </span>
+                </span>-->
                 <button class="delete-goal" @click="removeGoal(i)">
                     <nuxt-icon name="delete" />
                     <span class="sr-only">{{ $t("delete") }}</span>
@@ -34,6 +34,7 @@
                 <option value="week">{{ $t('perWeek') }}</option>
                 <option value="month">{{ $t('perMonth') }}</option>
             </select>
+            <!--
             <fieldset class="day-checkboxes">
                 <label v-for="(key, di) in weekdayKeys" :key="key">
                     <input type="checkbox" :checked="!!(newGoal.days & (1 << di))" @change="toggleDay(di)">
@@ -44,6 +45,7 @@
                 <input v-model="newGoal.reminder" type="checkbox">
                 {{ $t('goalReminder') }}
             </label>
+            -->
             <button type="submit">
                 <nuxt-icon name="add" />
                 <span class="sr-only">{{ $t('addGoal') }}</span>
@@ -65,7 +67,7 @@
 
     const unitSuffix = { event: 'x', minutes: 'm', hours: 'h', days: 'd' } as const
 
-    const weekdayKeys = ['weekdayMoShort', 'weekdayTuShort', 'weekdayWeShort', 'weekdayThShort', 'weekdayFrShort', 'weekdaySaShort', 'weekdaySuShort'] as const
+    //const weekdayKeys = ['weekdayMoShort', 'weekdayTuShort', 'weekdayWeShort', 'weekdayThShort', 'weekdayFrShort', 'weekdaySaShort', 'weekdaySuShort'] as const
 
     /** Creates a default goal with all days enabled. */
     const createEmptyGoal = (): Goal => ({
@@ -79,9 +81,9 @@
     const newGoal = ref<Goal>(createEmptyGoal())
 
     /** @param dayIndex - The day index (0=Mon, 6=Sun) to toggle */
-    const toggleDay = (dayIndex: number) => {
+    /*const toggleDay = (dayIndex: number) => {
         newGoal.value.days ^= (1 << dayIndex)
-    }
+    }*/
 
     /** Adds the new goal to the category and resets the form. */
     const onAddGoal = () => {
