@@ -2,7 +2,10 @@ import { expect } from 'vitest'
 import type { Page } from 'playwright'
 import { ensureCategoriesOpen } from './_setup'
 
-/** Open menu if not already open. */
+/**
+ * Open menu if not already open.
+ * @param page - Playwright page instance
+ */
 export async function openMenu(page: Page): Promise<void> {
   const isOpen = await page.$('dialog.menu[open]')
   if (!isOpen) {
@@ -11,7 +14,10 @@ export async function openMenu(page: Page): Promise<void> {
   }
 }
 
-/** Close menu if open. */
+/**
+ * Close menu if open.
+ * @param page - Playwright page instance
+ */
 export async function closeMenu(page: Page): Promise<void> {
   const isOpen = await page.$('dialog.menu[open]')
   if (isOpen) {
@@ -23,6 +29,10 @@ export async function closeMenu(page: Page): Promise<void> {
 /**
  * Add a category via the menu form.
  * By default closes the menu afterwards. Pass `keepMenuOpen: true` to leave it open.
+ * @param page - Playwright page instance
+ * @param title - The category title to enter
+ * @param root0 - Options object
+ * @param root0.keepMenuOpen - Whether to leave the menu open after adding
  */
 export async function addCategory(page: Page, title: string, { keepMenuOpen = false } = {}): Promise<void> {
   await openMenu(page)
@@ -48,7 +58,11 @@ export async function addCategory(page: Page, title: string, { keepMenuOpen = fa
   }
 }
 
-/** Quick-click a trigger button to create an instant entry. */
+/**
+ * Quick-click a trigger button to create an instant entry.
+ * @param page - Playwright page instance
+ * @param index - Trigger button index
+ */
 export async function quickClickTrigger(page: Page, index = 0): Promise<void> {
   const triggers = await page.$$('[data-avatar] button')
   expect(triggers.length).toBeGreaterThan(index)
@@ -56,7 +70,11 @@ export async function quickClickTrigger(page: Page, index = 0): Promise<void> {
   await page.waitForSelector('article.track', { timeout: 5000 })
 }
 
-/** Hold-click on a trigger button to start a running timer. */
+/**
+ * Hold-click on a trigger button to start a running timer.
+ * @param page - Playwright page instance
+ * @param index - Trigger button index
+ */
 export async function holdTrigger(page: Page, index = 0): Promise<void> {
   const triggers = await page.$$('[data-avatar] button')
   const btn = triggers[index]!
@@ -72,7 +90,10 @@ export async function holdTrigger(page: Page, index = 0): Promise<void> {
   await page.mouse.up()
 }
 
-/** Get the current text from whichever announcer region is active. */
+/**
+ * Get the current text from whichever announcer region is active.
+ * @param page - Playwright page instance
+ */
 export async function getAnnouncement(page: Page): Promise<string> {
   return page.evaluate(() => {
     const els = document.querySelectorAll('.announcer')
@@ -84,7 +105,11 @@ export async function getAnnouncement(page: Page): Promise<string> {
   })
 }
 
-/** Wait for any announcer to contain the given text. */
+/**
+ * Wait for any announcer to contain the given text.
+ * @param page - Playwright page instance
+ * @param text - The announcement text to wait for
+ */
 export async function waitForAnnouncement(page: Page, text: string): Promise<void> {
   await page.waitForFunction(
     (t: string) => {
@@ -96,7 +121,10 @@ export async function waitForAnnouncement(page: Page, text: string): Promise<voi
   )
 }
 
-/** Navigate to the category detail page via the edit link in the menu. */
+/**
+ * Navigate to the category detail page via the edit link in the menu.
+ * @param page - Playwright page instance
+ */
 export async function openCategoryPage(page: Page): Promise<void> {
   await openMenu(page)
   await ensureCategoriesOpen(page)
@@ -113,7 +141,11 @@ export async function openCategoryPage(page: Page): Promise<void> {
   await page.waitForFunction(() => !document.querySelector('[data-loading]'), undefined, { timeout: 10_000 })
 }
 
-/** Wait for a toast notification to appear. Returns the toast element text. */
+/**
+ * Wait for a toast notification to appear. Returns the toast element text.
+ * @param page - Playwright page instance
+ * @param timeout - Maximum wait time in ms
+ */
 export async function waitForToast(page: Page, timeout = 5000): Promise<string> {
   await page.waitForSelector('.toast[popover]', { timeout })
   return page.evaluate(() => {
@@ -122,7 +154,10 @@ export async function waitForToast(page: Page, timeout = 5000): Promise<string> 
   })
 }
 
-/** Get all currently visible toasts' text content. */
+/**
+ * Get all currently visible toasts' text content.
+ * @param page - Playwright page instance
+ */
 export async function getToasts(page: Page): Promise<string[]> {
   return page.evaluate(() => {
     const toasts = document.querySelectorAll('.toast[popover]')
@@ -130,7 +165,11 @@ export async function getToasts(page: Page): Promise<string[]> {
   })
 }
 
-/** Wait for all toasts to disappear. */
+/**
+ * Wait for all toasts to disappear.
+ * @param page - Playwright page instance
+ * @param timeout - Maximum wait time in ms
+ */
 export async function waitForNoToasts(page: Page, timeout = 8000): Promise<void> {
   await page.waitForFunction(
     () => document.querySelectorAll('.toast[popover]').length === 0,
@@ -150,10 +189,12 @@ export function getCurrentWeekStr(): string {
   return `${utc.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`
 }
 
+/** Get current ISO month string (YYYY-MM). */
 export function getCurrentMonthStr(): string {
   return new Date().toISOString().slice(0, 7)
 }
 
+/** Get current year as a string. */
 export function getCurrentYearStr(): string {
   return String(new Date().getFullYear())
 }

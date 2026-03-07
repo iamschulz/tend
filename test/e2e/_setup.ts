@@ -44,6 +44,7 @@ export async function startServer(): Promise<string> {
       }
     }, 20_000)
 
+    /** @param chunk - Stdout/stderr data from the child process */
     const onData = (chunk: Buffer) => {
       const text = chunk.toString()
       if (!resolved && (text.includes(`localhost:${port}`) || text.includes('Listening on') || text.includes('Local:'))) {
@@ -66,6 +67,7 @@ export async function startServer(): Promise<string> {
   })
 }
 
+/** Stop the nuxt preview server process. */
 export function stopServer(): void {
   if (serverProcess) {
     serverProcess.kill('SIGTERM')
@@ -75,6 +77,7 @@ export function stopServer(): void {
 
 const debug = !!process.env.PWDEBUG
 
+/** Launch a Chromium browser instance via Playwright. */
 export async function launchBrowser(): Promise<Browser> {
   browser = await chromium.launch({
     headless: !debug,
@@ -83,6 +86,7 @@ export async function launchBrowser(): Promise<Browser> {
   return browser
 }
 
+/** Close the browser instance. */
 export async function closeBrowser(): Promise<void> {
   if (browser) {
     await browser.close()
@@ -94,6 +98,9 @@ export async function closeBrowser(): Promise<void> {
  * Get a new page with clean state, navigate to path, and wait for Nuxt hydration.
  * Each page gets its own browser context, ensuring no state leaks
  * between tests (prevents pinia-plugin-persistedstate from restoring stale data).
+ * @param path - URL path to navigate to
+ * @param contextOptions - Browser context options
+ * @param contextOptions.timezoneId - Timezone override for the browser context
  */
 export async function getPage(path: string, contextOptions?: { timezoneId?: string }): Promise<Page> {
   if (!browser) throw new Error('Browser not launched')
@@ -109,7 +116,11 @@ export async function getPage(path: string, contextOptions?: { timezoneId?: stri
   return page
 }
 
-/** Navigate to a path using client-side Vue Router push. Preserves Pinia store state. */
+/**
+ * Navigate to a path using client-side Vue Router push. Preserves Pinia store state.
+ * @param page - Playwright page instance
+ * @param path - Route path to navigate to
+ */
 export async function navigateTo(page: Page, path: string): Promise<void> {
   await page.evaluate((p: string) => {
     const el = document.querySelector('#__nuxt') as any // eslint-disable-line
@@ -124,7 +135,10 @@ export async function navigateTo(page: Page, path: string): Promise<void> {
   await page.waitForFunction(() => !document.querySelector('[data-loading]'), undefined, { timeout: 10_000 })
 }
 
-/** Open the Categories details section in the menu (it may be closed). */
+/**
+ * Open the Categories details section in the menu (it may be closed).
+ * @param page - Playwright page instance
+ */
 export async function ensureCategoriesOpen(page: Page): Promise<void> {
   const isVisible = await page.evaluate(() => {
     const details = document.querySelectorAll('dialog.menu details')
@@ -140,7 +154,10 @@ export async function ensureCategoriesOpen(page: Page): Promise<void> {
   }
 }
 
-/** Open the Select Day details section in the menu. */
+/**
+ * Open the Select Day details section in the menu.
+ * @param page - Playwright page instance
+ */
 export async function ensureSelectDayOpen(page: Page): Promise<void> {
   const isVisible = await page.evaluate(() => {
     const details = document.querySelectorAll('dialog.menu details')
@@ -156,6 +173,7 @@ export async function ensureSelectDayOpen(page: Page): Promise<void> {
   }
 }
 
+/** Get the base URL of the running preview server. */
 export function getBaseUrl(): string {
   return baseUrl
 }

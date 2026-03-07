@@ -6,6 +6,7 @@ export default withNuxt(
   {
     plugins: { jsdoc },
     files: ['**/*.ts', '**/*.vue'],
+    ignores: ['test/**/*.spec.ts'],
     rules: {
       'jsdoc/require-jsdoc': ['warn', {
         require: {

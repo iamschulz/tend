@@ -16,6 +16,8 @@ import { transform } from 'esbuild'
 export default defineNuxtModule({
   meta: { name: 'pwa' },
 
+  /** @param _ - Module options (unused)
+   *  @param nuxt - The Nuxt instance */
   setup(_, nuxt) {
     const head = nuxt.options.app.head
 
@@ -74,7 +76,10 @@ export default defineNuxtModule({
   },
 })
 
-/** Recursively collect all file paths under a directory. */
+/**
+ * Recursively collect all file paths under a directory.
+ * @param dir - The directory to scan
+ */
 function collectFiles(dir: string): string[] {
   const results: string[] = []
   for (const entry of readdirSync(dir)) {
