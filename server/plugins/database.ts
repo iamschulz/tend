@@ -4,6 +4,9 @@ import { initDatabase } from '../database'
 
 export default defineNitroPlugin(() => {
     const config = useRuntimeConfig()
+
+    if (config.public.backendMode !== 'server') return
+
     const dbPath = config.dbPath || './data/tend.db'
 
     mkdirSync(dirname(dbPath), { recursive: true })

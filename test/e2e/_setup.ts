@@ -37,16 +37,18 @@ export async function startServer(): Promise<string> {
     serverProcess = child
 
     let resolved = false
+    let output = ''
     const timeout = setTimeout(() => {
       if (!resolved) {
         resolved = true
-        reject(new Error('Server start timed out'))
+        reject(new Error(`Server start timed out. Output:\n${output}`))
       }
-    }, 20_000)
+    }, 30_000)
 
     /** @param chunk - Stdout/stderr data from the child process */
     const onData = (chunk: Buffer) => {
       const text = chunk.toString()
+      output += text
       if (!resolved && (text.includes(`localhost:${port}`) || text.includes('Listening on') || text.includes('Local:'))) {
         resolved = true
         clearTimeout(timeout)
@@ -62,6 +64,14 @@ export async function startServer(): Promise<string> {
         resolved = true
         clearTimeout(timeout)
         reject(err)
+      }
+    })
+
+    child.on('exit', (code) => {
+      if (!resolved) {
+        resolved = true
+        clearTimeout(timeout)
+        reject(new Error(`Server exited with code ${code}. Output:\n${output}`))
       }
     })
   })

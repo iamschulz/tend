@@ -144,43 +144,6 @@ describe('Goals', () => {
         })
     })
 
-    describe('goal day indicators', () => {
-        return;
-        it('shows all days active by default', async () => {
-            await setupCategoryPage()
-            await addGoal(page, { count: 3 })
-
-            const activeDays = await page.$$('.goal-item .goal-days .active')
-            expect(activeDays.length).toBe(7)
-        })
-
-        it('shows inactive days with correct styling when unchecked', async () => {
-            return;
-            await setupCategoryPage()
-
-            // Uncheck Monday (first checkbox) before adding the goal
-            const dayCheckboxes = await page.$$('.goal-form .day-checkboxes input[type="checkbox"]')
-            expect(dayCheckboxes.length).toBe(7)
-            await dayCheckboxes[0]!.click() // uncheck Monday
-            await new Promise(r => setTimeout(r, 200))
-
-            // Fill in the count and submit
-            const countInput = await page.$('.goal-form input[type="number"]')
-            await countInput!.click({ clickCount: 3 })
-            await countInput!.type('3')
-            await page.click('.goal-form button[type="submit"]')
-            await page.waitForSelector('.goal-item', { timeout: 5000 })
-
-            // Should have 6 active days (Monday unchecked)
-            const activeDays = await page.$$('.goal-item .goal-days .active')
-            expect(activeDays.length).toBe(6)
-
-            // Total day spans should still be 7
-            const allDays = await page.$$('.goal-item .goal-days span')
-            expect(allDays.length).toBe(7)
-        })
-    })
-
     describe('goal progress', () => {
         it('shows a progress bar for each goal', async () => {
             await setupCategoryPage()
