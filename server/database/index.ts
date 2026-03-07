@@ -33,6 +33,8 @@ export function initDatabase(dbPath: string) {
             running INTEGER NOT NULL DEFAULT 0,
             comment TEXT NOT NULL DEFAULT ''
         );
+
+        CREATE INDEX IF NOT EXISTS idx_entries_category_id ON entries(category_id);
     `)
 
     return _db

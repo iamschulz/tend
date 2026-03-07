@@ -6,19 +6,24 @@ export default defineEventHandler(async () => {
     const allCategories = db.select().from(categories).all()
     const allEntries = db.select().from(entries).all()
 
+    const entryMap = new Map<string, typeof allEntries>()
+    for (const e of allEntries) {
+        const list = entryMap.get(e.categoryId)
+        if (list) list.push(e)
+        else entryMap.set(e.categoryId, [e])
+    }
+
     return {
         categories: allCategories.map((cat) => ({
             ...rowToCategory(cat),
-            entries: allEntries
-                .filter((e) => e.categoryId === cat.id)
-                .map((e) => ({
-                    id: e.id,
-                    start: e.start,
-                    end: e.end,
-                    running: e.running,
-                    categoryId: e.categoryId,
-                    comment: e.comment,
-                })),
+            entries: (entryMap.get(cat.id) ?? []).map((e) => ({
+                id: e.id,
+                start: e.start,
+                end: e.end,
+                running: e.running,
+                categoryId: e.categoryId,
+                comment: e.comment,
+            })),
         })),
     }
 })
