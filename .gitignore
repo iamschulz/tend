@@ -25,7 +25,7 @@ logs
 tmp
 
 # SQLite database
-data/
+/data/
 
 # Local env files
 .env
