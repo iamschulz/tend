@@ -4,6 +4,10 @@ import * as schema from './schema'
 
 let _db: ReturnType<typeof drizzle<typeof schema>> | null = null
 
+/**
+ * Opens the SQLite database, enables WAL mode and foreign keys, and creates tables.
+ * @param dbPath - Path to the SQLite database file
+ */
 export function initDatabase(dbPath: string) {
     const sqlite = new Database(dbPath)
     sqlite.pragma('journal_mode = WAL')
@@ -40,6 +44,7 @@ export function initDatabase(dbPath: string) {
     return _db
 }
 
+/** Returns the initialized Drizzle database instance. Throws if called before init. */
 export function getDatabase() {
     if (!_db) {
         throw new Error('Database not initialized. Make sure the database plugin has run.')

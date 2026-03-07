@@ -9,7 +9,6 @@ import {
     navigateTo,
 } from './_setup'
 import { addCategory, openCategoryPage, quickClickTrigger } from './_helpers'
-import { skip } from 'node:test'
 
 describe('Goals', () => {
     let page: Page

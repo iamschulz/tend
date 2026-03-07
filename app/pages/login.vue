@@ -46,6 +46,7 @@ const password = ref('')
 const error = ref('')
 const loading = ref(false)
 
+/** Submits credentials and redirects to home on success. */
 async function login() {
     error.value = ''
     loading.value = true
