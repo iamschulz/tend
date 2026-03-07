@@ -24,6 +24,9 @@ logs
 # Generated seed data
 tmp
 
+# SQLite database
+data/
+
 # Local env files
 .env
 .env.*

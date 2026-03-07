@@ -2,6 +2,13 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
 
+  runtimeConfig: {
+    dbPath: './data/tend.db',
+    public: {
+      backendMode: 'standalone',
+    },
+  },
+
   app: {
     head: {
       title: "",
@@ -57,6 +64,9 @@ export default defineNuxtConfig({
       // This is a client-side SPA; the index.html fallback handles all routes.
       crawlLinks: false,
       routes: ['/'],
+    },
+    externals: {
+      external: ['better-sqlite3'],
     },
   },
 
