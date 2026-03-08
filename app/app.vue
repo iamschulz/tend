@@ -1,28 +1,33 @@
 <template>
-  <main-header />
-  <LazyMainMenu v-if="ready" />
-  <LazyConfirmDialog v-if="ready" />
-  <LazyErrorDialog v-if="ready" />
-  <ToastNotification
-    v-for="(toast, i) in toasts"
-    :key="toast.id"
-    :toast="toast"
-    :index="i"
-    @close="removeToast"
-  >
-    <div v-if="toast.goals?.length" class="toast-goal">
-      <span>{{ toast.message }}</span>
-      <div v-for="(goal, gi) in toast.goals" :key="gi" class="toast-goal-row">
-        <span class="toast-goal-label">{{ goal.count }}{{ unitSuffix[goal.unit] }} / {{ $t(`per${goal.interval.charAt(0).toUpperCase()}${goal.interval.slice(1)}`) }}</span>
-        <AnimatedProgress :goal="goal" :category-id="toast.categoryId!" />
+  <template v-if="serverLoading">
+    <loading-indicator />
+  </template>
+  <template v-else>
+    <main-header v-if="route.path !== '/login'" />
+    <LazyMainMenu v-if="ready" />
+    <LazyConfirmDialog v-if="ready" />
+    <LazyErrorDialog v-if="ready" />
+    <ToastNotification
+      v-for="(toast, i) in toasts"
+      :key="toast.id"
+      :toast="toast"
+      :index="i"
+      @close="removeToast"
+    >
+      <div v-if="toast.goals?.length" class="toast-goal">
+        <span>{{ toast.message }}</span>
+        <div v-for="(goal, gi) in toast.goals" :key="gi" class="toast-goal-row">
+          <span class="toast-goal-label">{{ goal.count }}{{ unitSuffix[goal.unit] }} / {{ $t(`per${goal.interval.charAt(0).toUpperCase()}${goal.interval.slice(1)}`) }}</span>
+          <AnimatedProgress :goal="goal" :category-id="toast.categoryId!" />
+        </div>
       </div>
-    </div>
-    <span v-else>{{ toast.message }}</span>
-  </ToastNotification>
-  <main>
-    <NuxtPage />
-    <LazyTriggerGroup v-if="ready" />
-  </main>
+      <span v-else>{{ toast.message }}</span>
+    </ToastNotification>
+    <main>
+      <NuxtPage />
+      <LazyTriggerGroup v-if="ready" />
+    </main>
+  </template>
   <NuxtRouteAnnouncer />
   <div aria-live="assertive" class="announcer">{{ announcement }}</div>
 </template>
@@ -38,6 +43,25 @@
 
     const { toasts, removeToast } = useToast()
     const unitSuffix: Record<string, string> = { event: 'x', minutes: 'm', hours: 'h', days: 'd' }
+
+    const data = useDataStore()
+    const config = useRuntimeConfig()
+    const route = useRoute()
+
+    const serverLoading = computed(() =>
+        config.public.backendMode === 'server'
+        && !data.serverHydrated
+        && route.path !== '/login'
+    )
+
+    if (import.meta.client) {
+        watch(serverLoading, async (loading) => {
+            if (loading) {
+                try { await data.hydrateFromServer() }
+                catch { data.serverHydrated = true }
+            }
+        }, { immediate: true })
+    }
 
     const ready = ref(false)
     const scope = getCurrentScope()

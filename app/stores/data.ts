@@ -15,6 +15,7 @@ export const useDataStore = defineStore('data', () => {
 
     const config = useRuntimeConfig()
     const isServerMode = config.public.backendMode === 'server'
+    const serverHydrated = ref(!isServerMode)
 
     /**
      * Fire-and-forget API call. Swallows errors so the optimistic
@@ -40,6 +41,7 @@ export const useDataStore = defineStore('data', () => {
         ])
         categories.value = serverCategories
         entries.value = serverEntries
+        serverHydrated.value = true
     }
 
     // --- Getters ---
@@ -274,6 +276,7 @@ export const useDataStore = defineStore('data', () => {
         categories,
         entries,
         isServerMode,
+        serverHydrated,
         getAllCategories,
         visibleCategories,
         getCategoryById,

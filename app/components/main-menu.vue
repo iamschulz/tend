@@ -26,10 +26,15 @@
 
         <details>
             <summary><h3>{{ $t('data') }}</h3></summary>
-            <div data-group>
+            <p data-group>
                 <DataImport />
                 <DataExport />
-            </div>
+            </p>
+            <p>
+                <button v-if="data.isServerMode" data-button @click="logout">
+                    {{ $t('logout') }}
+                </button>
+            </p>
         </details>
 
         <InstallButton />
@@ -42,9 +47,17 @@
 
 <script lang="ts" setup>
     import DisplaySettings from '~/components/display-settings.vue';
+    import { idbStorage } from '~/util/idbStorage';
 
     const ui = useUiStore();
     const data = useDataStore();
+    const { clear } = useUserSession();
+
+    async function logout() {
+        idbStorage.clear();
+        await clear();
+        await navigateTo('/login');
+    }
 </script>
 
 <style scoped>

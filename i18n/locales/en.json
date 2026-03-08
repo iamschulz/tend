@@ -174,5 +174,7 @@
         "password": "Password",
         "submit": "Log in",
         "error": "Invalid username or password"
-    }
+    },
+
+    "logout": "Log out"
 }

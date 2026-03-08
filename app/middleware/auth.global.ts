@@ -1,4 +1,6 @@
 export default defineNuxtRouteMiddleware(async (to) => {
+    if (import.meta.prerender) return
+
     const config = useRuntimeConfig()
     if (config.public.backendMode !== 'server') return
 

@@ -1,23 +1,25 @@
 <template>
     <div class="login-page">
         <form class="login-form" @submit.prevent="login">
-            <h1>Tend</h1>
+            <h1><nuxt-icon name="tend" /> Tend</h1>
             <label>
                 <span class="sr-only">{{ $t('login.username') }}</span>
+                <label for="username">{{ $t('login.username') }}</label>
                 <input
+                    id="username"
                     v-model="username"
                     type="text"
-                    :placeholder="$t('login.username')"
                     autocomplete="username"
                     required
                 >
             </label>
             <label>
                 <span class="sr-only">{{ $t('login.password') }}</span>
+                <label for="password">{{ $t('login.password') }}</label>
                 <input
+                    id="password"
                     v-model="password"
                     type="password"
-                    :placeholder="$t('login.password')"
                     autocomplete="current-password"
                     required
                 >
@@ -72,7 +74,6 @@ async function login() {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 100dvh;
 }
 
 .login-form {

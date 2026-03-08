@@ -1,4 +1,4 @@
-import { set, get, del } from 'idb-keyval'
+import { set, get, del, clear as idbClear } from 'idb-keyval'
 
 /**
  * A StorageLike adapter for pinia-plugin-persistedstate that uses IndexedDB
@@ -47,6 +47,18 @@ export const idbStorage = {
         const existing = timers.get(key)
         if (existing) clearTimeout(existing)
         del(key).catch(() => {})
+    },
+
+    /**
+     * Clears all entries from the cache and IndexedDB.
+     */
+    clear(): void {
+        for (const [key, timer] of timers) {
+            clearTimeout(timer)
+            timers.delete(key)
+        }
+        cache.clear()
+        idbClear().catch(() => {})
     },
 }
 

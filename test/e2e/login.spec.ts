@@ -59,7 +59,7 @@ describe('Login', () => {
 
     it('renders login form', async () => {
         const heading = await page.$('form.login-form h1')
-        expect(await heading!.textContent()).toBe('Tend')
+        expect(await heading!.textContent()).toContain('Tend')
         expect(await page.$('form.login-form input[type="text"]')).toBeTruthy()
         expect(await page.$('form.login-form input[type="password"]')).toBeTruthy()
         expect(await page.$('form.login-form button[type="submit"]')).toBeTruthy()

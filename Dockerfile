@@ -7,6 +7,7 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
+ENV NUXT_PUBLIC_BACKEND_MODE=server
 RUN npm run build
 
 # -- Production stage --
