@@ -1,5 +1,6 @@
 services:
   tend:
+    image: ghcr.io/iamschulz/tend:latest
     build: .
     ports:
       - "3000:3000"

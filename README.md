@@ -2,7 +2,7 @@
 
 Tend is a friendly, privacy-focused habit and time tracking app. Create custom categories for your activities, track time spent on them, and set goals to build better habits.
 
-I made this app for myself, because I wanted a privacy focused habut tracker. No company should have full access to everything you do, especially health related.
+I made this app for myself, because I wanted a privacy focused habit tracker. No company should have full access to everything you do, especially health related.
 
 If you have suggestions or want to contribute, please reach out or open an issue.
 
@@ -32,25 +32,23 @@ When moving from serverless to self-hosted (or vice versa), you can use the impo
 
 ### Setup
 
-1. Clone the repository:
-   ```sh
-   git clone https://github.com/iamschulz/tend.git
-   cd tend
+1. Create a `docker-compose.yml`:
+   ```yaml
+   services:
+     tend:
+       image: ghcr.io/iamschulz/tend:latest
+       ports:
+         - "3000:3000"
+       volumes:
+         - ./data:/data
+       environment:
+         - NUXT_SESSION_PASSWORD=   # random string, min 32 characters
+         - NUXT_ADMIN_USERNAME=     # your login username
+         - NUXT_ADMIN_PASSWORD=     # your login password
+       restart: unless-stopped
    ```
 
-2. Create a `.env` file from the example:
-   ```sh
-   cp .env.example .env
-   ```
-
-3. Fill in your `.env`:
-   ```env
-   NUXT_SESSION_PASSWORD=   # random string, min 32 characters
-   NUXT_ADMIN_USERNAME=     # your login username
-   NUXT_ADMIN_PASSWORD=     # your login password
-   ```
-
-4. Start the container:
+2. Start the container:
    ```sh
    docker compose up -d
    ```
