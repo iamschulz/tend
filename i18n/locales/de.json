@@ -1,4 +1,5 @@
 {
+    "meta.description": "Ein freundlicher Gewohnheitstracker",
     "selectDay": "Tag wählen",
     "categories": "Kategorien",
     "settings": "Einstellungen",

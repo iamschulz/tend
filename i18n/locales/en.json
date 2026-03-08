@@ -1,4 +1,5 @@
 {
+    "meta.description": "A friendly habit tracker",
     "selectDay": "Select day",
     "categories": "Categories",
     "settings": "Settings",

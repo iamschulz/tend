@@ -35,7 +35,8 @@
 <script setup lang="ts">
     const { locale, t } = useI18n()
     useHead({
-        htmlAttrs: { lang: locale }
+        htmlAttrs: { lang: locale },
+        meta: [{ name: 'description', content: () => t('meta.description') }]
     })
 
     const { registerAnnouncer } = useAnnounce()
