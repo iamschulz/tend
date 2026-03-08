@@ -22,7 +22,10 @@ async function getFreePort(): Promise<number> {
   })
 }
 
-/** Start nuxt preview server on a random port. Resolves once the server is listening. */
+/**
+ * Start nuxt preview server on a random port. Resolves once the server is listening.
+ * @param envOverrides - Optional environment variables to pass to the server process
+ */
 export async function startServer(envOverrides?: Record<string, string>): Promise<string> {
   const port = await getFreePort()
   baseUrl = `http://localhost:${port}`

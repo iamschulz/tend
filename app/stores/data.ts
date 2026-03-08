@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { shallowRef, computed } from 'vue'
+import { ref, shallowRef, computed } from 'vue'
 import type { Category } from '~/types/Category'
 import type { CategoryData } from '~/types/CategoryData'
 import type { Entry } from '~/types/Entry'

@@ -53,6 +53,7 @@
     const data = useDataStore();
     const { clear } = useUserSession();
 
+    /** Clears the session and local data, then redirects to the login page. */
     async function logout() {
         idbStorage.clear();
         await clear();
