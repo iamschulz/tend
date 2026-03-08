@@ -7,7 +7,9 @@ export function useUserSession() {
     loggedIn: computed(() => false),
     user: ref(null),
     session: ref({}),
+    /** Fetches the current session from the server. */
     fetch: () => Promise.resolve(),
+    /** Clears the current session. */
     clear: () => Promise.resolve(),
   }
 }

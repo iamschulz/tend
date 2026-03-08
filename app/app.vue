@@ -36,7 +36,7 @@
     const { locale, t } = useI18n()
     useHead({
         htmlAttrs: { lang: locale },
-        meta: [{ name: 'description', content: () => t('meta.description') }]
+        meta: [{ name: 'description', content: /** @returns Localised meta description */ () => t('meta.description') }]
     })
 
     const { registerAnnouncer } = useAnnounce()
