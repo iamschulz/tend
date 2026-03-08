@@ -45,6 +45,7 @@ When moving from serverless to self-hosted (or vice versa), you can use the impo
          - NUXT_SESSION_PASSWORD=   # random string, min 32 characters
          - NUXT_ADMIN_USERNAME=     # your login username
          - NUXT_ADMIN_PASSWORD=     # your login password
+         - NUXT_MAX_BODY_SIZE_MB=5  # optional, max request body in MB
        restart: unless-stopped
    ```
 

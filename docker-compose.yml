@@ -11,6 +11,7 @@ services:
       - NUXT_SESSION_PASSWORD=${NUXT_SESSION_PASSWORD}
       - NUXT_ADMIN_USERNAME=${NUXT_ADMIN_USERNAME}
       - NUXT_ADMIN_PASSWORD=${NUXT_ADMIN_PASSWORD}
+      - NUXT_MAX_BODY_SIZE_MB=${NUXT_MAX_BODY_SIZE_MB:-5}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/auth/session"]

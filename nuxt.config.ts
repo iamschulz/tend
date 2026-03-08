@@ -4,6 +4,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     dbPath: './data/tend.db',
+    maxBodySizeMb: 5,
     adminUsername: '',
     adminPassword: '',
     session: {
