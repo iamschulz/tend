@@ -49,7 +49,7 @@ export default defineNuxtConfig({
     '@nuxt/a11y',
     '@nuxt/eslint',
     '@nuxt/hints',
-    'nuxt-auth-utils',
+    ...(process.env.NUXT_PUBLIC_BACKEND_MODE === 'server' ? ['nuxt-auth-utils'] as const : []),
   ],
 
   css: [
