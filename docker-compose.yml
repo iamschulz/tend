@@ -4,7 +4,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - tend-data:/data
+      - ./data:/data
     environment:
       - NUXT_PUBLIC_BACKEND_MODE=server
       - NUXT_SESSION_PASSWORD=${NUXT_SESSION_PASSWORD}
@@ -16,6 +16,3 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
-
-volumes:
-  tend-data:
