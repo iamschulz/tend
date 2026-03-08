@@ -1,6 +1,6 @@
 <template>
     <div data-loading>
-        <span class="sr-only">{{ $t('loading') }}</span>
+        <ClientOnly><span class="sr-only">{{ $t('loading') }}</span></ClientOnly>
     </div>
 </template>
 

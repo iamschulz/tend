@@ -28,7 +28,7 @@
       <LazyTriggerGroup v-if="ready" />
     </main>
   </template>
-  <NuxtRouteAnnouncer />
+  <ClientOnly><NuxtRouteAnnouncer /></ClientOnly>
   <div aria-live="assertive" class="announcer">{{ announcement }}</div>
 </template>
 
