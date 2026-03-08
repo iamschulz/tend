@@ -40,6 +40,25 @@ describe('validateImportData', () => {
             expect(validateImportData({ categories: [] })).toBe(true)
         })
 
+        it('rejects more than 500 categories', () => {
+            const categories = Array.from({ length: 501 }, (_, i) => ({
+                ...validCategory,
+                id: `00000000-0000-4000-8000-${String(i).padStart(12, '0')}`,
+                entries: [],
+            }))
+            expect(validateImportData({ categories })).toBe(false)
+        })
+
+        it('rejects more than 100000 entries per category', () => {
+            const entries = Array.from({ length: 100_001 }, (_, i) => ({
+                ...validEntry,
+                id: `00000000-0000-4000-8000-${String(i).padStart(12, '0')}`,
+            }))
+            expect(validateImportData({
+                categories: [{ ...validCategory, entries }],
+            })).toBe(false)
+        })
+
         it('returns false for null', () => {
             expect(validateImportData(null)).toBe(false)
         })
