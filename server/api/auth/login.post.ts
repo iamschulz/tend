@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { getRequestIP } from 'h3'
 import { createRateLimiter } from '~~/server/utils/rateLimiter'
+import { safeCompare } from '~~/server/utils/safeCompare'
 
 const loginSchema = z.object({
     username: z.string().min(1),
@@ -23,7 +24,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 500, message: 'Admin credentials not configured' })
     }
 
-    if (username !== config.adminUsername || password !== config.adminPassword) {
+    if (!safeCompare(username, config.adminUsername) || !safeCompare(password, config.adminPassword)) {
         limiter.recordFailure(ip)
         throw createError({ statusCode: 401, message: 'Invalid credentials' })
     }

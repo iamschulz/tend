@@ -1,6 +1,8 @@
 /**
  * Simple in-memory rate limiter that tracks attempts by key (e.g. IP address).
  * Not shared across cluster workers — suitable for single-instance deployments.
+ * @param maxAttempts - Maximum allowed attempts within the window
+ * @param windowMs - Time window in milliseconds before the counter resets
  */
 export function createRateLimiter(maxAttempts: number, windowMs: number) {
     const attempts = new Map<string, { count: number; firstAttempt: number }>()
