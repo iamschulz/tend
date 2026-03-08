@@ -60,8 +60,11 @@ async function login() {
         await fetchSession()
         await navigateTo('/')
     }
-    catch {
-        error.value = $i18n.t('login.error')
+    catch (e: unknown) {
+        const status = (e as { statusCode?: number }).statusCode
+        error.value = status === 429
+            ? $i18n.t('login.rateLimited')
+            : $i18n.t('login.error')
     }
     finally {
         loading.value = false

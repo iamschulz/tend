@@ -84,4 +84,27 @@ describe('Login', () => {
         expect(error).toBeTruthy()
         expect(page.url()).toContain('/login')
     })
+
+    it('shows rate-limit warning after too many failed attempts', async () => {
+        // Exhaust the rate limit (5 attempts) from the browser context
+        // so the server sees the same IP as the UI submission
+        await page.evaluate(async () => {
+            for (let i = 0; i < 5; i++) {
+                await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'admin', password: 'wrong' }),
+                })
+            }
+        })
+
+        // The 6th attempt through the UI should show the rate-limit message
+        await page.fill('form.login-form input[type="text"]', 'admin')
+        await page.fill('form.login-form input[type="password"]', 'wrong')
+        await page.click('form.login-form button[type="submit"]')
+
+        await page.waitForSelector('[role="alert"].error', { timeout: 5000 })
+        const alertText = await page.$eval('[role="alert"].error', el => el.textContent ?? '')
+        expect(alertText).toContain('Too many login attempts')
+    })
 })

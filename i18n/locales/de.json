@@ -181,7 +181,8 @@
         "username": "Benutzername",
         "password": "Passwort",
         "submit": "Anmelden",
-        "error": "Ungültiger Benutzername oder Passwort"
+        "error": "Ungültiger Benutzername oder Passwort",
+        "rateLimited": "Zu viele Anmeldeversuche. Bitte versuche es später erneut."
     },
 
     "logout": "Abmelden"
