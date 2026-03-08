@@ -72,9 +72,49 @@ export default defineNuxtModule({
 
       writeFileSync(join(publicDir, 'sw.js'), code)
       console.log(`[pwa] wrote sw.js (version: ${version}, ${assets.length} assets)`)
+
+      // Inject font preload hints into HTML files.
+      // @nuxt/fonts embeds @font-face rules in the CSS entry but doesn't add
+      // <link rel="preload"> in static/generate mode, creating a request chain
+      // (HTML → CSS → Fonts). Preloading collapses this into parallel requests.
+      injectFontPreloads(publicDir)
     })
   },
 })
+
+/**
+ * Scans the CSS entry for font URLs and injects <link rel="preload"> tags
+ * into all HTML files so fonts load in parallel with CSS instead of after it.
+ * @param publicDir - The build output public directory
+ */
+function injectFontPreloads(publicDir: string): void {
+  const nuxtDir = join(publicDir, '_nuxt')
+  const cssFile = readdirSync(nuxtDir).find(f => f.startsWith('entry.') && f.endsWith('.css'))
+  if (!cssFile) return
+
+  const css = readFileSync(join(nuxtDir, cssFile), 'utf-8')
+
+  // Only preload Latin-subset woff2 fonts — these cover the primary character
+  // range and are the ones the browser will fetch first. Preloading all subsets
+  // would compete for bandwidth and hurt performance.
+  const fontUrls = [...css.matchAll(/@font-face\{[^}]+\}/g)]
+    .filter(m => m[0].includes('U+0000-00FF'))
+    .flatMap(m => [...m[0].matchAll(/url\(\.\.(\/_fonts\/[^)]+\.woff2)\)/g)])
+    .map(m => m[1]!)
+
+  if (fontUrls.length === 0) return
+
+  const preloadTags = fontUrls
+    .map(url => `<link rel="preload" as="font" type="font/woff2" crossorigin href="${url}">`)
+    .join('\n')
+
+  const htmlFiles = collectFiles(publicDir).filter(f => f.endsWith('.html'))
+  for (const file of htmlFiles) {
+    const html = readFileSync(file, 'utf-8')
+    writeFileSync(file, html.replace('</head>', `${preloadTags}\n</head>`))
+  }
+  console.log(`[pwa] injected ${fontUrls.length} font preload hints`)
+}
 
 /**
  * Recursively collect all file paths under a directory.
