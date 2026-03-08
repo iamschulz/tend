@@ -1,5 +1,5 @@
 <template>
-    <header>
+    <header data-shadow="2">
         <div class="header-inner">
             <button class="nobutton" :aria-pressed="ui.menuOpen" @click="handleMenuButtonClick">
                 <nuxt-icon name="menu" size="48" />
@@ -38,7 +38,7 @@ onUnmounted(() => {
 })
 
 watch(scrolled, (amount) => {
-    headerEl.value?.style.setProperty('--scrolled', String(amount))
+    headerEl.value?.style.setProperty('--scrolled', String(Math.min(1, Math.max(0, amount))))
 })
 </script>
 
@@ -51,12 +51,12 @@ watch(scrolled, (amount) => {
 
 #__nuxt > header {
     --scrolled: 0;
+    --shadow-level: calc(var(--scrolled, 0) * 2);
     margin-bottom: 0;
     position: sticky;
     top: 0;
     z-index: 1;
     view-transition-name: main-header;
-    box-shadow: 0 calc(5px * var(--scrolled)) calc(5px * var(--scrolled)) 0 var(--col-bg3);
     font-size: calc(1rem * (1 - var(--scrolled) * 0.2));
     padding-block: calc(1rem * (1 - var(--scrolled) * 0.8));
     transition: --scrolled var(--animation-duration) var(--animation-bounce);

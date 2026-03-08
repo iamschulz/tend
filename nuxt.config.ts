@@ -20,12 +20,16 @@ export default defineNuxtConfig({
       title: "",
       titleTemplate: '%s Tend',
       link: [{ rel: 'icon', type: 'image/svg', href: '/tend.svg' }],
+      meta: [
+        { name: 'theme-color', content: '#E0E0E0', media: '(prefers-color-scheme: light)' },
+        { name: 'theme-color', content: '#1B1B1B', media: '(prefers-color-scheme: dark)' },
+      ],
       script: [
         {
           // Render-blocking inline script: applies the user's saved theme
           // preference before first paint to prevent a flash of wrong theme.
-          // Runs outside of Nuxt/Vue — raw browser JS in <head>.
-          innerHTML: `(function(){var s=localStorage.getItem('force-scheme');if(s==='light'||s==='dark'){document.documentElement.setAttribute('force-scheme',s)}var d=s==='dark'||(s!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches);var m=document.createElement('meta');m.name='theme-color';m.content=d?'#1B1b1B':'#E0E0E0';document.head.appendChild(m)})()`,
+          // When a forced scheme is active, overrides both theme-color meta tags.
+          innerHTML: `(function(){var s=localStorage.getItem('force-scheme');if(s==='light'||s==='dark'){document.documentElement.setAttribute('force-scheme',s);var c=s==='dark'?'#1B1B1B':'#E0E0E0';document.querySelectorAll('meta[name=theme-color]').forEach(function(m){m.content=c})}})()`,
           tagPosition: 'head'
         }
       ]

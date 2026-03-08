@@ -16,12 +16,6 @@
                     </option>
                 </select>
                 <input
-                    v-model="categoryColor"
-                    class="color-input"
-                    type="color"
-                    :aria-label="$t('selectColor')"
-                >
-                <input
                     v-model="title"
                     class="title-input"
                     type="text"
@@ -29,27 +23,44 @@
                     maxlength="200"
                     required
                 >
+            </header>
+
+            <div class="actions">
+                <label class="color-label">
+                    {{ $t('selectColor') }}
+                    <input
+                        v-model="categoryColor"
+                        class="color-input"
+                        type="color"
+                    >
+                </label>
+                
                 <button @click="toggleHidden">
                     <nuxt-icon :name="category.hidden ? 'visibility_off' : 'visibility'" />
                     <span class="sr-only">{{ category.hidden ? $t('show') : $t('hide') }}</span>
                 </button>
+
                 <button @click="handleDelete">
                     <nuxt-icon name="delete" />
                     <span class="sr-only">{{ $t('delete') }}</span>
                 </button>
-            </header>
+            </div>
 
             <label for="comment">{{ $t('notes') }}:</label>
             <textarea id="comment" v-model="categoryComment" maxlength="5000" />
 
             <dl class="stats" data-autogrid="1/2">
-                <div>
+                <div v-if="categoryEntries.length > 0">
                     <dt>{{ $t('totalEntries') }}:</dt>
                     <dd>{{ categoryEntries.length }}</dd>
                 </div>
-                <div>
+                <div v-if="totalTimeMs > 0">
                     <dt>{{ $t('totalTime') }}:</dt>
                     <dd>{{ totalTime }}</dd>
+                    <dd v-if="todayMs > 0">{{ todayTime }} {{ $t('today') }}</dd>
+                    <dd v-if="weekMs > 0 && weekMs !== todayMs">{{ weekTime }}  {{ $t('thisWeek') }}</dd>
+                    <dd v-if="monthMs > 0 && monthMs !== weekMs">{{ monthTime }}  {{ $t('thisMonth') }}</dd>
+                    <dd v-if="yearMs > 0 && yearMs !== monthMs">{{ yearTime }}  {{ $t('thisYear') }}</dd>
                 </div>
             </dl>
         </section>
@@ -94,13 +105,55 @@
 
     const now = useSharedNow()
 
-    const totalTime = computed(() => {
-        const total = categoryEntries.value.reduce((sum, entry) => {
+    /**
+     * Calculates total duration in ms for entries whose start falls within [from, to).
+     * @param from - Range start timestamp (inclusive)
+     * @param to - Range end timestamp (exclusive)
+     */
+    const timeInRange = (from: number, to: number) =>
+        categoryEntries.value.reduce((sum, entry) => {
+            if (entry.start < from || entry.start >= to) return sum
             const end = entry.running ? now.value : (entry.end ?? entry.start)
             return sum + (end - entry.start)
         }, 0)
-        return formatDuration(0, total, t)
+
+    const totalTimeMs = computed(() => categoryEntries.value.reduce((sum, entry) => {
+        const end = entry.running ? now.value : (entry.end ?? entry.start)
+        return sum + (end - entry.start)
+    }, 0))
+
+    const todayMs = computed(() => {
+        const d = new Date(now.value)
+        const start = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
+        return timeInRange(start, start + 86_400_000)
     })
+
+    const weekMs = computed(() => {
+        const d = new Date(now.value)
+        const day = d.getDay() || 7
+        const start = new Date(d.getFullYear(), d.getMonth(), d.getDate() - day + 1).getTime()
+        return timeInRange(start, start + 7 * 86_400_000)
+    })
+
+    const monthMs = computed(() => {
+        const d = new Date(now.value)
+        const start = new Date(d.getFullYear(), d.getMonth(), 1).getTime()
+        const end = new Date(d.getFullYear(), d.getMonth() + 1, 1).getTime()
+        return timeInRange(start, end)
+    })
+
+    const yearMs = computed(() => {
+        const d = new Date(now.value)
+        const start = new Date(d.getFullYear(), 0, 1).getTime()
+        const end = new Date(d.getFullYear() + 1, 0, 1).getTime()
+        return timeInRange(start, end)
+    })
+
+    const totalTime = computed(() => formatDuration(0, totalTimeMs.value, t))
+    const todayTime = computed(() => formatDuration(0, todayMs.value, t))
+    const weekTime = computed(() => formatDuration(0, weekMs.value, t))
+    const monthTime = computed(() => formatDuration(0, monthMs.value, t))
+    const yearTime = computed(() => formatDuration(0, yearMs.value, t))
 
     /** @param e - The change event from the activity select */
     const onActivityChange = (e: Event) => {
@@ -164,7 +217,7 @@
 
             .icon {
                 flex: 0 0 auto;
-                font-size: 1.6em;
+                font-size: 1.4em;
                 display: inline-grid;
                 place-items: center;
                 aspect-ratio: 1;
@@ -173,16 +226,6 @@
                 border-radius: var(--border-radius) 0 0;
                 background-color: var(--categoryColor);
                 color: oklch(from var(--categoryColor) round(calc(1 - l)) 0 0);
-            }
-
-            .color-input {
-                height: 2.2rem;
-                width: 2.2rem;
-                margin: 0;
-                padding: 0.2rem;
-                border: none;
-                background: none;
-                cursor: pointer;
             }
 
             .title-input {
@@ -204,6 +247,38 @@
             }
         }
 
+        .actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin: 0.5rem 0;
+
+            button {
+                margin-left: auto;
+
+                & + button {
+                    margin-left: 0;
+                }
+            }
+        }
+
+        .color-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .color-input {
+            height: 2.2rem;
+            width: 2.2rem;
+            margin: 0;
+            padding: 0.2rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+
         .stats {
             margin: 1rem 0;
 
@@ -218,8 +293,6 @@
 
             dd {
                 margin: 0;
-                font-size: 1.5rem;
-                font-weight: 700;
                 
                 &::before {
                     display: none;

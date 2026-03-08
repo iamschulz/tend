@@ -17,10 +17,23 @@ onMounted(() => {
     }
 })
 
-/** @param isDark - Whether dark mode is active */
-function updateThemeColor(isDark: boolean) {
-    const meta = document.querySelector('meta[name="theme-color"]')
-    if (meta) meta.setAttribute('content', isDark ? '#1b1b1b' : '#e0e0e0')
+/**
+ * Updates both theme-color meta tags.
+ * When a scheme is forced, both tags get the same color.
+ * When auto, restores the media-based defaults so the browser picks the right one.
+ * @param forced - 'light', 'dark', or null for auto
+ */
+function updateThemeColor(forced: string | null) {
+    const metas = document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')
+    if (forced === 'light' || forced === 'dark') {
+        const color = forced === 'dark' ? '#1b1b1b' : '#e0e0e0'
+        metas.forEach(m => m.setAttribute('content', color))
+    } else {
+        metas.forEach(m => {
+            const isLight = m.getAttribute('media')?.includes('light')
+            m.setAttribute('content', isLight ? '#e0e0e0' : '#1b1b1b')
+        })
+    }
 }
 
 /** @param e - The change event from the theme select */
@@ -29,11 +42,11 @@ function onThemeChange(e: Event) {
     if (value === 'light' || value === 'dark') {
         localStorage.setItem('force-scheme', value)
         document.documentElement.setAttribute('force-scheme', value)
-        updateThemeColor(value === 'dark')
+        updateThemeColor(value)
     } else {
         localStorage.removeItem('force-scheme')
         document.documentElement.removeAttribute('force-scheme')
-        updateThemeColor(matchMedia('(prefers-color-scheme:dark)').matches)
+        updateThemeColor(null)
     }
 }
 </script>

@@ -81,12 +81,12 @@ describe('Category page', () => {
     it('edits category color', async () => {
         await setupCategoryPage('ColorCat')
 
-        const colorInput = await page.$('.category header .color-input')
+        const colorInput = await page.$('.category .color-input')
         expect(colorInput).not.toBeNull()
 
         // Change color via JS (color picker UI is hard to interact with)
         await page.evaluate(() => {
-            const input = document.querySelector('.category header .color-input') as HTMLInputElement
+            const input = document.querySelector('.category .color-input') as HTMLInputElement
             const nativeInputValueSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!
             nativeInputValueSetter.call(input, '#00ff00')
             input.dispatchEvent(new Event('input', { bubbles: true }))
@@ -97,10 +97,10 @@ describe('Category page', () => {
         const path = new URL(page.url()).pathname
         await navigateTo(page, '/')
         await navigateTo(page, path)
-        await page.waitForSelector('.category header .color-input', { timeout: 5000 })
+        await page.waitForSelector('.category .color-input', { timeout: 5000 })
 
         const value = await page.$eval(
-            '.category header .color-input',
+            '.category .color-input',
             el => (el as HTMLInputElement).value,
         )
         expect(value).toBe('#00ff00')
@@ -141,7 +141,7 @@ describe('Category page', () => {
         await setupCategoryPage('HideCat')
 
         // Click the visibility toggle button (first button after title input)
-        const visibilityBtn = await page.$('.category header button')
+        const visibilityBtn = await page.$('.category .actions button')
         expect(visibilityBtn).not.toBeNull()
         await visibilityBtn!.click()
 
@@ -158,7 +158,7 @@ describe('Category page', () => {
         await setupCategoryPage('DeleteCat')
 
         // Click the delete button (second button in header)
-        const buttons = await page.$$('.category header button')
+        const buttons = await page.$$('.category .actions button')
         expect(buttons.length).toBeGreaterThanOrEqual(2)
         await buttons[1]!.click()
 
@@ -186,7 +186,7 @@ describe('Category page', () => {
     it('delete cancellation keeps category', async () => {
         await setupCategoryPage('KeepCat')
 
-        const buttons = await page.$$('.category header button')
+        const buttons = await page.$$('.category .actions button')
         await buttons[1]!.click()
 
         await page.waitForSelector('dialog.confirm-dialog[open]', { timeout: 3000 })

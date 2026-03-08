@@ -4,8 +4,8 @@
   "description": "A friendly habit tracker",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#E0E0E0",
-  "theme_color": "#E0E0E0",
+  "background_color": "#1B1B1B",
+  "theme_color": "#1B1B1B",
   "icons": [
     {
       "src": "/tend.svg",

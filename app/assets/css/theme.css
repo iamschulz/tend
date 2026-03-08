@@ -30,6 +30,8 @@ body {
 main {
     min-height: -webkit-fill-available;
     min-height: -moz-available;
+    min-height: fill-available;
+    height: 100%;
 }
 
 [force-scheme="light"] {

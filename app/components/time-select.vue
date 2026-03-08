@@ -184,5 +184,9 @@
                 --br-br: var(--border-radius);
             }
         }
+
+        input[type="date"] {
+            width: 100%;
+        }
     }
 </style>
