@@ -339,6 +339,48 @@ describe('useGoalCompletionWatcher', () => {
     })
   })
 
+  describe('server hydration', () => {
+    it('does not fire toast for goals completed during initial server hydration', async () => {
+      const goal = makeGoal({ count: 1 })
+
+      // Simulate server mode: serverHydrated starts false
+      store.serverHydrated = false
+      initWatcher()
+      await nextTick()
+
+      // Simulate server hydration: add category + completed entry, then mark hydrated
+      const catId = setupCategory([goal])
+      store.addEntry(makeEntry({ categoryId: catId }))
+      store.serverHydrated = true
+      await nextTick()
+
+      expect(mockAddToast).not.toHaveBeenCalled()
+    })
+
+    it('fires toast for new entries after server hydration', async () => {
+      const goal = makeGoal({ count: 1 })
+      const catId = setupCategory([goal])
+
+      // Simulate server mode: serverHydrated starts false
+      store.serverHydrated = false
+      initWatcher()
+      await nextTick()
+
+      // Simulate hydration completing (no completed goals yet)
+      store.serverHydrated = true
+      store.entries = [...store.entries]
+      await nextTick()
+
+      mockAddToast.mockClear()
+
+      // Now a real user action completes the goal
+      store.addEntry(makeEntry({ categoryId: catId }))
+      await nextTick()
+
+      expect(mockAddToast).toHaveBeenCalledTimes(1)
+    })
+  })
+
   describe('cleanup', () => {
     it('clears polling interval on scope stop', async () => {
       const goal = makeGoal({ count: 100, unit: 'hours' })

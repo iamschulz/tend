@@ -71,9 +71,19 @@ export function useGoalCompletionWatcher(t: (key: string) => string) {
     // Snapshot already-completed goals on init (no toast)
     scanGoals(false)
 
+    // Track whether the initial server hydration has occurred so we can
+    // suppress notifications for goals that were already complete on the server.
+    let wasHydrated = data.serverHydrated
+
     // Detect event-based completions instantly when entries change
     watch(entries, () => {
-        scanGoals(true)
+        if (!wasHydrated && data.serverHydrated) {
+            // First entries change after server hydration — snapshot only
+            wasHydrated = true
+            scanGoals(false)
+        } else {
+            scanGoals(true)
+        }
     })
 
     // Detect time-based completions via polling while timers are running
