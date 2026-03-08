@@ -13,7 +13,7 @@ export const titleForYear = (yearStr: string): TitleInfo | null => {
 
     const prevLink = `/year/${year - 1}`
 
-    const currentYear = new Date().getUTCFullYear()
+    const currentYear = new Date().getFullYear()
     let nextLink: string | null = null
     if (year !== currentYear) {
         nextLink = `/year/${year + 1}`

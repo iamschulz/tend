@@ -185,19 +185,19 @@ describe('getGoalPeriodKey', () => {
 
   it('returns "day:<timestamp>" for day interval', () => {
     const key = getGoalPeriodKey('day')
-    const dayStart = Date.UTC(2025, 5, 11)
+    const dayStart = new Date(2025, 5, 11).getTime()
     expect(key).toBe(`day:${dayStart}`)
   })
 
   it('returns "week:<timestamp>" for week interval', () => {
     const key = getGoalPeriodKey('week')
-    const weekStart = Date.UTC(2025, 5, 9) // Monday
+    const weekStart = new Date(2025, 5, 9).getTime() // Monday
     expect(key).toBe(`week:${weekStart}`)
   })
 
   it('returns "month:<timestamp>" for month interval', () => {
     const key = getGoalPeriodKey('month')
-    const monthStart = Date.UTC(2025, 5, 1)
+    const monthStart = new Date(2025, 5, 1).getTime()
     expect(key).toBe(`month:${monthStart}`)
   })
 

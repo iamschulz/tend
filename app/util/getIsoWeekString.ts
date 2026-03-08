@@ -1,9 +1,10 @@
 /**
- * Returns the ISO week string (e.g. "2025-W01") for the given date.
+ * Returns the ISO week string (e.g. "2025-W01") for the given date's local day.
  * @param d - The date to get the ISO week string for
  */
 export const getIsoWeekString = (d: Date): string => {
-    const date = new Date(d.getTime())
+    // Project local date into UTC so the calculation is DST-safe
+    const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
     const dayNum = date.getUTCDay() || 7
     date.setUTCDate(date.getUTCDate() + 4 - dayNum)
     const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1))

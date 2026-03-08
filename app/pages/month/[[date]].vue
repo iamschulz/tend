@@ -18,12 +18,12 @@
     const isRealMonth = (s: string) =>
         /^\d{4}-\d{2}$/.test(s) &&
         (() => {
-            const d = new Date(`${s}-01`)
+            const d = new Date(`${s}-01T00:00:00`)
             return !Number.isNaN(d.getTime())
         })()
 
     // Fallback to current month if param missing
-    const date = new Date(`${monthParam.value}-01`);
+    const date = monthParam.value ? new Date(`${monthParam.value}-01T00:00:00`) : new Date();
 
     const routeValid = computed(
         () => !monthParam.value || isRealMonth(monthParam.value)

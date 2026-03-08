@@ -23,15 +23,15 @@
 
     const data = useDataStore();
 
-    const year = props.date.getUTCFullYear();
+    const year = props.date.getFullYear();
     const yearLabel = t('yearLabel', { year });
 
     const yearRange = getYearRange(props.date);
     const entries = computed(() => data.getEntriesForRange(yearRange[0], yearRange[1]));
 
     const now = new Date();
-    const isCurrentYear = year === now.getUTCFullYear();
-    const currentMonthIndex = now.getUTCMonth();
+    const isCurrentYear = year === now.getFullYear();
+    const currentMonthIndex = now.getMonth();
 
     type MonthCell = {
         month: number;
@@ -55,7 +55,7 @@
     const entriesByMonth = computed(() => {
         const buckets = new Map<number, typeof entries.value>();
         for (const entry of entries.value) {
-            const m = new Date(entry.start).getUTCMonth();
+            const m = new Date(entry.start).getMonth();
             let bucket = buckets.get(m);
             if (!bucket) {
                 bucket = [];
@@ -71,7 +71,7 @@
         const byMonth = entriesByMonth.value;
 
         for (let m = 0; m < 12; m++) {
-            const monthDate = new Date(Date.UTC(year, m, 1));
+            const monthDate = new Date(year, m, 1);
             const monthEntries = byMonth.get(m) ?? [];
 
             const seen = new Map<string, { id: string; title: string; color: string; count: number }>();

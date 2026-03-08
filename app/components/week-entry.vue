@@ -34,7 +34,8 @@
 
     const duration = computed(() => formatDuration(props.entry.start, now.value, t))
 
-    const dateStr = new Date(props.entry.start).toISOString().slice(0, 10);
+    const d = new Date(props.entry.start);
+    const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     const timeStr = new Date(props.entry.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const categoryName = props.entry.category?.title ?? 'Unknown';
 

@@ -8,7 +8,7 @@ describe('titleForMonth', () => {
 
   it('returns title and links for a valid month', () => {
     vi.useFakeTimers()
-    vi.setSystemTime(new Date('2025-06-15T12:00:00Z'))
+    vi.setSystemTime(new Date(2025, 5, 15, 12))
 
     const result = titleForMonth('2025-03', 'en')
     expect(result).not.toBeNull()
@@ -18,7 +18,7 @@ describe('titleForMonth', () => {
 
   it('returns no nextLink for the current month', () => {
     vi.useFakeTimers()
-    vi.setSystemTime(new Date('2025-06-15T12:00:00Z'))
+    vi.setSystemTime(new Date(2025, 5, 15, 12))
 
     const result = titleForMonth('2025-06', 'en')
     expect(result).not.toBeNull()
@@ -27,7 +27,7 @@ describe('titleForMonth', () => {
 
   it('handles January (prev crosses year boundary)', () => {
     vi.useFakeTimers()
-    vi.setSystemTime(new Date('2026-03-01T12:00:00Z'))
+    vi.setSystemTime(new Date(2026, 2, 1, 12))
 
     const result = titleForMonth('2025-01', 'en')
     expect(result).not.toBeNull()
@@ -37,7 +37,7 @@ describe('titleForMonth', () => {
 
   it('handles December to January transition', () => {
     vi.useFakeTimers()
-    vi.setSystemTime(new Date('2026-03-01T12:00:00Z'))
+    vi.setSystemTime(new Date(2026, 2, 1, 12))
 
     const result = titleForMonth('2025-12', 'en')
     expect(result).not.toBeNull()

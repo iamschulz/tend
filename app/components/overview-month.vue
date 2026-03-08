@@ -53,14 +53,15 @@
         categories: { id: string; title: string; color: string; count: number }[];
     };
 
-    const todayStr = new Date().toISOString().slice(0, 10);
+    const now = new Date();
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
-    // Pre-bucket entries by day (dd) in one pass — O(E) instead of O(days × E)
+    // Pre-bucket entries by local day in one pass — O(E) instead of O(days × E)
     const entriesByDay = computed(() => {
         const buckets = new Map<number, typeof entries.value>();
         for (const entry of entries.value) {
             const d = new Date(entry.start);
-            const day = d.getUTCDate();
+            const day = d.getDate();
             let bucket = buckets.get(day);
             if (!bucket) {
                 bucket = [];
@@ -72,18 +73,18 @@
     });
 
     const calendarCells = computed<(DayCell | null)[]>(() => {
-        const year = props.date.getUTCFullYear();
-        const month = props.date.getUTCMonth();
-        const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+        const year = props.date.getFullYear();
+        const month = props.date.getMonth();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
 
         // Monday = 0, Sunday = 6
-        const firstDayOfWeek = (new Date(Date.UTC(year, month, 1)).getUTCDay() + 6) % 7;
+        const firstDayOfWeek = (new Date(year, month, 1).getDay() + 6) % 7;
 
         const cells: (DayCell | null)[] = Array(firstDayOfWeek).fill(null);
         const byDay = entriesByDay.value;
 
         for (let day = 1; day <= daysInMonth; day++) {
-            const current = new Date(Date.UTC(year, month, day));
+            const current = new Date(year, month, day);
             const dayEntries = byDay.get(day) ?? [];
 
             const seen = new Map<string, { id: string; title: string; color: string; count: number }>();
@@ -116,7 +117,7 @@
             cells.push({
                 day,
                 dateStr: `${year}-${mm}-${dd}`,
-                isToday: current.toISOString().slice(0, 10) === todayStr,
+                isToday: `${year}-${mm}-${dd}` === todayStr,
                 entryCount: dayEntries.length,
                 ariaLabel,
                 categories: [...seen.values()],

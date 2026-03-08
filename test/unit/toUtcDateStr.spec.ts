@@ -1,20 +1,24 @@
 import { describe, it, expect } from 'vitest'
-import { toUtcDateStr } from '~/util/toUtcDateStr'
+import { toLocalDateStr } from '~/util/toLocalDateStr'
 
-describe('toUtcDateStr', () => {
-  it('formats a standard date', () => {
-    expect(toUtcDateStr(new Date('2025-06-15T00:00:00Z'))).toBe('2025-06-15')
+describe('toLocalDateStr', () => {
+  it('formats a standard date using local components', () => {
+    const d = new Date(2025, 5, 15) // June 15 2025, local midnight
+    expect(toLocalDateStr(d)).toBe('2025-06-15')
   })
 
   it('pads single-digit month and day', () => {
-    expect(toUtcDateStr(new Date('2025-01-05T00:00:00Z'))).toBe('2025-01-05')
+    const d = new Date(2025, 0, 5) // Jan 5 2025, local midnight
+    expect(toLocalDateStr(d)).toBe('2025-01-05')
   })
 
   it('handles year boundary (Dec 31)', () => {
-    expect(toUtcDateStr(new Date('2024-12-31T23:59:59Z'))).toBe('2024-12-31')
+    const d = new Date(2024, 11, 31) // Dec 31 2024, local midnight
+    expect(toLocalDateStr(d)).toBe('2024-12-31')
   })
 
   it('handles year boundary (Jan 1)', () => {
-    expect(toUtcDateStr(new Date('2025-01-01T00:00:00Z'))).toBe('2025-01-01')
+    const d = new Date(2025, 0, 1) // Jan 1 2025, local midnight
+    expect(toLocalDateStr(d)).toBe('2025-01-01')
   })
 })

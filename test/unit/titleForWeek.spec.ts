@@ -9,7 +9,7 @@ describe('titleForWeek', () => {
 
   it('returns title and links for a valid week string', () => {
     vi.useFakeTimers()
-    vi.setSystemTime(new Date('2025-06-15T12:00:00Z'))
+    vi.setSystemTime(new Date(2025, 5, 15, 12))
 
     const result = titleForWeek('2025-W20', mockT, 'en')
     expect(result).not.toBeNull()
@@ -21,7 +21,7 @@ describe('titleForWeek', () => {
 
   it('returns no nextLink for the current week', () => {
     vi.useFakeTimers()
-    vi.setSystemTime(new Date('2025-06-11T12:00:00Z'))
+    vi.setSystemTime(new Date(2025, 5, 11, 12))
 
     // 2025-06-11 is in W24
     const result = titleForWeek('2025-W24', mockT, 'en')
@@ -31,7 +31,7 @@ describe('titleForWeek', () => {
 
   it('generates correct prev/next links', () => {
     vi.useFakeTimers()
-    vi.setSystemTime(new Date('2025-06-15T12:00:00Z'))
+    vi.setSystemTime(new Date(2025, 5, 15, 12))
 
     const result = titleForWeek('2025-W20', mockT, 'en')
     expect(result).not.toBeNull()

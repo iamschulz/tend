@@ -17,8 +17,8 @@
     /** @param s - The date string to validate as YYYY-MM-DD */
     const isRealDate = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s))
 
-    // Fallback to current date if param is missing
-    const date = new Date(dateParam.value || '');
+    // Fallback to current date if param is missing — append T00:00:00 so the string is parsed as local midnight
+    const date = dateParam.value ? new Date(dateParam.value + 'T00:00:00') : new Date();
 
     const routeValid = dateParam.value && isRealDate(dateParam.value);
 

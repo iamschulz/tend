@@ -18,7 +18,8 @@
     const isRealYear = (s: string) => /^\d{4}$/.test(s)
 
     // Fallback to current year if param missing
-    const date = new Date(Date.UTC(Number(yearParam.value || new Date().getUTCFullYear()), 0, 1))
+    const y = Number(yearParam.value || new Date().getFullYear())
+    const date = new Date(y, 0, 1)
 
     const routeValid = computed(
         () => !yearParam.value || isRealYear(yearParam.value)

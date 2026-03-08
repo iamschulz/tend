@@ -1,5 +1,5 @@
 import type { TranslateFunction } from '~/types/TranslateFunction'
-import { toUtcDateStr } from './toUtcDateStr'
+import { toLocalDateStr } from './toLocalDateStr'
 
 export interface TitleInfo {
     short: string
@@ -16,15 +16,15 @@ export interface TitleInfo {
  */
 export const titleForDay = (date: Date, t: TranslateFunction, locale: string): TitleInfo => {
     const today = new Date()
-    const todayUtc = today.toISOString().slice(0, 10)
+    const todayStr = toLocalDateStr(today)
     const yesterday = new Date(today)
-    yesterday.setUTCDate(yesterday.getUTCDate() - 1)
-    const yesterdayUtc = yesterday.toISOString().slice(0, 10)
+    yesterday.setDate(yesterday.getDate() - 1)
+    const yesterdayStr = toLocalDateStr(yesterday)
 
-    const dateUtc = date.toISOString().slice(0, 10)
+    const dateStr = toLocalDateStr(date)
 
-    const isToday = dateUtc === todayUtc
-    const isYesterday = dateUtc === yesterdayUtc
+    const isToday = dateStr === todayStr
+    const isYesterday = dateStr === yesterdayStr
 
     let short: string, long: string
     if (isToday) {
@@ -39,17 +39,17 @@ export const titleForDay = (date: Date, t: TranslateFunction, locale: string): T
     }
 
     const prevDay = new Date(date)
-    prevDay.setUTCDate(prevDay.getUTCDate() - 1)
-    const prevLink = `/day/${toUtcDateStr(prevDay)}`
+    prevDay.setDate(prevDay.getDate() - 1)
+    const prevLink = `/day/${toLocalDateStr(prevDay)}`
 
     let nextLink: string | null = null
     if (!isToday) {
         const nextDay = new Date(date)
-        nextDay.setUTCDate(nextDay.getUTCDate() + 1)
-        if (nextDay.toISOString().slice(0, 10) === todayUtc) {
+        nextDay.setDate(nextDay.getDate() + 1)
+        if (toLocalDateStr(nextDay) === todayStr) {
             nextLink = '/'
         } else {
-            nextLink = `/day/${toUtcDateStr(nextDay)}`
+            nextLink = `/day/${toLocalDateStr(nextDay)}`
         }
     }
 

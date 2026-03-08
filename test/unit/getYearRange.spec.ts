@@ -3,14 +3,22 @@ import { getYearRange } from '~/util/getYearRange'
 
 describe('getYearRange', () => {
   it('returns full year range', () => {
-    const [start, end] = getYearRange(new Date('2025-06-15T00:00:00Z'))
-    expect(start.toISOString()).toBe('2025-01-01T00:00:00.000Z')
-    expect(end.toISOString()).toBe('2025-12-31T23:59:59.999Z')
+    const [start, end] = getYearRange(new Date(2025, 5, 15))
+    expect(start.getFullYear()).toBe(2025)
+    expect(start.getMonth()).toBe(0)
+    expect(start.getDate()).toBe(1)
+    expect(start.getHours()).toBe(0)
+    expect(end.getFullYear()).toBe(2025)
+    expect(end.getMonth()).toBe(11)
+    expect(end.getDate()).toBe(31)
+    expect(end.getHours()).toBe(23)
   })
 
   it('handles a leap year', () => {
-    const [start, end] = getYearRange(new Date('2024-06-15T00:00:00Z'))
-    expect(start.toISOString()).toBe('2024-01-01T00:00:00.000Z')
-    expect(end.toISOString()).toBe('2024-12-31T23:59:59.999Z')
+    const [start, end] = getYearRange(new Date(2024, 5, 15))
+    expect(start.getFullYear()).toBe(2024)
+    expect(end.getFullYear()).toBe(2024)
+    expect(end.getMonth()).toBe(11)
+    expect(end.getDate()).toBe(31)
   })
 })

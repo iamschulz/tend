@@ -18,14 +18,14 @@ export const titleForWeek = (weekStr: string, t: TranslateFunction, locale: stri
     const long = t('weekOf', { date: monday.toLocaleDateString(locale, { month: 'long', day: 'numeric' }) })
 
     const prevMonday = new Date(monday)
-    prevMonday.setUTCDate(prevMonday.getUTCDate() - 7)
+    prevMonday.setDate(prevMonday.getDate() - 7)
     const prevLink = `/week/${getIsoWeekString(prevMonday)}`
 
     const currentWeek = getIsoWeekString(new Date())
     let nextLink: string | null = null
     if (weekStr !== currentWeek) {
         const nextMonday = new Date(monday)
-        nextMonday.setUTCDate(nextMonday.getUTCDate() + 7)
+        nextMonday.setDate(nextMonday.getDate() + 7)
         nextLink = `/week/${getIsoWeekString(nextMonday)}`
     }
 

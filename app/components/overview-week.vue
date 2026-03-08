@@ -40,7 +40,7 @@
     }
 
     /** @param date - The date to get the localized weekday name for */
-    const getWeekDayName = (date: Date): string => weekdays[(date.getUTCDay() + 6) % 7]!.full;
+    const getWeekDayName = (date: Date): string => weekdays[(date.getDay() + 6) % 7]!.full;
     const today = new Date();
     const isCurrentWeek = today >= weekRange[0] && today <= weekRange[1];
     const todayName = isCurrentWeek ? getWeekDayName(today) : null;
@@ -51,7 +51,7 @@
         const dayStarts: { name: string; start: string }[] = [];
         for (let i = 0; i < 7; i++) {
             const dayDate = new Date(props.date);
-            dayDate.setUTCDate(dayDate.getUTCDate() + i);
+            dayDate.setDate(dayDate.getDate() + i);
             dayStarts.push({
                 name: getWeekDayName(dayDate),
                 start: getDayRange(dayDate)[0].toString(),
@@ -84,7 +84,7 @@
     onMounted(async () => {
         if (!isCurrentWeek) return;
         await nextTick();
-        const dayNumber = (new Date().getUTCDay() + 6) % 7;
+        const dayNumber = (new Date().getDay() + 6) % 7;
         const currentDayEl = days.value![dayNumber]?.$el as HTMLElement | undefined;
         currentDayEl?.scrollIntoView({ inline: 'center', behavior: 'smooth'});
     })
