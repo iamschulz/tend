@@ -7,10 +7,9 @@ export default defineNuxtConfig({
     maxBodySizeMb: 5,
     adminUsername: '',
     adminPassword: '',
-    sessionMaxAgeDays: 60,
     session: {
       password: '',
-      maxAge: 0, // set by server/plugins/session.ts from sessionMaxAgeDays
+      maxAge: Number(process.env.NUXT_SESSION_MAX_AGE_DAYS || 60) * 60 * 60 * 24,
     },
     public: {
       backendMode: 'standalone',
