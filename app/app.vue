@@ -156,12 +156,12 @@
     z-index: 2;
   }
 
-  ::view-transition-old(main-header) {
+  ::view-transition-old(main-header),
+  ::view-transition-old(trigger-group) {
     display: none;
   }
 
   ::view-transition-new(main-header),
-  ::view-transition-old(trigger-group),
   ::view-transition-new(trigger-group) {
     animation: none;
   }
