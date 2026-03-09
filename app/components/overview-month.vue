@@ -150,7 +150,7 @@
     .month-grid {
         width: 100%;
         padding: 0 5px 1rem;
-        --day-width: 14ch;
+        --day-width: 13ch;
         --day-padding: 0.5rem;
         min-width: calc((var(--day-width) + var(--day-padding) * 2) * 7);
 

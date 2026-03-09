@@ -7,6 +7,7 @@
     --narrow-width: 40rem;
     --bounce-factor: 0.56;
     --animation-bounce: cubic-bezier(0.34, calc(1 + var(--bounce-factor)), 0.64, 1);
+    font-size: min(max(var(--font-size-min), 1.5vw), var(--font-size-max)); /* fluid font scaling */
 }
 
 /* fix automatic theme color in safatri */
