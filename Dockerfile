@@ -24,8 +24,9 @@ ENV NODE_ENV=production
 ENV NUXT_PUBLIC_BACKEND_MODE=server
 ENV NUXT_DB_PATH=/data/tend.db
 
+COPY entrypoint.sh /entrypoint.sh
+RUN apk add --no-cache su-exec
+
 EXPOSE 3000
 
-USER node
-
-CMD ["node", ".output/server/index.mjs"]
+CMD ["/entrypoint.sh"]
