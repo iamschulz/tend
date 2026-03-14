@@ -1,7 +1,7 @@
 <template>
     <div class="login-page">
         <form class="login-form" @submit.prevent="login">
-            <h1><nuxt-icon name="tend" /> Tend</h1>
+            <h1><TendIcon /> Tend</h1>
             <label>
                 <span class="sr-only">{{ $t('login.username') }}</span>
                 <label for="username">{{ $t('login.username') }}</label>
