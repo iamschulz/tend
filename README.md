@@ -110,7 +110,13 @@ This creates a `tmp/seed-data.json` file with categories and entries. Open the a
 
 ### Testing
 
+Install playwright before e2e testing:
 ```sh
+npx install playwright
+```
+
+```sh
+npm run lint         # code linting
 npm run test:unit    # unit tests
 npm run test:e2e     # end-to-end tests (builds first)
 ```
