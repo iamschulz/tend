@@ -28,6 +28,7 @@
     import { useDataStore } from '~/stores/data';
     import TrackerEntry from './tracker-entry.vue';
     import { getDayRange } from '~/util/getDayRange';
+    import { prefersReducedMotion } from '~/util/prefersReducedMotion';
     const props = defineProps<{
         date?: Date,
     }>()
@@ -79,7 +80,8 @@
         })
         if (route.hash) {
             nextTick(() => {
-                document.querySelector(route.hash)?.scrollIntoView({ behavior: 'smooth' })
+                const behavior = prefersReducedMotion() ? 'instant' : 'smooth';
+                document.querySelector(route.hash)?.scrollIntoView({ behavior })
             })
         }
     })

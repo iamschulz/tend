@@ -2,7 +2,7 @@
     --font: 'Quicksand';
     --font-accent: 'Quicksand';
     --col-fg: #222;
-    --animation-duration: 0.3s;   
+    --animation-duration: calc(0.3s * var(--enable-animation, 1));
     --body-width: 68rem;
     --narrow-width: 40rem;
     --bounce-factor: 0.56;

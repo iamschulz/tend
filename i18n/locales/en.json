@@ -8,6 +8,9 @@
     "autoTheme": "Auto Theme",
     "lightTheme": "Light Theme",
     "darkTheme": "Dark Theme",
+    "animations": "Animations",
+    "animationsOn": "On",
+    "animationsOff": "Off",
     "installApp": "Install App",
 
     "today": "Today",

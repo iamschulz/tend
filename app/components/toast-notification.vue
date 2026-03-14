@@ -76,10 +76,6 @@
             opacity: 0;
             translate: 0 -1rem;
         }
-
-        @media (prefers-reduced-motion: reduce) {
-            transition: none;
-        }
     }
 
     .closeButton {

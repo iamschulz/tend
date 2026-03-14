@@ -8,6 +8,9 @@
     "autoTheme": "Automatisch",
     "lightTheme": "Heller Modus",
     "darkTheme": "Dunkler Modus",
+    "animations": "Animationen",
+    "animationsOn": "An",
+    "animationsOff": "Aus",
     "installApp": "App installieren",
 
     "today": "Heute",

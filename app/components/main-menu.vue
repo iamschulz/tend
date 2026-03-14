@@ -105,9 +105,7 @@
         width: min(var(--menu-width), 80svw);
         max-width: min(var(--menu-width), 80svw);
         left: calc(-100% + min(var(--menu-width), 80svw));
-        @media (prefers-reduced-motion: no-preference) {
-	    	animation: dialog-fade-in 0.2s ease-out;
-	    }
+        animation: dialog-fade-in calc(0.2s * var(--enable-animation, 1)) ease-out;
 
         h3 {
             margin-block: 0;

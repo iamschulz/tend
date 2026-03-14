@@ -20,6 +20,7 @@
     import { getDayRange } from '~/util/getDayRange';
     import { getWeekRange } from '~/util/getWeekRange';
     import { getWeekdays } from '~/contants/weekdays';
+    import { prefersReducedMotion } from '~/util/prefersReducedMotion';
 
     const { t } = useI18n();
 
@@ -86,7 +87,7 @@
         await nextTick();
         const dayNumber = (new Date().getDay() + 6) % 7;
         const currentDayEl = days.value![dayNumber]?.$el as HTMLElement | undefined;
-        currentDayEl?.scrollIntoView({ inline: 'center', behavior: 'smooth'});
+        currentDayEl?.scrollIntoView({ inline: 'center', behavior: prefersReducedMotion() ? 'instant' : 'smooth'});
     })
 
     // todo: add some statistics below table

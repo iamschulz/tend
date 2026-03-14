@@ -120,9 +120,7 @@
         }
 
         &::backdrop {
-            @media (prefers-reduced-motion: no-preference) {
-                animation: backdrop-fade-in 0.2s ease-out;
-            }
+            animation: backdrop-fade-in calc(0.2s * var(--enable-animation, 1)) ease-out;
         }
     }
 

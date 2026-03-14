@@ -113,7 +113,7 @@
         align-items: center;
         gap: 1rem;
         padding: 0.5rem 0.75rem;
-        transition: all 0.3s ease;
+        transition: all calc(0.3s * var(--enable-animtion, 1)) ease;
         width: 100%;
     }
 

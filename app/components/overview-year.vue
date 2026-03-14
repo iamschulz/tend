@@ -14,6 +14,7 @@
 
 <script setup lang="ts">
     import { getYearRange } from '~/util/getYearRange'
+    import { prefersReducedMotion } from '~/util/prefersReducedMotion'
 
     const { t } = useI18n();
 
@@ -48,7 +49,7 @@
         if (!isCurrentYear) return;
         await nextTick();
         const currentMonthEl = months.value?.[currentMonthIndex];
-        currentMonthEl?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        currentMonthEl?.scrollIntoView({ block: 'center', behavior: prefersReducedMotion() ? 'instant' : 'smooth' });
     });
 
     // Pre-bucket entries by month in one pass — O(E) instead of O(12 × E)

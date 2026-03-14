@@ -29,6 +29,7 @@
 <script setup lang="ts">
     import { getMonthRange } from '~/util/getMonthRange';
     import { getWeekdays } from '~/contants/weekdays';
+    import { prefersReducedMotion } from '~/util/prefersReducedMotion';
 
     const { t } = useI18n();
 
@@ -131,7 +132,7 @@
 
     onMounted(async () => {
         await nextTick();
-        todayEl.value?.scrollIntoView({ inline: 'center', behavior: 'smooth' });
+        todayEl.value?.scrollIntoView({ inline: 'center', behavior: prefersReducedMotion() ? 'instant' : 'smooth' });
     });
 
     const calendarWeeks = computed(() => {

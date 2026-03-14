@@ -57,8 +57,8 @@ watch(scrolled, (amount) => {
     top: 0;
     z-index: 1;
     view-transition-name: main-header;
-    font-size: calc(1rem * (1 - var(--scrolled) * 0.2));
-    padding-block: calc(1rem * (1 - var(--scrolled) * 0.8));
+    font-size: calc(1rem * (1 - var(--scrolled) * var(--enable-animation, 1) * 0.2));
+    padding-block: calc(1rem * (1 - var(--scrolled) * var(--enable-animation, 1) * 0.8));
     transition: --scrolled var(--animation-duration) var(--animation-bounce);
 }
 

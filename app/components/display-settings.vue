@@ -7,13 +7,26 @@
             <option value="dark">{{ $t("darkTheme") }}</option>
         </select>
     </div>
+    <div>
+        <label for="animation-select">{{ $t("animations") }}: </label>
+        <select id="animation-select" @change="onAnimationChange">
+            <option value="">{{ $t("animationsOn") }}</option>
+            <option value="false">{{ $t("animationsOff") }}</option>
+        </select>
+    </div>
 </template>
 
 <script setup lang="ts">
 onMounted(() => {
-    const saved = localStorage.getItem('force-scheme')
-    if (saved === 'light' || saved === 'dark') {
-        document.querySelector<HTMLSelectElement>('#theme-select')!.value = saved
+    const savedScheme = localStorage.getItem('force-scheme')
+    if (savedScheme === 'light' || savedScheme === 'dark') {
+        document.querySelector<HTMLSelectElement>('#theme-select')!.value = savedScheme
+    }
+
+    const savedAnimation = localStorage.getItem('force-animation')
+    if (savedAnimation === 'false') {
+        document.querySelector<HTMLSelectElement>('#animation-select')!.value = 'false'
+        document.documentElement.setAttribute('force-animation', 'false')
     }
 })
 
@@ -36,6 +49,18 @@ function updateThemeColor(forced: string | null) {
     }
 }
 
+/** @param e - The change event from the animation select */
+function onAnimationChange(e: Event) {
+    const value = (e.target as HTMLSelectElement).value
+    if (value === 'false') {
+        localStorage.setItem('force-animation', 'false')
+        document.documentElement.setAttribute('force-animation', 'false')
+    } else {
+        localStorage.removeItem('force-animation')
+        document.documentElement.removeAttribute('force-animation')
+    }
+}
+
 /** @param e - The change event from the theme select */
 function onThemeChange(e: Event) {
     const value = (e.target as HTMLSelectElement).value
@@ -50,3 +75,9 @@ function onThemeChange(e: Event) {
     }
 }
 </script>
+
+<style scoped>
+    div {
+        margin-block: 1rem;
+    }
+</style>
