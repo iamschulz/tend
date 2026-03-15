@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import type { Entry } from '~/types/Entry'
 
 let confirmResolver: ((value: boolean) => void) | null = null
 
@@ -6,6 +7,8 @@ export const useUiStore = defineStore('ui', {
   /** @returns Initial UI state */
   state: () => ({
     currentViewDate: new Date(),
+    skipListFadeIn: false,
+    pendingEntry: null as { entry: Entry, closeCategoryId: string } | null,
 
     // modals
     menuOpen: false,

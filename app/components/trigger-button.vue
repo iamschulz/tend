@@ -101,11 +101,13 @@
     }
 
     const { addToast } = useToast()
+    const router = useRouter()
+    const route = useRoute()
+    const ui = useUiStore()
 
 
     /** @param running - Whether the new entry should be a running timer */
     const addEvent = (running: boolean) => {
-        data.closeAllEntries(props.category.id);
         const now = Date.now();
         const newEntry: Entry = {
             id: crypto.randomUUID(),
@@ -115,19 +117,33 @@
             categoryId: props.category.id,
             comment: "",
         }
-        data.addEntry(newEntry);
 
-        const todayIndex = (new Date().getDay() + 6) % 7
-        const activeGoals = props.category.goals.filter(goal =>
-            (goal.days & (1 << todayIndex))
-            && (running || goal.unit === 'event')
-            && getGoalProgress(goal, data.entries, props.category.id) < goal.count
-        )
-        if (activeGoals.length) {
-            addToast(`${props.category.activity.emoji} ${props.category.title}`, {
-                categoryId: props.category.id,
-                goals: activeGoals,
-            })
+        /** Commits the entry to the data store and shows goal toasts. */
+        const commitEntry = () => {
+            data.closeAllEntries(props.category.id);
+            data.addEntry(newEntry);
+
+            const todayIndex = (new Date().getDay() + 6) % 7
+            const activeGoals = props.category.goals.filter(goal =>
+                (goal.days & (1 << todayIndex))
+                && (running || goal.unit === 'event')
+                && getGoalProgress(goal, data.entries, props.category.id) < goal.count
+            )
+            if (activeGoals.length) {
+                addToast(`${props.category.activity.emoji} ${props.category.title}`, {
+                    categoryId: props.category.id,
+                    goals: activeGoals,
+                })
+            }
+        }
+
+        // Navigate to today's page if not already there
+        if (route.path !== '/') {
+            ui.skipListFadeIn = true
+            ui.pendingEntry = { entry: newEntry, closeCategoryId: props.category.id }
+            router.push('/')
+        } else {
+            commitEntry()
         }
     }
 </script>
