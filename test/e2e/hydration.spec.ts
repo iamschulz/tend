@@ -9,7 +9,7 @@ import {
   ensureSelectDayOpen,
   ensureCategoriesOpen,
 } from './_setup'
-import { addCategory, quickClickTrigger, openMenu, closeMenu } from './_helpers'
+import { addCategory, quickClickTrigger, openMenu } from './_helpers'
 
 describe('Hydration – full navigation flow', () => {
   let page: Page
