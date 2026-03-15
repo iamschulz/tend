@@ -73,11 +73,30 @@
     const loaderEl = ref<HTMLDialogElement | null>(null)
 
     const route = useRoute()
+    const ui = useUiStore()
 
     onMounted(() => {
-        requestAnimationFrame(() => {
+        if (ui.skipListFadeIn) {
+            // Skip the list fade-in but preserve entry add animation
+            const ul = loaderEl.value?.parentElement
+            ul?.classList.add('skip-fade-in')
             loaderEl.value?.classList.add('mounted')
-        })
+            ui.skipListFadeIn = false
+
+            // Flush pending entry after mount so TransitionGroup sees it as new
+            if (ui.pendingEntry) {
+                const { entry, closeCategoryId } = ui.pendingEntry
+                ui.pendingEntry = null
+                nextTick(() => {
+                    data.closeAllEntries(closeCategoryId)
+                    data.addEntry(entry)
+                })
+            }
+        } else {
+            requestAnimationFrame(() => {
+                loaderEl.value?.classList.add('mounted')
+            })
+        }
         if (route.hash) {
             nextTick(() => {
                 const behavior = prefersReducedMotion() ? 'instant' : 'smooth';
@@ -129,6 +148,11 @@
         &:has(.loader.mounted) {
             opacity: 1;
             transform: translateY(0);
+        }
+
+        &.skip-fade-in {
+            --t-opacity: 0s;
+            --t-transform: 0s;
         }
     }
 
