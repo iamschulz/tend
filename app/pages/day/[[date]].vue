@@ -35,7 +35,7 @@
     yesterday.setDate(yesterday.getDate() - 1);
 
     const nuxtApp = useNuxtApp()
-    const mounted = ref(!nuxtApp.isHydrating)
+    const mounted = ref(import.meta.client && !nuxtApp.isHydrating)
 
     onNuxtReady(() => {
         mounted.value = true
