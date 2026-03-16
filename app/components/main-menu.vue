@@ -37,9 +37,10 @@
         <details>
             <summary><h3>{{ $t('info') }}</h3></summary>
             <p><span class="appname"><TendIcon /> Tend</span> | made with ♥ | 2026</p>
-            <p>Developer: <a href="https://iamschulz.com">Daniel Schulz</a></p>
-            <p>Code: <a href="https://github.com/iamschulz/tend">GitHub</a></p>
-            <p>{{ $t('licence') }}: <a href="https://github.com/iamschulz/tend?tab=License-1-ov-file">GPL v3</a></p>
+            <p>Code: <a target="_blank" href="https://github.com/iamschulz/tend">GitHub</a></p>
+            <p>Developer: <a target="_blank" href="https://iamschulz.com">Daniel Schulz</a></p>
+            <p>{{ $t('licence') }}: <a target="_blank" href="https://github.com/iamschulz/tend/blob/main/LICENSE">GPL v3</a></p>
+            <p>Version {{ runtimeConfig.public.version }}</p>
         </details>
 
         <InstallButton />
@@ -50,6 +51,7 @@
     import DisplaySettings from '~/components/display-settings.vue';
     import { idbStorage } from '~/util/idbStorage';
 
+    const runtimeConfig = useRuntimeConfig();
     const ui = useUiStore();
     const data = useDataStore();
     const { clear } = useUserSession();
