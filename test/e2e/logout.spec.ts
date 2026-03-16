@@ -20,12 +20,12 @@ const dbPath = path.join(os.tmpdir(), `tend-logout-test-${Date.now()}.db`)
  */
 async function clickLogout(page: Page): Promise<void> {
     await openMenu(page)
-    // Open the Data <details> section so the logout button becomes visible
+    // Open the Settings <details> section so the logout button becomes visible
     await page.evaluate(() => {
         const sections = document.querySelectorAll('dialog.menu details')
-        const dataSection = sections[sections.length - 1]
-        if (dataSection && !dataSection.hasAttribute('open')) {
-            dataSection.querySelector('summary')?.click()
+        const settingsSection = sections[2]
+        if (settingsSection && !settingsSection.hasAttribute('open')) {
+            settingsSection.querySelector('summary')?.click()
         }
     })
     const logoutButton = page.locator('dialog.menu button[data-button]', { hasText: /log\s*out|abmelden/i })

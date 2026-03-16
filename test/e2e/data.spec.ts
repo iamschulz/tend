@@ -37,14 +37,14 @@ describe('Data export', () => {
         fs.rmSync(downloadDir, { recursive: true, force: true })
     })
 
-    /** Open the Data details section and click Export, returning the downloaded file path. */
+    /** Open the settings details section and click Export, returning the downloaded file path. */
     async function clickExport(): Promise<string> {
         await openMenu(page)
 
-        // Open the Data details section (last one)
+        // Open the settings details section (last one)
         await page.evaluate(() => {
             const details = document.querySelectorAll('dialog.menu details')
-            const dataDetails = details[details.length - 1]
+            const dataDetails = details[2]
             if (dataDetails && !dataDetails.hasAttribute('open')) {
                 dataDetails.querySelector('summary')?.click()
             }
@@ -56,7 +56,7 @@ describe('Data export', () => {
 
         // Click the Export button
         await page.evaluate(() => {
-            const buttons = document.querySelectorAll('dialog.menu details:last-of-type button')
+            const buttons = document.querySelectorAll('dialog.menu details:nth-of-type(3) button')
             const exportBtn = Array.from(buttons).find(b => b.textContent?.trim() === 'Export')
             if (exportBtn) (exportBtn as HTMLElement).click()
         })
@@ -93,10 +93,10 @@ describe('Data export', () => {
         // Import seed data via the file input
         await openMenu(page)
 
-        // Open the Data details section
+        // Open the Settings details section
         await page.evaluate(() => {
             const details = document.querySelectorAll('dialog.menu details')
-            const dataDetails = details[details.length - 1]
+            const dataDetails = details[2]
             if (dataDetails && !dataDetails.hasAttribute('open')) {
                 dataDetails.querySelector('summary')?.click()
             }
@@ -104,7 +104,7 @@ describe('Data export', () => {
         await new Promise(r => setTimeout(r, 300))
 
         // Upload seed data via the hidden file input
-        const fileInput = await page.$('dialog.menu details:last-of-type input[type="file"]')
+        const fileInput = await page.$('dialog.menu details:nth-of-type(3) input[type="file"]')
         expect(fileInput).not.toBeNull()
 
         // Write seed data to a temp file for upload

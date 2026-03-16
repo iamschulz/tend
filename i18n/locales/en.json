@@ -177,6 +177,9 @@
     "importConfirm": "Import will delete all existing data. Continue?",
     "importError": "Invalid import file format.",
 
+    "info": "About Tend",
+    "licence": "Licence",
+
     "somethingWrong": "Something went wrong here.",
     "pageNotFound": "Page not found",
     "pageNotFoundMessage": "The page you're looking for doesn't exist.",

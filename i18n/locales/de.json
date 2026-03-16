@@ -177,6 +177,9 @@
     "importConfirm": "Der Import löscht alle bisherigen Daten. Fortfahren?",
     "importError": "Ungültiges Dateiformat.",
 
+    "info": "Informationen",
+    "licence": "Lizenz",
+
     "somethingWrong": "Irgendwas ist hier schief gelaufen.",
     "pageNotFound": "Seite nicht gefunden",
     "pageNotFoundMessage": "Die Seite, die du suchst, existiert nicht.",

@@ -22,14 +22,11 @@
             <summary><h3>{{ $t('settings') }}</h3></summary>
             <LanguageSelect />
             <DisplaySettings />
-        </details>
-
-        <details>
-            <summary><h3>{{ $t('data') }}</h3></summary>
-            <p data-group>
+            <span data-group>
+                {{ $t('data') }}:&nbsp;
                 <DataImport />
                 <DataExport />
-            </p>
+            </span>
             <p>
                 <button v-if="data.isServerMode" data-button @click="logout">
                     {{ $t('logout') }}
@@ -37,11 +34,15 @@
             </p>
         </details>
 
-        <InstallButton />
+        <details>
+            <summary><h3>{{ $t('info') }}</h3></summary>
+            <p><span class="appname"><TendIcon /> Tend</span> | made with ♥ | 2026</p>
+            <p>Developer: <a href="https://iamschulz.com">Daniel Schulz</a></p>
+            <p>Code: <a href="https://github.com/iamschulz/tend">GitHub</a></p>
+            <p>{{ $t('licence') }}: <a href="https://github.com/iamschulz/tend?tab=License-1-ov-file">GPL v3</a></p>
+        </details>
 
-        <div class="menu-footer">
-            <p><span class="appname"><TendIcon /> Tend</span> | made with ♥ | {{ new Date().getFullYear() }}</p>
-        </div>
+        <InstallButton />
     </DialogWrapper>
 </template>
 
@@ -129,16 +130,9 @@
             width: 100%;
         }
 
-        .menu-footer {
-            margin-top: auto;
-            width: 100%;
-            max-width: min(var(--menu-width), 80svw);
-            color: var(--col-fg2);
-
-            .appname {
-                color: var(--col-fg);
-                font-weight: 700;
-            }
+        .appname {
+            color: var(--col-fg);
+            font-weight: 700;
         }
     }
 </style>
