@@ -30,7 +30,6 @@ export default function useAnnounce() {
    * @param text - The text to announce
    */
   const announce = (text: string) => {
-    console.log('announce', text);
     queue.push(text)
     if (!processing) {
       processing = true

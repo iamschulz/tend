@@ -8,7 +8,7 @@ import {
     getPage,
     navigateTo,
 } from './_setup'
-import { addCategory, openCategoryPage, quickClickTrigger, holdTrigger, waitForToast, getToasts, waitForNoToasts } from './_helpers'
+import { addCategory, openCategoryPage, quickClickTrigger, holdTrigger, waitForToast, getToasts, waitForNoToasts, waitForAnnouncement } from './_helpers'
 
 describe('Toast notifications', () => {
     let page: Page
@@ -215,6 +215,17 @@ describe('Toast notifications', () => {
             const index0 = await toasts[0]!.evaluate(el => getComputedStyle(el).getPropertyValue('--toast-index'))
             const index1 = await toasts[1]!.evaluate(el => getComputedStyle(el).getPropertyValue('--toast-index'))
             expect(index0).not.toBe(index1)
+        })
+    })
+
+    describe('toast announcement', () => {
+        it('announces toast content via aria-live region when goal is reached', async () => {
+            await setupCategoryWithGoal('AnnounceCat', { count: 1 })
+
+            await quickClickTrigger(page, 0)
+
+            await waitForToast(page)
+            await waitForAnnouncement(page, 'AnnounceCat')
         })
     })
 

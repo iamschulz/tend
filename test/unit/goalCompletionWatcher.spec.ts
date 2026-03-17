@@ -26,6 +26,11 @@ vi.stubGlobal('useToast', () => ({
   removeToast: vi.fn(),
 }))
 
+const mockAnnounce = vi.fn()
+vi.stubGlobal('useAnnounce', () => ({
+  announce: mockAnnounce,
+}))
+
 vi.stubGlobal('useI18n', () => ({
   t: (key: string) => key,
 }))
@@ -82,6 +87,7 @@ describe('useGoalCompletionWatcher', () => {
     uuidCounter = 0
     entryCounter = 0
     mockAddToast.mockClear()
+    mockAnnounce.mockClear()
     store = useDataStore()
   })
 
@@ -182,7 +188,7 @@ describe('useGoalCompletionWatcher', () => {
       await nextTick()
 
       expect(mockAddToast).toHaveBeenCalledWith(
-        '💼 Work — goalReached',
+        '💼 Work - goalReached',
         expect.any(Object),
       )
     })
