@@ -91,6 +91,8 @@
     "unitMinutes": "Minuten",
     "unitHours": "Stunden",
     "unitDays": "Tage",
+    "categoryHidden": "Kategorie versteckt",
+    "categoryShown": "Kategorie angezeigt",
     "goalAdded": "Ziel hinzugefügt",
     "goalRemoved": "Ziel entfernt",
     "goalReached": "Ziel erreicht!",

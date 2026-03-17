@@ -13,7 +13,7 @@
                 </option>
             </select>
             <input v-model="category.title" :aria-label="$t('selectCategoryTitle')" type="text" maxlength="200" required>
-            <button @click.prevent="category.hidden = !category.hidden">
+            <button @click.prevent="toggleHidden">
                 <nuxt-icon :name="category.hidden ? 'visibility_off' : 'visibility'" />
                 <span class="sr-only">{{ category.hidden ? $t('show') : $t('hide') }}</span>
             </button>
@@ -29,6 +29,8 @@
     import type { Category } from '~/types/Category'
     import { useDataStore } from '~/stores/data';
     import activities from '~/contants/activities.json'
+    const { t } = useI18n()
+    const { announce } = useAnnounce()
 
     const props = defineProps<{
         category: Category
@@ -42,6 +44,12 @@
     }, { deep: true })
 
     const data = useDataStore();
+
+    /** Toggles the category's hidden state and announces the change to screen readers. */
+    const toggleHidden = () => {
+        category.hidden = !category.hidden
+        announce(t(category.hidden ? 'categoryHidden' : 'categoryShown'))
+    }
 
     /** @param e - The change event from the activity select */
     function handleActivityChange(e: Event) {
