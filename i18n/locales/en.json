@@ -92,6 +92,8 @@
     "unitHours": "hours",
     "unitDays": "days",
     "goalReached": "goal reached!",
+    "of": "of",
+    "per": "per",
     "perDay": "day",
     "perWeek": "week",
     "perMonth": "month",
