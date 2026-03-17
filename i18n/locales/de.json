@@ -91,6 +91,8 @@
     "unitMinutes": "Minuten",
     "unitHours": "Stunden",
     "unitDays": "Tage",
+    "goalAdded": "Ziel hinzugefügt",
+    "goalRemoved": "Ziel entfernt",
     "goalReached": "Ziel erreicht!",
     "of": "von",
     "per": "pro",
