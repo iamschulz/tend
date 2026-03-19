@@ -13,6 +13,7 @@ export default defineNuxtConfig({
     },
     public: {
       backendMode: 'standalone',
+      version: process.env.npm_package_version,
     },
   },
 

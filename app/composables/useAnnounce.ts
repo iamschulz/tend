@@ -1,25 +1,40 @@
 const announcers = new Map<string, { text: Ref<string>, isActive: () => boolean }>()
+const queue: string[] = []
+let processing = false
+
+/** Processes the announcement queue, reading one item at a time. */
+const processQueue = () => {
+  const text = queue.shift()
+  if (!text) { processing = false; return }
+
+  let target: Ref<string> | null = null
+  for (const [, entry] of announcers) {
+    if (entry.isActive()) target = entry.text
+  }
+  if (!target) { processQueue(); return }
+
+  // Clear first so repeated identical messages are still announced
+  target.value = ''
+  nextTick(() => {
+    target!.value = text
+    // Estimate reading time: ~130ms per word, 500ms minimum
+    const delay = Math.max(500, text.split(' ').length * 130)
+    setTimeout(processQueue, delay)
+  })
+}
 
 /** Provides aria-live announcement helpers for screen readers. */
 export default function useAnnounce() {
   /**
-   * Sends text to the currently active aria-live announcer.
+   * Queues text to be sent to the active aria-live announcer, FIFO.
    * @param text - The text to announce
    */
   const announce = (text: string) => {
-    // Find the active announcer: last registered whose isActive() returns true.
-    // Dialog announcers register after root, so they naturally take priority.
-    let target: Ref<string> | null = null
-    for (const [, entry] of announcers) {
-      if (entry.isActive()) target = entry.text
+    queue.push(text)
+    if (!processing) {
+      processing = true
+      processQueue()
     }
-    if (!target) return
-
-    // Clear first so repeated identical messages are still announced
-    target.value = ''
-    nextTick(() => {
-      if (target) target.value = text
-    })
   }
 
   /**

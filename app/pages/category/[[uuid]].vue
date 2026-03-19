@@ -169,7 +169,10 @@
 
     /** Toggles the category's hidden state. */
     const toggleHidden = () => {
-        if (category.value) data.updateCategory({ id: category.value.id, hidden: !category.value.hidden })
+        if (!category.value) return
+        const nowHidden = !category.value.hidden
+        data.updateCategory({ id: category.value.id, hidden: nowHidden })
+        announce(t(nowHidden ? 'categoryHidden' : 'categoryShown'))
     }
 
     /** Prompts for confirmation then deletes the category. */
@@ -220,7 +223,6 @@
                 font-size: 1.4em;
                 display: inline-grid;
                 place-items: center;
-                aspect-ratio: 1;
                 height: 4rem;
                 border: none;
                 border-radius: var(--border-radius) 0 0;

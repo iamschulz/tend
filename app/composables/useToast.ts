@@ -11,6 +11,7 @@ export interface Toast {
 
 const toasts = ref<Toast[]>([])
 let nextId = 0
+const { announce } = useAnnounce()
 
 /** Provides reactive toast notification state and helpers. */
 export function useToast() {
@@ -21,11 +22,13 @@ export function useToast() {
      * @param options.duration - How long to show the toast in ms
      * @param options.categoryId - Associated category ID
      * @param options.goals - Goals to display in the toast
+     * @param options.announceText - The announcer label
      */
-    const addToast = (message: string, options: { duration?: number, categoryId?: string, goals?: readonly Goal[] } = {}): string => {
+    const addToast = (message: string, options: { duration?: number, categoryId?: string, goals?: readonly Goal[], announceText?: string } = {}): string => {
         const id = String(nextId++)
-        const { duration = 3000, ...rest } = options
+        const { duration = 3000, announceText, ...rest } = options
         toasts.value.push({ id, message, duration, ...rest })
+        announce(announceText ?? message)
         return id
     }
 

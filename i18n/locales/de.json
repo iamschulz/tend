@@ -91,7 +91,13 @@
     "unitMinutes": "Minuten",
     "unitHours": "Stunden",
     "unitDays": "Tage",
+    "categoryHidden": "Kategorie versteckt",
+    "categoryShown": "Kategorie angezeigt",
+    "goalAdded": "Ziel hinzugefügt",
+    "goalRemoved": "Ziel entfernt",
     "goalReached": "Ziel erreicht!",
+    "of": "von",
+    "per": "pro",
     "perDay": "Tag",
     "perWeek": "Woche",
     "perMonth": "Monat",
@@ -176,6 +182,9 @@
     "export": "Exportieren",
     "importConfirm": "Der Import löscht alle bisherigen Daten. Fortfahren?",
     "importError": "Ungültiges Dateiformat.",
+
+    "info": "Informationen",
+    "licence": "Lizenz",
 
     "somethingWrong": "Irgendwas ist hier schief gelaufen.",
     "pageNotFound": "Seite nicht gefunden",

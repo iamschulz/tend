@@ -64,6 +64,8 @@
     }>()
 
     const data = useDataStore()
+    const { t } = useI18n()
+    const { announce } = useAnnounce()
 
     const unitSuffix = { event: 'x', minutes: 'm', hours: 'h', days: 'd' } as const
 
@@ -89,6 +91,7 @@
     const onAddGoal = () => {
         const goals = [...props.goals, { ...newGoal.value }]
         data.updateCategory({ id: props.categoryId, goals })
+        announce(t('goalAdded'))
         newGoal.value = createEmptyGoal()
     }
 
@@ -96,6 +99,7 @@
     const removeGoal = (index: number) => {
         const goals = props.goals.filter((_, i) => i !== index)
         data.updateCategory({ id: props.categoryId, goals })
+        announce(t('goalRemoved'))
     }
 </script>
 

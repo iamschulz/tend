@@ -22,14 +22,11 @@
             <summary><h3>{{ $t('settings') }}</h3></summary>
             <LanguageSelect />
             <DisplaySettings />
-        </details>
-
-        <details>
-            <summary><h3>{{ $t('data') }}</h3></summary>
-            <p data-group>
+            <span data-group>
+                {{ $t('data') }}:&nbsp;
                 <DataImport />
                 <DataExport />
-            </p>
+            </span>
             <p>
                 <button v-if="data.isServerMode" data-button @click="logout">
                     {{ $t('logout') }}
@@ -37,11 +34,16 @@
             </p>
         </details>
 
-        <InstallButton />
+        <details>
+            <summary><h3>{{ $t('info') }}</h3></summary>
+            <p><span class="appname"><TendIcon /> Tend</span> | made with ♥ | 2026</p>
+            <p>Code: <a target="_blank" href="https://github.com/iamschulz/tend">GitHub</a></p>
+            <p>Developer: <a target="_blank" href="https://iamschulz.com">Daniel Schulz</a></p>
+            <p>{{ $t('licence') }}: <a target="_blank" href="https://github.com/iamschulz/tend/blob/main/LICENSE">GPL v3</a></p>
+            <p>Version {{ runtimeConfig.public.version }}</p>
+        </details>
 
-        <div class="menu-footer">
-            <p><span class="appname"><TendIcon /> Tend</span> | made with ♥ | {{ new Date().getFullYear() }}</p>
-        </div>
+        <InstallButton />
     </DialogWrapper>
 </template>
 
@@ -49,6 +51,7 @@
     import DisplaySettings from '~/components/display-settings.vue';
     import { idbStorage } from '~/util/idbStorage';
 
+    const runtimeConfig = useRuntimeConfig();
     const ui = useUiStore();
     const data = useDataStore();
     const { clear } = useUserSession();
@@ -109,6 +112,7 @@
 
         h3 {
             margin-block: 0;
+            display: inline-block;
         }
 
         details {
@@ -129,16 +133,9 @@
             width: 100%;
         }
 
-        .menu-footer {
-            margin-top: auto;
-            width: 100%;
-            max-width: min(var(--menu-width), 80svw);
-            color: var(--col-fg2);
-
-            .appname {
-                color: var(--col-fg);
-                font-weight: 700;
-            }
+        .appname {
+            color: var(--col-fg);
+            font-weight: 700;
         }
     }
 </style>
