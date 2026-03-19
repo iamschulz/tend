@@ -112,6 +112,7 @@
 
         h3 {
             margin-block: 0;
+            display: inline-block;
         }
 
         details {

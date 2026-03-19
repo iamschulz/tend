@@ -223,7 +223,6 @@
                 font-size: 1.4em;
                 display: inline-grid;
                 place-items: center;
-                aspect-ratio: 1;
                 height: 4rem;
                 border: none;
                 border-radius: var(--border-radius) 0 0;
