@@ -1,3 +1,5 @@
+import { getSessionVersion } from '~~/server/utils/sessionVersion'
+
 const publicRoutes = ['/api/auth/login', '/api/auth/session']
 
 export default defineEventHandler(async (event) => {
@@ -8,4 +10,10 @@ export default defineEventHandler(async (event) => {
     }
 
     await requireUserSession(event)
+
+    const session = await getUserSession(event)
+    if (session.sessionVersion !== getSessionVersion()) {
+        await clearUserSession(event)
+        throw createError({ statusCode: 401, message: 'Session expired' })
+    }
 })

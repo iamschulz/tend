@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { getRequestIP } from 'h3'
 import { createRateLimiter } from '~~/server/utils/rateLimiter'
 import { safeCompare } from '~~/server/utils/safeCompare'
+import { getSessionVersion } from '~~/server/utils/sessionVersion'
 
 const loginSchema = z.object({
     username: z.string().min(1),
@@ -33,6 +34,7 @@ export default defineEventHandler(async (event) => {
 
     await setUserSession(event, {
         user: { username },
+        sessionVersion: getSessionVersion(),
     })
 
     return { ok: true }

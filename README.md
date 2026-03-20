@@ -61,6 +61,8 @@ Tend will be available at `http://localhost:3000`.
 
 If you expose Tend to the Internet, you must use HTTPS, or else the password and session cookie are transmitted in plain text and can be intercepted. It is highly adviced to use a self-signed cert even when not exposed to the Internet.
 
+If your login gets compromised, set a new `NUXT_ADMIN_PASSWORD` and `NUXT_SESSION_PASSWORD` in the `docker-compose.yml`.
+
 ### Data & Backups
 
 The SQLite database is stored at `./data/tend.db` on your host machine. To create a consistent backup, use the SQLite backup command:
