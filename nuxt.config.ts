@@ -1,3 +1,5 @@
+import { themeScript } from './app/assets/scripts/theme'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
@@ -28,10 +30,8 @@ export default defineNuxtConfig({
       ],
       script: [
         {
-          // Render-blocking inline script: applies the user's saved theme
-          // preference before first paint to prevent a flash of wrong theme.
           // When a forced scheme is active, overrides both theme-color meta tags.
-          innerHTML: `(function(){var s=localStorage.getItem('force-scheme');if(s==='light'||s==='dark'){document.documentElement.setAttribute('force-scheme',s);var c=s==='dark'?'#1B1B1B':'#E0E0E0';document.querySelectorAll('meta[name=theme-color]').forEach(function(m){m.content=c})}})()`,
+          innerHTML: themeScript,
           tagPosition: 'head'
         }
       ]
