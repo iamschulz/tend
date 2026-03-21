@@ -34,3 +34,5 @@ export const entries = sqliteTable('entries', {
     running: integer('running', { mode: 'boolean' }).notNull().default(false),
     comment: text('comment').notNull().default(''),
 })
+
+export type DbTable = typeof categories | typeof entries

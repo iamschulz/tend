@@ -51,15 +51,5 @@
         return weekParam.value > currentWeek
     })
 
-    const ui = useUiStore()
-    watchEffect(() => {
-        ui.setCurrentViewDate(date)
-    })
-
-
-    const nuxtApp = useNuxtApp()
-    const mounted = ref(import.meta.client && !nuxtApp.isHydrating)
-    onNuxtReady(() => {
-        mounted.value = true
-    })
+    const { mounted } = useDatePage(date)
 </script>

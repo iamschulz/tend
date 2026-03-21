@@ -28,17 +28,5 @@
     const todayStr = toLocalDateStr(new Date())
     const isInFuture = routeValid && dateParam.value! > todayStr;
 
-    const ui = useUiStore();
-    ui.setCurrentViewDate(date);
-    
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    const nuxtApp = useNuxtApp()
-    const mounted = ref(import.meta.client && !nuxtApp.isHydrating)
-
-    onNuxtReady(() => {
-        mounted.value = true
-    })
+    const { mounted } = useDatePage(date)
 </script>

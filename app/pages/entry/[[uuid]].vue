@@ -80,7 +80,7 @@
 
     watch(comment, (val) => {
         if (uuid.value) {
-            data.updateEntryComment(uuid.value, val)
+            data.updateEntry(uuid.value, { comment: val })
         }
     })
     
@@ -113,9 +113,9 @@
         const max = new Date(maxDate.value).getTime()
         const ts = Math.min(new Date(value).getTime(), max)
         if (isNaN(ts)) return
-        data.updateEntryStart(uuid.value, ts)
+        data.updateEntry(uuid.value, { start: ts })
         if (entry.value.end && entry.value.end < ts) {
-            data.updateEntryEnd(uuid.value, ts)
+            data.updateEntry(uuid.value, { end: ts })
         }
     }
 
@@ -137,7 +137,7 @@
         const max = new Date(maxDate.value).getTime()
         const ts = new Date(value).getTime()
         if (isNaN(ts)) return
-        data.updateEntryEnd(uuid.value, Math.min(Math.max(ts, entry.value.start), max))
+        data.updateEntry(uuid.value, { end: Math.min(Math.max(ts, entry.value.start), max) })
     }
 
     /** Stops the running entry. */

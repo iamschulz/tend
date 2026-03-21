@@ -54,11 +54,16 @@ export const useDataStore = defineStore('data', () => {
         return (categoryId: string) => categories.value.find((x) => x.id === categoryId)
     })
 
-    const getAllEntries = computed((): EntryWithCategory[] => {
-        const categoryMap = new Map<string, Category>()
+    const visibleCategoryMap = computed(() => {
+        const map = new Map<string, Category>()
         for (const cat of categories.value) {
-            if (!cat.hidden) categoryMap.set(cat.id, cat)
+            if (!cat.hidden) map.set(cat.id, cat)
         }
+        return map
+    })
+
+    const getAllEntries = computed((): EntryWithCategory[] => {
+        const categoryMap = visibleCategoryMap.value
         return entries.value
             .filter(entry => categoryMap.has(entry.categoryId))
             .map(entry => ({
@@ -150,11 +155,7 @@ export const useDataStore = defineStore('data', () => {
     function getEntriesForRange(start: Date, end: Date): EntryWithCategory[] {
         const rangeStart = start.getTime()
         const rangeEnd = end.getTime()
-
-        const categoryMap = new Map<string, Category>()
-        for (const cat of categories.value) {
-            if (!cat.hidden) categoryMap.set(cat.id, cat)
-        }
+        const categoryMap = visibleCategoryMap.value
 
         return entries.value
             .filter(entry => {
@@ -215,45 +216,17 @@ export const useDataStore = defineStore('data', () => {
     }
 
     /**
-     * Updates the start timestamp of an entry.
+     * Partially updates an entry by ID.
      * @param id - The entry ID
-     * @param start - New start timestamp in milliseconds
+     * @param fields - The fields to update
      */
-    function updateEntryStart(id: string, start: number): void {
+    function updateEntry(id: string, fields: Partial<Omit<Entry, 'id'>>): void {
         entries.value = entries.value.map(entry =>
             entry.id === id
-                ? { ...entry, start }
+                ? { ...entry, ...fields }
                 : entry
         )
-        sync(`/api/entries/${id}`, { method: 'PUT', body: { id, start } })
-    }
-
-    /**
-     * Updates the end timestamp of an entry.
-     * @param id - The entry ID
-     * @param end - New end timestamp in milliseconds
-     */
-    function updateEntryEnd(id: string, end: number): void {
-        entries.value = entries.value.map(entry =>
-            entry.id === id
-                ? { ...entry, end }
-                : entry
-        )
-        sync(`/api/entries/${id}`, { method: 'PUT', body: { id, end } })
-    }
-
-    /**
-     * Updates the comment of an entry.
-     * @param id - The entry ID
-     * @param comment - New comment text
-     */
-    function updateEntryComment(id: string, comment: string): void {
-        entries.value = entries.value.map(entry =>
-            entry.id === id
-                ? { ...entry, comment }
-                : entry
-        )
-        sync(`/api/entries/${id}`, { method: 'PUT', body: { id, comment } })
+        sync(`/api/entries/${id}`, { method: 'PUT', body: { id, ...fields } })
     }
 
     /**
@@ -291,9 +264,7 @@ export const useDataStore = defineStore('data', () => {
         hasRunningEntries,
         closeEntry,
         importData,
-        updateEntryStart,
-        updateEntryEnd,
-        updateEntryComment,
+        updateEntry,
         closeAllEntries,
         hydrateFromServer,
     }
