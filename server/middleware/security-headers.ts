@@ -34,6 +34,8 @@ const CSP = [
  * @param event - The H3 request event
  */
 export default defineEventHandler((event) => {
+    if (import.meta.dev) return
+
     setResponseHeaders(event, {
         'Content-Security-Policy': CSP,
         'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
