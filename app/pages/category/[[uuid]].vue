@@ -78,6 +78,10 @@
     import { formatDuration } from '~/util/formatDuration';
     import activities from '~/contants/activities.json';
     import { useSharedNow } from '~/composables/useSharedNow';
+    import { getDayRange } from '~/util/getDayRange';
+    import { getWeekRange } from '~/util/getWeekRange';
+    import { getMonthRange } from '~/util/getMonthRange';
+    import { getYearRange } from '~/util/getYearRange';
 
     const route = useRoute()
     const data = useDataStore()
@@ -123,30 +127,23 @@
     }, 0))
 
     const todayMs = computed(() => {
-        const d = new Date(now.value)
-        const start = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
-        return timeInRange(start, start + 86_400_000)
+        const [start, end] = getDayRange(new Date(now.value))
+        return timeInRange(start.getTime(), end.getTime() + 1)
     })
 
     const weekMs = computed(() => {
-        const d = new Date(now.value)
-        const day = d.getDay() || 7
-        const start = new Date(d.getFullYear(), d.getMonth(), d.getDate() - day + 1).getTime()
-        return timeInRange(start, start + 7 * 86_400_000)
+        const [start, end] = getWeekRange(new Date(now.value))
+        return timeInRange(start.getTime(), end.getTime() + 1)
     })
 
     const monthMs = computed(() => {
-        const d = new Date(now.value)
-        const start = new Date(d.getFullYear(), d.getMonth(), 1).getTime()
-        const end = new Date(d.getFullYear(), d.getMonth() + 1, 1).getTime()
-        return timeInRange(start, end)
+        const [start, end] = getMonthRange(new Date(now.value))
+        return timeInRange(start.getTime(), end.getTime() + 1)
     })
 
     const yearMs = computed(() => {
-        const d = new Date(now.value)
-        const start = new Date(d.getFullYear(), 0, 1).getTime()
-        const end = new Date(d.getFullYear() + 1, 0, 1).getTime()
-        return timeInRange(start, end)
+        const [start, end] = getYearRange(new Date(now.value))
+        return timeInRange(start.getTime(), end.getTime() + 1)
     })
 
     const totalTime = computed(() => formatDuration(0, totalTimeMs.value, t))

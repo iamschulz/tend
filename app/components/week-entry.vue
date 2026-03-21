@@ -23,6 +23,7 @@
     import type { EntryWithCategory } from '~/types/EntryWithCategory';
     import { formatDuration } from '~/util/formatDuration';
     import { useSharedNow } from '~/composables/useSharedNow';
+    import { toLocalDateStr } from '~/util/toLocalDateStr';
 
     const { t } = useI18n();
 
@@ -34,8 +35,8 @@
 
     const duration = computed(() => formatDuration(props.entry.start, now.value, t))
 
-    const d = new Date(props.entry.start);
-    const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const date = new Date(props.entry.start);
+    const dateStr = toLocalDateStr(date);
     const timeStr = new Date(props.entry.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const categoryName = props.entry.category?.title ?? 'Unknown';
 

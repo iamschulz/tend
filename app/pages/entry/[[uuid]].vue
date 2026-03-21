@@ -54,6 +54,7 @@
     import { useDataStore } from '~/stores/data';
     import { formatDuration } from '~/util/formatDuration';
     import { useSharedNow } from '~/composables/useSharedNow';
+    import { toDatetimeLocalStr } from '~/util/toDatetimeLocalStr';
 
     const route = useRoute()
     const data = useDataStore()
@@ -86,24 +87,13 @@
     
     const startDate = computed(() => {
         if (!entry.value) return ''
-        const d = new Date(entry.value.start)
-        const yyyy = d.getFullYear()
-        const mm = String(d.getMonth() + 1).padStart(2, '0')
-        const dd = String(d.getDate()).padStart(2, '0')
-        const hh = String(d.getHours()).padStart(2, '0')
-        const min = String(d.getMinutes()).padStart(2, '0')
-        return `${yyyy}-${mm}-${dd}T${hh}:${min}`
+        return toDatetimeLocalStr(new Date(entry.value.start))
     })
 
     const maxDate = computed(() => {
         const d = new Date()
         d.setFullYear(d.getFullYear() + 10)
-        const yyyy = d.getFullYear()
-        const mm = String(d.getMonth() + 1).padStart(2, '0')
-        const dd = String(d.getDate()).padStart(2, '0')
-        const hh = String(d.getHours()).padStart(2, '0')
-        const min = String(d.getMinutes()).padStart(2, '0')
-        return `${yyyy}-${mm}-${dd}T${hh}:${min}`
+        return toDatetimeLocalStr(d)
     })
 
     /** @param e - The input event from the start date picker */
@@ -121,13 +111,7 @@
 
     const endDate = computed(() => {
         if (!entry.value?.end) return ''
-        const d = new Date(entry.value.end)
-        const yyyy = d.getFullYear()
-        const mm = String(d.getMonth() + 1).padStart(2, '0')
-        const dd = String(d.getDate()).padStart(2, '0')
-        const hh = String(d.getHours()).padStart(2, '0')
-        const min = String(d.getMinutes()).padStart(2, '0')
-        return `${yyyy}-${mm}-${dd}T${hh}:${min}`
+        return toDatetimeLocalStr(new Date(entry.value.end))
     })
 
     /** @param e - The input event from the end date picker */
