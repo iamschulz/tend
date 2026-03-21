@@ -30,6 +30,7 @@
     import { getMonthRange } from '~/util/getMonthRange';
     import { getWeekdays } from '~/contants/weekdays';
     import { prefersReducedMotion } from '~/util/prefersReducedMotion';
+    import { toLocalDateStr } from '~/util/toLocalDateStr';
 
     const { t } = useI18n();
 
@@ -54,8 +55,7 @@
         categories: { id: string; title: string; color: string; count: number }[];
     };
 
-    const now = new Date();
-    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const todayStr = toLocalDateStr(new Date());
 
     // Pre-bucket entries by local day in one pass — O(E) instead of O(days × E)
     const entriesByDay = computed(() => {
@@ -105,8 +105,7 @@
                 }
             }
 
-            const mm = String(month + 1).padStart(2, '0');
-            const dd = String(day).padStart(2, '0');
+            const dateStr = toLocalDateStr(current);
 
             const dateLabel = current.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
             const categoryNames = [...seen.values()].map(c => c.title);
@@ -117,8 +116,8 @@
 
             cells.push({
                 day,
-                dateStr: `${year}-${mm}-${dd}`,
-                isToday: `${year}-${mm}-${dd}` === todayStr,
+                dateStr,
+                isToday: dateStr === todayStr,
                 entryCount: dayEntries.length,
                 ariaLabel,
                 categories: [...seen.values()],
