@@ -1,6 +1,7 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import * as os from 'node:os'
+import bcrypt from 'bcryptjs'
 import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from 'vitest'
 import type { Page } from 'playwright'
 import {
@@ -21,7 +22,7 @@ describe('Login', () => {
             NUXT_PUBLIC_BACKEND_MODE: 'server',
             NUXT_SESSION_PASSWORD: 'test-session-secret-at-least-32-chars!!',
             NUXT_ADMIN_USERNAME: 'admin',
-            NUXT_ADMIN_PASSWORD: 'password123',
+            NUXT_ADMIN_PASSWORD: await bcrypt.hash('password123', 4),
             NUXT_DB_PATH: dbPath,
         })
         await launchBrowser()
