@@ -54,6 +54,7 @@
     import { useDataStore } from '~/stores/data';
     import { formatDuration } from '~/util/formatDuration';
     import { useSharedNow } from '~/composables/useSharedNow';
+    import { toDatetimeLocalStr } from '~/util/toDatetimeLocalStr';
 
     const route = useRoute()
     const data = useDataStore()
@@ -80,30 +81,19 @@
 
     watch(comment, (val) => {
         if (uuid.value) {
-            data.updateEntryComment(uuid.value, val)
+            data.updateEntry(uuid.value, { comment: val })
         }
     })
     
     const startDate = computed(() => {
         if (!entry.value) return ''
-        const d = new Date(entry.value.start)
-        const yyyy = d.getFullYear()
-        const mm = String(d.getMonth() + 1).padStart(2, '0')
-        const dd = String(d.getDate()).padStart(2, '0')
-        const hh = String(d.getHours()).padStart(2, '0')
-        const min = String(d.getMinutes()).padStart(2, '0')
-        return `${yyyy}-${mm}-${dd}T${hh}:${min}`
+        return toDatetimeLocalStr(new Date(entry.value.start))
     })
 
     const maxDate = computed(() => {
         const d = new Date()
         d.setFullYear(d.getFullYear() + 10)
-        const yyyy = d.getFullYear()
-        const mm = String(d.getMonth() + 1).padStart(2, '0')
-        const dd = String(d.getDate()).padStart(2, '0')
-        const hh = String(d.getHours()).padStart(2, '0')
-        const min = String(d.getMinutes()).padStart(2, '0')
-        return `${yyyy}-${mm}-${dd}T${hh}:${min}`
+        return toDatetimeLocalStr(d)
     })
 
     /** @param e - The input event from the start date picker */
@@ -113,21 +103,15 @@
         const max = new Date(maxDate.value).getTime()
         const ts = Math.min(new Date(value).getTime(), max)
         if (isNaN(ts)) return
-        data.updateEntryStart(uuid.value, ts)
+        data.updateEntry(uuid.value, { start: ts })
         if (entry.value.end && entry.value.end < ts) {
-            data.updateEntryEnd(uuid.value, ts)
+            data.updateEntry(uuid.value, { end: ts })
         }
     }
 
     const endDate = computed(() => {
         if (!entry.value?.end) return ''
-        const d = new Date(entry.value.end)
-        const yyyy = d.getFullYear()
-        const mm = String(d.getMonth() + 1).padStart(2, '0')
-        const dd = String(d.getDate()).padStart(2, '0')
-        const hh = String(d.getHours()).padStart(2, '0')
-        const min = String(d.getMinutes()).padStart(2, '0')
-        return `${yyyy}-${mm}-${dd}T${hh}:${min}`
+        return toDatetimeLocalStr(new Date(entry.value.end))
     })
 
     /** @param e - The input event from the end date picker */
@@ -137,7 +121,7 @@
         const max = new Date(maxDate.value).getTime()
         const ts = new Date(value).getTime()
         if (isNaN(ts)) return
-        data.updateEntryEnd(uuid.value, Math.min(Math.max(ts, entry.value.start), max))
+        data.updateEntry(uuid.value, { end: Math.min(Math.max(ts, entry.value.start), max) })
     }
 
     /** Stops the running entry. */

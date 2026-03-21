@@ -9,7 +9,7 @@ export default defineConfig({
     },
   },
   test: {
-    include: ['test/e2e/login.spec.ts', 'test/e2e/logout.spec.ts'],
+    include: ['test/e2e/login.spec.ts', 'test/e2e/logout.spec.ts', 'test/e2e/body-limit.spec.ts'],
     testTimeout: 30_000,
     hookTimeout: 30_000,
   },

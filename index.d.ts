@@ -1,3 +1,9 @@
+declare module '#auth-utils' {
+    interface UserSession {
+        sessionVersion?: number
+    }
+}
+
 interface BeforeInstallPromptEvent extends Event {
 	/**
 	 * Returns an array of DOMString items containing the platforms on which the event was dispatched.

@@ -30,6 +30,8 @@
     import { getMonthRange } from '~/util/getMonthRange';
     import { getWeekdays } from '~/contants/weekdays';
     import { prefersReducedMotion } from '~/util/prefersReducedMotion';
+    import { toLocalDateStr } from '~/util/toLocalDateStr';
+    import { aggregateCategoryCounts, type CategoryCount } from '~/util/aggregateCategoryCounts';
 
     const { t } = useI18n();
 
@@ -51,11 +53,10 @@
         isToday: boolean;
         entryCount: number;
         ariaLabel: string;
-        categories: { id: string; title: string; color: string; count: number }[];
+        categories: CategoryCount[];
     };
 
-    const now = new Date();
-    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const todayStr = toLocalDateStr(new Date());
 
     // Pre-bucket entries by local day in one pass — O(E) instead of O(days × E)
     const entriesByDay = computed(() => {
@@ -88,28 +89,11 @@
             const current = new Date(year, month, day);
             const dayEntries = byDay.get(day) ?? [];
 
-            const seen = new Map<string, { id: string; title: string; color: string; count: number }>();
-            for (const entry of dayEntries) {
-                if (entry.category) {
-                    const existing = seen.get(entry.category.id);
-                    if (existing) {
-                        existing.count++;
-                    } else {
-                        seen.set(entry.category.id, {
-                            id: entry.category.id,
-                            title: entry.category.title,
-                            color: entry.category.color,
-                            count: 1,
-                        });
-                    }
-                }
-            }
-
-            const mm = String(month + 1).padStart(2, '0');
-            const dd = String(day).padStart(2, '0');
+            const categories = aggregateCategoryCounts(dayEntries);
+            const dateStr = toLocalDateStr(current);
 
             const dateLabel = current.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
-            const categoryNames = [...seen.values()].map(c => c.title);
+            const categoryNames = categories.map(c => c.title);
             const entryWord = dayEntries.length === 1 ? t('entry') : t('entries');
             const ariaLabel = dayEntries.length > 0
                 ? `${dateLabel}, ${dayEntries.length} ${entryWord}: ${categoryNames.join(', ')}`
@@ -117,11 +101,11 @@
 
             cells.push({
                 day,
-                dateStr: `${year}-${mm}-${dd}`,
-                isToday: `${year}-${mm}-${dd}` === todayStr,
+                dateStr,
+                isToday: dateStr === todayStr,
                 entryCount: dayEntries.length,
                 ariaLabel,
-                categories: [...seen.values()],
+                categories,
             });
         }
 

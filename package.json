@@ -26,6 +26,8 @@
     "@nuxt/test-utils": "^4.0.0",
     "@nuxtjs/i18n": "^10.2.3",
     "@pinia/nuxt": "^0.11.3",
+    "@types/bcryptjs": "^2.4.6",
+    "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.6.2",
     "drizzle-orm": "^0.45.1",
     "eslint": "^9.39.2",
@@ -42,7 +44,7 @@
   },
   "overrides": {
     "serialize-javascript": "^7.0.3",
-    "h3-next": "npm:h3@2.0.1-rc.16",
+    "h3-next": "npm:h3@2.0.1-rc.18",
     "flatted": ">=3.4.2"
   },
   "devDependencies": {

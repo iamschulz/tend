@@ -15,6 +15,7 @@
 <script setup lang="ts">
     import { getYearRange } from '~/util/getYearRange'
     import { prefersReducedMotion } from '~/util/prefersReducedMotion'
+    import { aggregateCategoryCounts, type CategoryCount } from '~/util/aggregateCategoryCounts'
 
     const { t } = useI18n();
 
@@ -40,7 +41,7 @@
         isCurrentMonth: boolean;
         entryCount: number;
         ariaLabel: string;
-        categories: { id: string; title: string; color: string; count: number }[];
+        categories: CategoryCount[];
     };
 
     const months = ref<HTMLElement[] | null>(null);
@@ -75,26 +76,11 @@
             const monthDate = new Date(year, m, 1);
             const monthEntries = byMonth.get(m) ?? [];
 
-            const seen = new Map<string, { id: string; title: string; color: string; count: number }>();
-            for (const entry of monthEntries) {
-                if (entry.category) {
-                    const existing = seen.get(entry.category.id);
-                    if (existing) {
-                        existing.count++;
-                    } else {
-                        seen.set(entry.category.id, {
-                            id: entry.category.id,
-                            title: entry.category.title,
-                            color: entry.category.color,
-                            count: 1,
-                        });
-                    }
-                }
-            }
+            const categories = aggregateCategoryCounts(monthEntries);
 
             const mm = String(m + 1).padStart(2, '0');
             const monthName = monthDate.toLocaleDateString(undefined, { month: 'long' });
-            const categoryNames = [...seen.values()].map(c => c.title);
+            const categoryNames = categories.map(c => c.title);
             const entryWord = monthEntries.length === 1 ? t('entry') : t('entries');
             const ariaLabel = monthEntries.length > 0
                 ? `${monthName} ${year}, ${monthEntries.length} ${entryWord}: ${categoryNames.join(', ')}`
@@ -106,7 +92,7 @@
                 isCurrentMonth: isCurrentYear && m === currentMonthIndex,
                 entryCount: monthEntries.length,
                 ariaLabel,
-                categories: [...seen.values()],
+                categories,
             });
         }
 

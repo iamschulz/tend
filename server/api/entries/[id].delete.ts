@@ -6,14 +6,9 @@ import { entries } from '~~/server/database/schema'
  */
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')!
+    findByIdOrThrow(entries, id, 'Entry')
 
-    const db = useDb()
-    const existing = db.select().from(entries).where(eq(entries.id, id)).get()
-    if (!existing) {
-        throw createError({ statusCode: 404, message: 'Entry not found' })
-    }
-
-    db.delete(entries).where(eq(entries.id, id)).run()
+    useDb().delete(entries).where(eq(entries.id, id)).run()
 
     return { ok: true }
 })

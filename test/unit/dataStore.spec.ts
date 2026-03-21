@@ -438,8 +438,8 @@ describe('useDataStore', () => {
     })
   })
 
-  // --- updateEntryStart ---
-  describe('updateEntryStart', () => {
+  // --- updateEntry ---
+  describe('updateEntry', () => {
     it('updates start timestamp of the entry', () => {
       const store = useDataStore()
       store.addCategory({ title: 'Work', color: '#f00', activity: sampleActivity })
@@ -447,9 +447,33 @@ describe('useDataStore', () => {
 
       const entry = makeEntry({ categoryId: catId, start: 1000 })
       store.addEntry(entry)
-      store.updateEntryStart(entry.id, 5000)
+      store.updateEntry(entry.id, { start: 5000 })
 
       expect(store.entries[0]!.start).toBe(5000)
+    })
+
+    it('updates end timestamp of the entry', () => {
+      const store = useDataStore()
+      store.addCategory({ title: 'Work', color: '#f00', activity: sampleActivity })
+      const catId = store.categories[0]!.id
+
+      const entry = makeEntry({ categoryId: catId, start: 1000, end: 2000, running: false })
+      store.addEntry(entry)
+      store.updateEntry(entry.id, { end: 8000 })
+
+      expect(store.entries[0]!.end).toBe(8000)
+    })
+
+    it('updates comment of the entry', () => {
+      const store = useDataStore()
+      store.addCategory({ title: 'Work', color: '#f00', activity: sampleActivity })
+      const catId = store.categories[0]!.id
+
+      const entry = makeEntry({ categoryId: catId, comment: '' })
+      store.addEntry(entry)
+      store.updateEntry(entry.id, { comment: 'hello world' })
+
+      expect(store.entries[0]!.comment).toBe('hello world')
     })
 
     it('does not affect other entries', () => {
@@ -461,67 +485,9 @@ describe('useDataStore', () => {
       const entry2 = makeEntry({ categoryId: catId, start: 2000 })
       store.addEntry(entry1)
       store.addEntry(entry2)
-      store.updateEntryStart(entry1.id, 5000)
+      store.updateEntry(entry1.id, { start: 5000 })
 
       expect(store.entries[1]!.start).toBe(2000)
-    })
-  })
-
-  // --- updateEntryEnd ---
-  describe('updateEntryEnd', () => {
-    it('updates end timestamp of the entry', () => {
-      const store = useDataStore()
-      store.addCategory({ title: 'Work', color: '#f00', activity: sampleActivity })
-      const catId = store.categories[0]!.id
-
-      const entry = makeEntry({ categoryId: catId, start: 1000, end: 2000, running: false })
-      store.addEntry(entry)
-      store.updateEntryEnd(entry.id, 8000)
-
-      expect(store.entries[0]!.end).toBe(8000)
-    })
-
-    it('does not affect other entries', () => {
-      const store = useDataStore()
-      store.addCategory({ title: 'Work', color: '#f00', activity: sampleActivity })
-      const catId = store.categories[0]!.id
-
-      const entry1 = makeEntry({ categoryId: catId, start: 1000, end: 2000, running: false })
-      const entry2 = makeEntry({ categoryId: catId, start: 3000, end: 4000, running: false })
-      store.addEntry(entry1)
-      store.addEntry(entry2)
-      store.updateEntryEnd(entry1.id, 8000)
-
-      expect(store.entries[1]!.end).toBe(4000)
-    })
-  })
-
-  // --- updateEntryComment ---
-  describe('updateEntryComment', () => {
-    it('updates comment of the entry', () => {
-      const store = useDataStore()
-      store.addCategory({ title: 'Work', color: '#f00', activity: sampleActivity })
-      const catId = store.categories[0]!.id
-
-      const entry = makeEntry({ categoryId: catId, comment: '' })
-      store.addEntry(entry)
-      store.updateEntryComment(entry.id, 'hello world')
-
-      expect(store.entries[0]!.comment).toBe('hello world')
-    })
-
-    it('does not affect other entries', () => {
-      const store = useDataStore()
-      store.addCategory({ title: 'Work', color: '#f00', activity: sampleActivity })
-      const catId = store.categories[0]!.id
-
-      const entry1 = makeEntry({ categoryId: catId, comment: 'first' })
-      const entry2 = makeEntry({ categoryId: catId, comment: 'second' })
-      store.addEntry(entry1)
-      store.addEntry(entry2)
-      store.updateEntryComment(entry1.id, 'updated')
-
-      expect(store.entries[1]!.comment).toBe('second')
     })
   })
 

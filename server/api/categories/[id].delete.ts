@@ -6,14 +6,9 @@ import { categories } from '~~/server/database/schema'
  */
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')!
+    findByIdOrThrow(categories, id, 'Category')
 
-    const db = useDb()
-    const existing = db.select().from(categories).where(eq(categories.id, id)).get()
-    if (!existing) {
-        throw createError({ statusCode: 404, message: 'Category not found' })
-    }
-
-    db.delete(categories).where(eq(categories.id, id)).run()
+    useDb().delete(categories).where(eq(categories.id, id)).run()
 
     return { ok: true }
 })

@@ -8,6 +8,8 @@
 </template>
 
 <script setup lang="ts">
+    import { toLocalDateStr } from '~/util/toLocalDateStr';
+
     const route = useRoute()
     const dateParam = computed<string | null>(() => {
         const d = route.params.date
@@ -23,21 +25,8 @@
     const routeValid = dateParam.value && isRealDate(dateParam.value);
 
     // Compare by local day, not UTC
-    const now = new Date()
-    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+    const todayStr = toLocalDateStr(new Date())
     const isInFuture = routeValid && dateParam.value! > todayStr;
 
-    const ui = useUiStore();
-    ui.setCurrentViewDate(date);
-    
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    const nuxtApp = useNuxtApp()
-    const mounted = ref(import.meta.client && !nuxtApp.isHydrating)
-
-    onNuxtReady(() => {
-        mounted.value = true
-    })
+    const { mounted } = useDatePage(date)
 </script>

@@ -39,6 +39,12 @@ export function initDatabase(dbPath: string) {
         );
 
         CREATE INDEX IF NOT EXISTS idx_entries_category_id ON entries(category_id);
+
+        CREATE TABLE IF NOT EXISTS session_meta (
+            id INTEGER PRIMARY KEY,
+            session_version INTEGER NOT NULL DEFAULT 1
+        );
+        INSERT OR IGNORE INTO session_meta (id, session_version) VALUES (1, 1);
     `)
 
     return _db

@@ -2,6 +2,11 @@ import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
 import type { z } from 'zod'
 import type { goalSchema } from '~~/shared/schemas/goal'
 
+export const sessionMeta = sqliteTable('session_meta', {
+    id: integer('id').primaryKey(),
+    sessionVersion: integer('session_version').notNull().default(1),
+})
+
 type Goal = z.infer<typeof goalSchema>
 
 export const categories = sqliteTable('categories', {
@@ -29,3 +34,7 @@ export const entries = sqliteTable('entries', {
     running: integer('running', { mode: 'boolean' }).notNull().default(false),
     comment: text('comment').notNull().default(''),
 })
+
+export type DbTable = typeof categories | typeof entries
+export type CategoryRow = typeof categories.$inferSelect
+export type EntryRow = typeof entries.$inferSelect
