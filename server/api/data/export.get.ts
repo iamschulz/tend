@@ -1,4 +1,4 @@
-import { categories, entries } from '~~/server/database/schema'
+import { categories, entries, type EntryRow } from '~~/server/database/schema'
 
 /** GET /api/data/export — Returns all data in the client-compatible import/export format. */
 export default defineEventHandler(async () => {
@@ -6,7 +6,7 @@ export default defineEventHandler(async () => {
     const allCategories = db.select().from(categories).all()
     const allEntries = db.select().from(entries).all()
 
-    const entryMap = new Map<string, typeof allEntries>()
+    const entryMap = new Map<string, EntryRow[]>()
     for (const e of allEntries) {
         const list = entryMap.get(e.categoryId)
         if (list) list.push(e)

@@ -1,6 +1,4 @@
-import type { categories } from '../database/schema'
-
-type CategoryRow = typeof categories.$inferSelect
+import type { CategoryRow } from '../database/schema'
 
 /**
  * Maps a flat DB category row to the nested client-facing shape with `activity` object.

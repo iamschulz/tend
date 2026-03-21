@@ -36,3 +36,5 @@ export const entries = sqliteTable('entries', {
 })
 
 export type DbTable = typeof categories | typeof entries
+export type CategoryRow = typeof categories.$inferSelect
+export type EntryRow = typeof entries.$inferSelect
