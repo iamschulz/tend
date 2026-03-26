@@ -34,7 +34,7 @@
                 {{ $t("started") }}:
                 <input type="datetime-local" :value="startDate" :max="maxDate" @input="onStartDateChange">
             </label>
-        
+
             <label v-if="!entry.running && entry.end" class="entry-date">
                 {{ $t("stopped") }}:
                 <input type="datetime-local" :value="endDate" :min="startDate" :max="maxDate" @input="onEndDateChange">
@@ -90,23 +90,22 @@
         return toDatetimeLocalStr(new Date(entry.value.start))
     })
 
-    const maxDate = computed(() => {
-        const d = new Date()
-        d.setFullYear(d.getFullYear() + 10)
-        return toDatetimeLocalStr(d)
-    })
+    const maxDate = computed(() => toDatetimeLocalStr(new Date()))
 
     /** @param e - The input event from the start date picker */
     function onStartDateChange(e: Event) {
         const value = (e.target as HTMLInputElement).value
         if (!value || !uuid.value || !entry.value) return
-        const max = new Date(maxDate.value).getTime()
+        const max = Date.now()
         const ts = Math.min(new Date(value).getTime(), max)
         if (isNaN(ts)) return
-        data.updateEntry(uuid.value, { start: ts })
-        if (entry.value.end && entry.value.end < ts) {
-            data.updateEntry(uuid.value, { end: ts })
+        const update: { start: number, end?: number } = { start: ts }
+        if (entry.value.end === entry.value.start) {
+            update.end = ts
+        } else if (entry.value.end && entry.value.end < ts) {
+            update.end = ts
         }
+        data.updateEntry(uuid.value, update)
     }
 
     const endDate = computed(() => {
@@ -118,7 +117,7 @@
     function onEndDateChange(e: Event) {
         const value = (e.target as HTMLInputElement).value
         if (!value || !uuid.value || !entry.value) return
-        const max = new Date(maxDate.value).getTime()
+        const max = Date.now()
         const ts = new Date(value).getTime()
         if (isNaN(ts)) return
         data.updateEntry(uuid.value, { end: Math.min(Math.max(ts, entry.value.start), max) })
