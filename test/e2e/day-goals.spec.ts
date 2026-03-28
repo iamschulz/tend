@@ -236,17 +236,6 @@ describe('Day Goals', () => {
         await addCategory(page, 'GoalA')
         await addCategory(page, 'GoalB')
 
-        // Navigate to first category page via URL and add a daily goal
-        const firstLink = await page.$eval(
-            '.day-goal a[data-card-link], dialog.menu li .categoryForm a[data-button]',
-            () => {
-                // Get category IDs from the store
-                const el = document.querySelector('#__nuxt') as any // eslint-disable-line
-                const store = el?.__vue_app__?.config?.globalProperties?.$pinia?._s?.get('data')
-                return store?.categories?.map((c: any) => c.id) ?? [] // eslint-disable-line
-            },
-        ).catch(() => null)
-
         // Use the store to get category paths
         const categoryIds = await page.evaluate(() => {
             const el = document.querySelector('#__nuxt') as any // eslint-disable-line

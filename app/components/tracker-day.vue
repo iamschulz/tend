@@ -101,7 +101,7 @@
             })
         }
         requestAnimationFrame(() => {
-            dayGoalsEl.value?.$el?.classList.add('mounted')
+            dayGoalsEl.value?.$el?.classList?.add('mounted')
         })
         if (route.hash) {
             nextTick(() => {

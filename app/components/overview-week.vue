@@ -93,7 +93,7 @@
             currentDayEl?.scrollIntoView({ inline: 'center', behavior: prefersReducedMotion() ? 'instant' : 'smooth'});
         }
         requestAnimationFrame(() => {
-            weekGoalsEl.value?.$el?.classList.add('mounted')
+            weekGoalsEl.value?.$el?.classList?.add('mounted')
         })
     })
 

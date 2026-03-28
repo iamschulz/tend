@@ -121,7 +121,7 @@
         await nextTick();
         todayEl.value?.scrollIntoView({ inline: 'center', behavior: prefersReducedMotion() ? 'instant' : 'smooth' });
         requestAnimationFrame(() => {
-            monthGoalsEl.value?.$el?.classList.add('mounted')
+            monthGoalsEl.value?.$el?.classList?.add('mounted')
         })
     });
 
