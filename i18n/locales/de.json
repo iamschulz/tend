@@ -179,6 +179,8 @@
     "actGaming": "Gaming",
     "actPerformingArts": "Theater",
     "actMedicine": "Medizin",
+    "statistics": "Statistik",
+    "statisticsGraphLabel": "Aktivitätsgraph für {year}",
     "allCategories": "Alle Kategorien",
 
     "data": "Daten",

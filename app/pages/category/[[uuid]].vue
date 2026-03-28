@@ -68,6 +68,25 @@
             <header><h3>{{ $t('goals') }}</h3></header>
             <CategoryGoals :category-id="category.id" :goals="category.goals ?? []" />
         </section>
+        <section v-if="entryYears.length > 0" data-card data-shadow="1">
+            <header><h3>{{ $t('statistics') }}</h3></header>
+            <details
+                v-for="year in entryYears"
+                :key="year"
+                @toggle="onDetailsToggle($event, year)"
+            >
+                <summary>{{ year }}</summary>
+                <ActivityGraph
+                    v-if="openYears.has(year)"
+                    :year="year"
+                    :entries="entriesForYear(year)"
+                    :all-entries="data.entries"
+                    :category-id="category.id"
+                    :goals="category.goals ?? []"
+                    :color="category.color"
+                />
+            </details>
+        </section>
     </template>
     <ErrorNotice v-else />
     </div>
@@ -191,6 +210,30 @@
     watch(categoryComment, (val) => {
         if (category.value) data.updateCategory({ id: category.value.id, comment: val })
     })
+
+    const entryYears = computed(() => {
+        const years = new Set<number>()
+        for (const e of categoryEntries.value) {
+            years.add(new Date(e.start).getFullYear())
+        }
+        return [...years].sort((a, b) => b - a)
+    })
+
+    const openYears = ref(new Set<number>())
+
+    const onDetailsToggle = (event: Event, year: number) => {
+        const details = event.target as HTMLDetailsElement
+        if (details.open) {
+            openYears.value = new Set([...openYears.value, year])
+        } else {
+            const next = new Set(openYears.value)
+            next.delete(year)
+            openYears.value = next
+        }
+    }
+
+    const entriesForYear = (year: number) =>
+        categoryEntries.value.filter(e => new Date(e.start).getFullYear() === year)
 
     useHead({ title: computed(() => `${category.value?.title} | `) })
 

@@ -86,7 +86,7 @@
   @import "ssstyles/css/shadow.css" layer(components);
   @import "ssstyles/css/loading.css" layer(components);
   @import "ssstyles/css/autogrid.css" layer(components);
-  @import "ssstyles/css/callout.css" layer(components);
+  @import "ssstyles/css/toggle.css" layer(components);
 
   body {
     margin: 0;
