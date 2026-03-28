@@ -31,7 +31,7 @@ export function getGoalProgress(
         const eEnd = e.end ? new Date(e.end).getTime() : Infinity
         return eStart <= rangeEnd && eEnd >= rangeStart
     })
-    if (goal.unit === 'event') return matching.length
+    if (goal.unit === 'event') return matching.filter(e => !e.running).length
     const totalMs = matching.reduce((sum, e) => sum + ((e.end ?? now) - e.start), 0)
     return totalMs / msPerUnit[goal.unit]
 }
