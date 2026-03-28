@@ -185,6 +185,14 @@
 
     "info": "Informationen",
     "licence": "Lizenz",
+    "privacy1": {
+        "title": "Datenschutz",
+        "body": "tend.iamschulz.com ist auf {netlifyLink} gehostet. Alle Daten werden nur in deinem Browser gespeichert, sonst nirgendwo. Gesetzte Cookies beziehen sich nur auf Anzeigeoptionen (z.B. Sprache und Theme) und werden nicht für Trackingzwecke genutzt."
+    },
+    "privacy2": {
+        "title": "Kontakt",
+        "body": "Daniel Schulz, tend{'@'}iamschulz.com"
+    },
 
     "somethingWrong": "Irgendwas ist hier schief gelaufen.",
     "pageNotFound": "Seite nicht gefunden",

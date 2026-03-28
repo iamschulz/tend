@@ -185,6 +185,14 @@
 
     "info": "About Tend",
     "licence": "Licence",
+    "privacy1": {
+        "title": "Privacy",
+        "body": "tend.iamschulz.com is hosted on {netlifyLink}. All data is stored only in your browser, nowhere else. Cookies are only used for display options (e.g. language and theme) and are not used for tracking purposes."
+    },
+    "privacy2": {
+        "title": "Contact",
+        "body": "Daniel Schulz, tend{'@'}iamschulz.com"
+    },
 
     "somethingWrong": "Something went wrong here.",
     "pageNotFound": "Page not found",
