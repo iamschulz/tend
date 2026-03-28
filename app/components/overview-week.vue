@@ -13,6 +13,8 @@
             </li>
         </TransitionGroup>
     </div>
+
+    <DayGoals ref="weekGoalsEl" :date="props.date" interval="week" class="week-goals-fade" />
 </template>
 
 <script setup lang="ts">
@@ -81,16 +83,20 @@
 
     // scroll to current day
     const days = ref<{ $el: HTMLElement }[] | null>(null);
+    const weekGoalsEl = ref<ComponentPublicInstance | null>(null)
 
     onMounted(async () => {
-        if (!isCurrentWeek) return;
-        await nextTick();
-        const dayNumber = (new Date().getDay() + 6) % 7;
-        const currentDayEl = days.value![dayNumber]?.$el as HTMLElement | undefined;
-        currentDayEl?.scrollIntoView({ inline: 'center', behavior: prefersReducedMotion() ? 'instant' : 'smooth'});
+        if (isCurrentWeek) {
+            await nextTick();
+            const dayNumber = (new Date().getDay() + 6) % 7;
+            const currentDayEl = days.value![dayNumber]?.$el as HTMLElement | undefined;
+            currentDayEl?.scrollIntoView({ inline: 'center', behavior: prefersReducedMotion() ? 'instant' : 'smooth'});
+        }
+        requestAnimationFrame(() => {
+            weekGoalsEl.value?.$el?.classList.add('mounted')
+        })
     })
 
-    // todo: add some statistics below table
 </script>
 
 <style scoped>
@@ -141,6 +147,18 @@
         --t-scale: var(--animation-duration);
         transition-timing-function: var(--animation-bounce);
         
+    }
+
+    .week-goals-fade {
+        opacity: 0;
+        transform: translateY(1rem);
+        --t-opacity: var(--animation-duration);
+        --t-transform: var(--animation-duration);
+
+        &.mounted {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .list-enter-from {

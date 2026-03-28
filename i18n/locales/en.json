@@ -82,7 +82,9 @@
     "timeThisYear": "This year",
 
     "goals": "Goals",
-    "yourGoalsFor": "Your Goals for",
+    "yourGoalsForPeriod": "Your Goals for {period}",
+    "goalPeriodWeek": "this week",
+    "goalPeriodMonth": "this month",
     "addGoal": "Add goal",
     "goalCount": "Times",
     "goalInterval": "Per",
