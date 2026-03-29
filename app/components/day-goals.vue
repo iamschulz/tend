@@ -3,8 +3,10 @@
         <h2>{{ $t("yourGoalsForPeriod", { period: periodLabel }) }}:</h2>
         <ul class="nolist day-goals">
             <li v-for="item in goalItems" :key="item.key" class="day-goal" :style="{ '--categoryColor': item.color }" data-card data-shadow="1-hover">
-                <NuxtLink :to="`/category/${item.categoryId}`" data-card-link />
-                <span class="day-goal-category">{{ item.emoji }} {{ item.title }}</span>
+                <NuxtLink :to="`/category/${item.categoryId}`" data-card-link>
+                    <span class="sr-only">{{ item.title }}</span>
+                </NuxtLink>
+                <span class="day-goal-category">{{ item.emoji }} {{ item.title }} ({{ item.goal.count }} {{ { minutes: $t('durationM'), hours: $t('durationH'), days: $t('durationD'), event: $t('unitEvent') }[item.goal.unit] }})</span>
                 <AnimatedProgress :goal="item.goal" :category-id="item.categoryId" :date="props.date" circular class="day-goal-meter" />
                 <nuxt-icon v-if="item.completed" name="crown" filled class="crown" />
             </li>

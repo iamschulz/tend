@@ -15,7 +15,7 @@
                 {{ formatDuration(entry.start, entry.end, t) }}
             </span>
         </div>
-        <NuxtLink data-card-link :to="`/day/${dateStr}#e-${entry.id}`" :aria-label="entry.category?.title" />
+        <NuxtLink data-card-link :to="`/entry/${entry.id}`" :aria-label="entry.category?.title" />
     </article>
 </template>
 
@@ -23,7 +23,6 @@
     import type { EntryWithCategory } from '~/types/EntryWithCategory';
     import { formatDuration } from '~/util/formatDuration';
     import { useSharedNow } from '~/composables/useSharedNow';
-    import { toLocalDateStr } from '~/util/toLocalDateStr';
 
     const { t } = useI18n();
 
@@ -35,8 +34,6 @@
 
     const duration = computed(() => formatDuration(props.entry.start, now.value, t))
 
-    const date = new Date(props.entry.start);
-    const dateStr = toLocalDateStr(date);
     const timeStr = new Date(props.entry.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const categoryName = props.entry.category?.title ?? 'Unknown';
 

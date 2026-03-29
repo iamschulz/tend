@@ -65,11 +65,11 @@
             </dl>
         </section>
         <section data-card data-shadow="1">
-            <header><h3>{{ $t('goals') }}</h3></header>
+            <header><h2>{{ $t('goals') }}</h2></header>
             <CategoryGoals :category-id="category.id" :goals="category.goals ?? []" />
         </section>
         <section v-if="entryYears.length > 0" data-card data-shadow="1">
-            <header><h3>{{ $t('statistics') }}</h3></header>
+            <header><h2>{{ $t('statistics') }}</h2></header>
             <details
                 v-for="year in entryYears"
                 :key="year"
@@ -255,6 +255,10 @@
 </script>
 
 <style scoped>
+    section h2 {
+        font-size: 1.5rem;
+    }
+
     [data-card] {
         display: block;
         margin: 1rem auto;
