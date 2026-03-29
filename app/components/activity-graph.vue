@@ -1,10 +1,13 @@
 <template>
     <div>
+        <div class="graph-scroll">
         <svg
+            ref="gridEl"
             class="activity-graph"
             :viewBox="`0 0 ${cols * (cellSize + cellGap) + labelWidth} ${7 * (cellSize + cellGap) + monthLabelHeight}`"
-            role="img"
+            role="grid"
             :aria-label="$t('statisticsGraphLabel', { year })"
+            @keydown="onGridKeydown"
         >
             <!-- Month labels -->
             <text
@@ -13,27 +16,55 @@
                 :x="label.x"
                 :y="monthLabelHeight - 4"
                 class="month-label"
+                role="presentation"
+                :aria-label="label.fullName"
             >{{ label.text }}</text>
 
-            <!-- Day labels -->
-            <text :x="0" :y="monthLabelHeight + 1 * (cellSize + cellGap) - 2" class="day-label">{{ $t('weekdayMoShort') }}</text>
-            <text :x="0" :y="monthLabelHeight + 3 * (cellSize + cellGap) - 2" class="day-label">{{ $t('weekdayWeShort') }}</text>
-            <text :x="0" :y="monthLabelHeight + 5 * (cellSize + cellGap) - 2" class="day-label">{{ $t('weekdayFrShort') }}</text>
+            <!-- Rows: one per day of week -->
+            <g v-for="(row, rowIdx) in gridRows" :key="rowIdx" role="row">
+                <!-- Day-of-week label -->
+                <text
+                    :x="0"
+                    :y="monthLabelHeight + (rowIdx + 1) * (cellSize + cellGap) - 5"
+                    class="day-label"
+                    role="presentation"
+                    :aria-label="dayLabels[rowIdx]?.full"
+                >{{ dayLabels[rowIdx]?.short }}</text>
 
-            <!-- Cells -->
-            <rect
-                v-for="cell in cells"
-                :key="cell.date"
-                :x="cell.x"
-                :y="cell.y"
-                :width="cellSize"
-                :height="cellSize"
-                rx="2"
-                :class="['cell', `level-${cell.level}`]"
-            >
-                <title>{{ cell.tooltip }}</title>
-            </rect>
+                <!-- Day cells -->
+                <template v-for="cell in row" :key="cell.date">
+                    <NuxtLink
+                        v-if="!cell.future"
+                        :to="`/day/${cell.date}`"
+                        role="gridcell"
+                        :tabindex="cell.date === focusedDate ? 0 : -1"
+                        :aria-label="cell.tooltip"
+                        :data-date="cell.date"
+                    >
+                        <rect
+                            :x="cell.x"
+                            :y="cell.y"
+                            :width="cellSize"
+                            :height="cellSize"
+                            rx="2"
+                            :class="['cell', `level-${cell.level}`]"
+                        />
+                    </NuxtLink>
+                    <rect
+                        v-else
+                        :x="cell.x"
+                        :y="cell.y"
+                        :width="cellSize"
+                        :height="cellSize"
+                        rx="2"
+                        :class="['cell', `level-${cell.level}`]"
+                        role="gridcell"
+                        :aria-label="cell.tooltip"
+                    />
+                </template>
+            </g>
         </svg>
+        </div>
 
         <label v-if="goals.length > 0" class="mode-toggle">
             <span>{{ $t('entries').charAt(0).toUpperCase() + $t('entries').slice(1) }}</span>
@@ -48,7 +79,7 @@
     import type { Goal } from '~/types/Goal';
     import { getGoalProgress } from '~/util/getGoalProgress';
 
-    const { t } = useI18n();
+    const { t, locale } = useI18n();
 
     const props = defineProps<{
         year: number;
@@ -60,11 +91,22 @@
     }>();
 
     const showGoals = ref(false);
+    const gridEl = ref<SVGSVGElement | null>(null);
 
     const cellSize = 12;
     const cellGap = 3;
     const labelWidth = 28;
     const monthLabelHeight = 16;
+
+    const dayLabels = computed(() => [
+        { short: t('weekdayMoShort'), full: t('weekdayMo') },
+        { short: t('weekdayTuShort'), full: t('weekdayTu') },
+        { short: t('weekdayWeShort'), full: t('weekdayWe') },
+        { short: t('weekdayThShort'), full: t('weekdayTh') },
+        { short: t('weekdayFrShort'), full: t('weekdayFr') },
+        { short: t('weekdaySaShort'), full: t('weekdaySa') },
+        { short: t('weekdaySuShort'), full: t('weekdaySu') },
+    ]);
 
     // Build a count map: date string -> entry count
     const entryCountsByDate = computed(() => {
@@ -116,7 +158,6 @@
     // Determine the start date (first day of the year, adjusted to the previous Monday)
     const yearStart = new Date(props.year, 0, 1);
     const startDay = yearStart.getDay(); // 0=Sun, 1=Mon, ...
-    // Shift so Monday=0
     const mondayOffset = (startDay + 6) % 7;
     const gridStart = new Date(yearStart);
     gridStart.setDate(gridStart.getDate() - mondayOffset);
@@ -127,7 +168,6 @@
     const totalDays = Math.ceil((yearEnd.getTime() - gridStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
     const cols = Math.ceil(totalDays / 7);
 
-    // Quantile thresholds for levels
     const maxCount = computed(() => {
         const values = [...countsByDate.value.values()];
         if (values.length === 0) return 1;
@@ -136,23 +176,29 @@
 
     type Cell = {
         date: string;
+        col: number;
+        row: number;
         x: number;
         y: number;
         level: number;
         tooltip: string;
+        future: boolean;
     };
 
-    const cells = computed<Cell[]>(() => {
-        const result: Cell[] = [];
+    // Produce a 2D grid: gridRows[row][colIndex] = Cell
+    const gridRows = computed<Cell[][]>(() => {
+        const rows: Cell[][] = Array.from({ length: 7 }, () => []);
         const max = maxCount.value;
         const d = new Date(gridStart);
+        const today = new Date();
+        today.setHours(23, 59, 59, 999);
+        const todayTs = today.getTime();
         const isGoals = showGoals.value;
         const goalWord = t('goals').toLowerCase();
 
         for (let col = 0; col < cols; col++) {
             for (let row = 0; row < 7; row++) {
                 const year = d.getFullYear();
-                // Only render cells within the target year
                 if (year === props.year) {
                     const key = `${year}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
                     const count = countsByDate.value.get(key) ?? 0;
@@ -166,7 +212,7 @@
                         else level = 4;
                     }
 
-                    const dateStr = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                    const dateStr = d.toLocaleDateString(locale.value, { month: 'short', day: 'numeric' });
                     let tooltip: string;
                     if (isGoals) {
                         tooltip = count > 0
@@ -179,34 +225,107 @@
                             : dateStr;
                     }
 
-                    result.push({
+                    rows[row]!.push({
                         date: key,
+                        col,
+                        row,
                         x: labelWidth + col * (cellSize + cellGap),
                         y: monthLabelHeight + row * (cellSize + cellGap),
                         level,
                         tooltip,
+                        future: d.getTime() > todayTs,
                     });
                 }
                 d.setDate(d.getDate() + 1);
             }
         }
-        return result;
+        return rows;
     });
+
+    // Initial focused date: Jan 1 of the year
+    const focusedDate = ref(
+        `${props.year}-01-01`
+    );
+
+    // Flat lookup: date -> { row, colIndex within that row }
+    const cellIndex = computed(() => {
+        const map = new Map<string, { row: number; colIdx: number }>();
+        for (let row = 0; row < gridRows.value.length; row++) {
+            const cells = gridRows.value[row]!;
+            for (let colIdx = 0; colIdx < cells.length; colIdx++) {
+                map.set(cells[colIdx]!.date, { row, colIdx });
+            }
+        }
+        return map;
+    });
+
+    const focusCellByDate = (date: string) => {
+        focusedDate.value = date;
+        nextTick(() => {
+            const el = gridEl.value?.querySelector<HTMLElement>(`[data-date="${date}"]`);
+            el?.focus();
+        });
+    };
+
+    const onGridKeydown = (e: KeyboardEvent) => {
+        const pos = cellIndex.value.get(focusedDate.value);
+        if (!pos) return;
+
+        const { row, colIdx } = pos;
+        const rows = gridRows.value;
+        const currentRow = rows[row]!;
+        const currentCell = currentRow[colIdx]!;
+        let nextDate: string | undefined;
+
+        switch (e.key) {
+            case 'ArrowRight':
+                nextDate = currentRow[colIdx + 1]?.date;
+                break;
+            case 'ArrowLeft':
+                nextDate = currentRow[colIdx - 1]?.date;
+                break;
+            case 'ArrowDown':
+                for (let r = row + 1; r < 7; r++) {
+                    const candidate = rows[r]!.find(c => c.col === currentCell.col);
+                    if (candidate) { nextDate = candidate.date; break; }
+                }
+                break;
+            case 'ArrowUp':
+                for (let r = row - 1; r >= 0; r--) {
+                    const candidate = rows[r]!.find(c => c.col === currentCell.col);
+                    if (candidate) { nextDate = candidate.date; break; }
+                }
+                break;
+            case 'Home':
+                nextDate = currentRow[0]?.date;
+                break;
+            case 'End':
+                nextDate = currentRow[currentRow.length - 1]?.date;
+                break;
+            default:
+                return;
+        }
+
+        if (nextDate) {
+            e.preventDefault();
+            focusCellByDate(nextDate);
+        }
+    };
 
     // Month labels positioned at the first week column of each month
     const monthLabels = computed(() => {
-        const labels: { month: number; x: number; text: string }[] = [];
+        const labels: { month: number; x: number; text: string; fullName: string }[] = [];
         const seen = new Set<number>();
         const d = new Date(gridStart);
 
         for (let col = 0; col < cols; col++) {
-            // Check the Monday of this column
             if (d.getFullYear() === props.year && !seen.has(d.getMonth())) {
                 seen.add(d.getMonth());
                 labels.push({
                     month: d.getMonth(),
                     x: labelWidth + col * (cellSize + cellGap),
-                    text: d.toLocaleDateString(undefined, { month: 'short' }),
+                    text: d.toLocaleDateString(locale.value, { month: 'short' }),
+                    fullName: d.toLocaleDateString(locale.value, { month: 'long' }),
                 });
             }
             d.setDate(d.getDate() + 7);
@@ -216,9 +335,13 @@
 </script>
 
 <style scoped>
+    .graph-scroll {
+        overflow-x: auto;
+    }
+
     .activity-graph {
+        min-width: 800px;
         width: 100%;
-        max-width: 900px;
         height: auto;
     }
 
@@ -235,6 +358,11 @@
         &.level-2 { fill: color-mix(in oklch, v-bind(color) 50%, var(--col-bg3)); }
         &.level-3 { fill: color-mix(in oklch, v-bind(color) 75%, var(--col-bg3)); }
         &.level-4 { fill: v-bind(color); }
+    }
+
+    [role="gridcell"]:focus {
+        outline: 2px solid var(--col-fg);
+        outline-offset: 1px;
     }
 
     .mode-toggle {
