@@ -221,6 +221,11 @@
 
     const openYears = ref(new Set<number>())
 
+    /**
+     * Tracks which year details are open so the activity graph only renders when visible.
+     * @param event - The toggle event from the details element
+     * @param year - The year associated with the toggled details
+     */
     const onDetailsToggle = (event: Event, year: number) => {
         const details = event.target as HTMLDetailsElement
         if (details.open) {
@@ -232,6 +237,10 @@
         }
     }
 
+    /**
+     * Returns all category entries whose start timestamp falls within the given year.
+     * @param year - The year to filter entries by
+     */
     const entriesForYear = (year: number) =>
         categoryEntries.value.filter(e => new Date(e.start).getFullYear() === year)
 

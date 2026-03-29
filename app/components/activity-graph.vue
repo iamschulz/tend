@@ -259,6 +259,10 @@
         return map;
     });
 
+    /**
+     * Updates the roving tabindex and moves focus to the cell matching the given date string.
+     * @param date - The ISO date string (YYYY-MM-DD) of the cell to focus
+     */
     const focusCellByDate = (date: string) => {
         focusedDate.value = date;
         nextTick(() => {
@@ -267,6 +271,10 @@
         });
     };
 
+    /**
+     * Handles arrow-key navigation within the activity grid per WAI-ARIA grid pattern.
+     * @param e - The keyboard event from the grid
+     */
     const onGridKeydown = (e: KeyboardEvent) => {
         const pos = cellIndex.value.get(focusedDate.value);
         if (!pos) return;
