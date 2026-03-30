@@ -1,8 +1,9 @@
+import { eq } from 'drizzle-orm'
 import { getDatabase } from '../database'
 import type { DbTable } from '../database/schema'
 
 /** Re-exported Drizzle helpers, auto-imported in all server routes by Nitro. */
-export { eq } from 'drizzle-orm'
+export { eq }
 
 /** Returns the Drizzle database instance. Auto-imported in all server routes by Nitro. */
 export function useDb() {
