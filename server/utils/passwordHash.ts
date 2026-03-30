@@ -6,7 +6,7 @@ import bcrypt from 'bcryptjs'
  * @param hash - The bcrypt hash stored in NUXT_ADMIN_PASSWORD
  * @returns True if the password matches the hash
  */
-export function verifyPassword(input: string, hash: string): Promise<boolean> {
+export function verifyPasswordHash(input: string, hash: string): Promise<boolean> {
     return bcrypt.compare(input, hash)
 }
 
