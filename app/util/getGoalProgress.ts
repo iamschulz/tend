@@ -13,14 +13,16 @@ const msPerUnit = { minutes: 60_000, hours: 3_600_000, days: 86_400_000 } as con
  * @param entries - All tracked entries
  * @param categoryId - The category to filter entries by
  * @param now - Current timestamp, used for running entries
+ * @param date - The reference date for the goal period (defaults to today)
  */
 export function getGoalProgress(
     goal: Goal,
     entries: readonly Entry[],
     categoryId: string,
     now: number = Date.now(),
+    date: Date = new Date(),
 ): number {
-    const [start, end] = rangeFns[goal.interval](new Date())
+    const [start, end] = rangeFns[goal.interval](date)
     const rangeStart = start.getTime()
     const rangeEnd = end.getTime()
     const matching = entries.filter(e => {
@@ -29,7 +31,7 @@ export function getGoalProgress(
         const eEnd = e.end ? new Date(e.end).getTime() : Infinity
         return eStart <= rangeEnd && eEnd >= rangeStart
     })
-    if (goal.unit === 'event') return matching.length
+    if (goal.unit === 'event') return matching.filter(e => !e.running).length
     const totalMs = matching.reduce((sum, e) => sum + ((e.end ?? now) - e.start), 0)
     return totalMs / msPerUnit[goal.unit]
 }

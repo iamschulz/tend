@@ -1,24 +1,27 @@
 <template>
     <div data-carousel :aria-label="weekLabel">
 
-        <TransitionGroup v-for="(day, name) in week" :key="name" ref="days" tag="ul" name="list" data-group="vertical" class="weekday nolist" :aria-label="String(name)">
+        <TransitionGroup v-for="day in week" :key="day.date" ref="days" tag="ul" name="list" data-group="vertical" class="weekday nolist" :aria-label="day.name">
             <li key="label" class="table-header">
-                <span class="label" :class="{ active: name === todayName }" :aria-current="name === todayName ? 'date' : undefined">{{ name }}</span>
+                <NuxtLink :to="`/day/${day.date}`" class="label" :class="{ active: day.date === todayDate }" :aria-current="day.date === todayDate ? 'date' : undefined">{{ day.name }}</NuxtLink>
             </li>
-            <li v-for="entry in day" :key="entry.id">
+            <li v-for="entry in day.entries" :key="entry.id">
                 <WeekEntry :entry="entry" />
             </li>
-            <li v-if="!day.length" key="empty" class="empty" :aria-label="t('noEntries')">
+            <li v-if="!day.entries.length" key="empty" class="empty" :aria-label="t('noEntries')">
                 <nuxt-icon name="tend" />
             </li>
         </TransitionGroup>
     </div>
+
+    <DayGoals ref="weekGoalsEl" :date="props.date" interval="week" class="week-goals-fade" />
 </template>
 
 <script setup lang="ts">
     import type { EntryWithCategory } from '~/types/EntryWithCategory';
     import { getDayRange } from '~/util/getDayRange';
     import { getWeekRange } from '~/util/getWeekRange';
+    import { toLocalDateStr } from '~/util/toLocalDateStr';
     import { getWeekdays } from '~/contants/weekdays';
     import { prefersReducedMotion } from '~/util/prefersReducedMotion';
 
@@ -36,61 +39,58 @@
     const weekRange = getWeekRange(props.date);
     const entries = computed(() => data.getEntriesForRange(weekRange[0], weekRange[1]));
 
-    type Week = {
-        [key: string]: EntryWithCategory[]
-    }
-
     /** @param date - The date to get the localized weekday name for */
     const getWeekDayName = (date: Date): string => weekdays[(date.getDay() + 6) % 7]!.full;
     const today = new Date();
     const isCurrentWeek = today >= weekRange[0] && today <= weekRange[1];
-    const todayName = isCurrentWeek ? getWeekDayName(today) : null;
+    const todayDate = isCurrentWeek ? toLocalDateStr(today) : null;
+
+    type WeekDay = { name: string; date: string; entries: EntryWithCategory[] };
 
     // Pre-bucket entries by day-of-week in one pass
-    const week = computed<Week>(() => {
+    const week = computed<WeekDay[]>(() => {
         // Build day start dates for each weekday
-        const dayStarts: { name: string; start: string }[] = [];
+        const days: WeekDay[] = [];
         for (let i = 0; i < 7; i++) {
             const dayDate = new Date(props.date);
             dayDate.setDate(dayDate.getDate() + i);
-            dayStarts.push({
+            days.push({
                 name: getWeekDayName(dayDate),
-                start: getDayRange(dayDate)[0].toString(),
+                date: toLocalDateStr(dayDate),
+                entries: [],
             });
-        }
-
-        // Initialize buckets
-        const result: Week = {};
-        for (const d of dayStarts) {
-            result[d.name] = [];
         }
 
         // Single pass over entries
         for (const entry of entries.value) {
             const entryDayStr = getDayRange(new Date(entry.start))[0].toString();
-            for (const d of dayStarts) {
-                if (d.start === entryDayStr) {
-                    result[d.name]!.unshift(entry);
+            for (const d of days) {
+                if (getDayRange(new Date(d.date))[0].toString() === entryDayStr) {
+                    d.entries.unshift(entry);
                     break;
                 }
             }
         }
 
-        return result;
+        return days;
     });
 
     // scroll to current day
     const days = ref<{ $el: HTMLElement }[] | null>(null);
+    const weekGoalsEl = ref<ComponentPublicInstance | null>(null)
 
     onMounted(async () => {
-        if (!isCurrentWeek) return;
-        await nextTick();
-        const dayNumber = (new Date().getDay() + 6) % 7;
-        const currentDayEl = days.value![dayNumber]?.$el as HTMLElement | undefined;
-        currentDayEl?.scrollIntoView({ inline: 'center', behavior: prefersReducedMotion() ? 'instant' : 'smooth'});
+        if (isCurrentWeek) {
+            await nextTick();
+            const dayNumber = (new Date().getDay() + 6) % 7;
+            const currentDayEl = days.value![dayNumber]?.$el as HTMLElement | undefined;
+            currentDayEl?.scrollIntoView({ inline: 'center', behavior: prefersReducedMotion() ? 'instant' : 'smooth'});
+        }
+        requestAnimationFrame(() => {
+            weekGoalsEl.value?.$el?.classList?.add('mounted')
+        })
     })
 
-    // todo: add some statistics below table
 </script>
 
 <style scoped>
@@ -141,6 +141,18 @@
         --t-scale: var(--animation-duration);
         transition-timing-function: var(--animation-bounce);
         
+    }
+
+    .week-goals-fade {
+        opacity: 0;
+        transform: translateY(1rem);
+        --t-opacity: var(--animation-duration);
+        --t-transform: var(--animation-duration);
+
+        &.mounted {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .list-enter-from {

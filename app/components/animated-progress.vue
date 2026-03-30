@@ -1,5 +1,10 @@
 <template>
-    <progress :value="animated" :max="props.goal.count" class="animated-progress" :style="color ? { accentColor: color } : undefined">
+    <svg v-if="circular" class="animated-progress-circular" viewBox="0 0 36 36" :style="cssVars">
+        <circle class="circular-track" cx="18" cy="18" :r="radius" />
+        <circle class="circular-fill" cx="18" cy="18" :r="radius" :stroke-dasharray="circumference" :stroke-dashoffset="dashOffset" />
+        <text x="18" y="18" class="circular-text">{{ Math.floor(percentage) }}%</text>
+    </svg>
+    <progress v-else :value="animated" :max="props.goal.count" class="animated-progress" :style="color ? { accentColor: color } : undefined">
         {{ progress }} / {{ props.goal.count }}
     </progress>
 </template>
@@ -12,6 +17,8 @@
     const props = defineProps<{
         goal: Goal
         categoryId: string
+        date?: Date
+        circular?: boolean
     }>()
 
     const data = useDataStore()
@@ -22,6 +29,7 @@
     let tickInterval: ReturnType<typeof setInterval> | null = null
 
     watch(hasRunning, (running) => {
+        now.value = Date.now()
         if (running && !tickInterval) {
             tickInterval = setInterval(() => { now.value = Date.now() }, 1000)
         } else if (!running && tickInterval) {
@@ -31,8 +39,17 @@
     }, { immediate: true })
 
     const progress = computed(() =>
-        getGoalProgress(props.goal, data.entries, props.categoryId, now.value)
+        getGoalProgress(props.goal, data.entries, props.categoryId, now.value, props.date)
     )
+
+    // Circular meter
+    const radius = 15.5
+    const circumference = 2 * Math.PI * radius
+    const percentage = computed(() => Math.max(0, Math.min((animated.value / props.goal.count) * 100, 100)))
+    const dashOffset = computed(() => circumference - (percentage.value / 100) * circumference)
+    const cssVars = computed(() => ({
+        '--circle-color': color.value || 'var(--col-fg)',
+    }))
 
     // Animation
     const animated = ref(0)
@@ -80,5 +97,35 @@
         height: 0.75rem;
         flex: 1;
         margin: 0;
+    }
+
+    .animated-progress-circular {
+        width: 3.5rem;
+        height: 3.5rem;
+        transform: rotate(-90deg);
+    }
+
+    .circular-track {
+        fill: none;
+        stroke: var(--col-bg3, #e0e0e0);
+        stroke-width: 3;
+    }
+
+    .circular-fill {
+        fill: none;
+        stroke: var(--circle-color);
+        stroke-width: 3;
+        stroke-linecap: round;
+        transition: stroke-dashoffset 0.1s ease-out;
+    }
+
+    .circular-text {
+        fill: var(--col-fg);
+        font-size: 0.55rem;
+        font-weight: 700;
+        text-anchor: middle;
+        dominant-baseline: central;
+        transform: rotate(90deg);
+        transform-origin: 18px 18px;
     }
 </style>

@@ -91,10 +91,18 @@ describe('getGoalProgress', () => {
       expect(getGoalProgress(goal, entries, 'cat-1', PINNED_NOW)).toBe(1)
     })
 
-    it('counts running entries (end: null) within range', () => {
+    it('does not count running entries toward event goals', () => {
       const goal = makeGoal({ unit: 'event', interval: 'day' })
       const entries = [
         makeEntry({ start: PINNED_NOW - 1800_000, end: null, running: true }),
+      ]
+      expect(getGoalProgress(goal, entries, 'cat-1', PINNED_NOW)).toBe(0)
+    })
+
+    it('counts a previously running entry once it has ended', () => {
+      const goal = makeGoal({ unit: 'event', interval: 'day' })
+      const entries = [
+        makeEntry({ start: PINNED_NOW - 1800_000, end: PINNED_NOW, running: false }),
       ]
       expect(getGoalProgress(goal, entries, 'cat-1', PINNED_NOW)).toBe(1)
     })

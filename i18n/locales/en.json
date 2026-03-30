@@ -80,7 +80,11 @@
     "timeThisWeek": "This week",
     "timeThisMonth": "This month",
     "timeThisYear": "This year",
+
     "goals": "Goals",
+    "yourGoalsForPeriod": "Your Goals for {period}",
+    "goalPeriodWeek": "this week",
+    "goalPeriodMonth": "this month",
     "addGoal": "Add goal",
     "goalCount": "Times",
     "goalInterval": "Per",
@@ -175,6 +179,8 @@
     "actGaming": "gaming",
     "actPerformingArts": "performing arts",
     "actMedicine": "medicine",
+    "statistics": "Statistics",
+    "statisticsGraphLabel": "Activity graph for {year}",
     "allCategories": "All categories",
 
     "data": "Data",
@@ -185,6 +191,14 @@
 
     "info": "About Tend",
     "licence": "Licence",
+    "privacy1": {
+        "title": "Privacy",
+        "body": "tend.iamschulz.com is hosted on {netlifyLink}. All data is stored only in your browser, nowhere else. Cookies are only used for display options (e.g. language and theme) and are not used for tracking purposes."
+    },
+    "privacy2": {
+        "title": "Contact",
+        "body": "Daniel Schulz, tend{'@'}iamschulz.com"
+    },
 
     "somethingWrong": "Something went wrong here.",
     "pageNotFound": "Page not found",

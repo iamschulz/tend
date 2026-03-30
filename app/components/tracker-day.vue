@@ -1,5 +1,5 @@
 <template>
-    <TransitionGroup name="list" tag="ul" class="nolist">
+    <TransitionGroup name="list" tag="ul" class="nolist entries">
         <li ref="loaderEl" key="loader" class="loader" />
         
         <li v-if="data.hasNoEntries" key="firststeps">
@@ -22,6 +22,8 @@
             </div>
         </li>
     </TransitionGroup>
+
+    <DayGoals ref="dayGoalsEl" :date="props.date || new Date()" class="day-goals-fade" />
 </template>
 
 <script setup lang="ts">
@@ -71,6 +73,7 @@
     watchForDelete(entries, (entry) => `${t('deleted')} ${formatEntry(entry)}`)
 
     const loaderEl = ref<HTMLDialogElement | null>(null)
+    const dayGoalsEl = ref<ComponentPublicInstance | null>(null)
 
     const route = useRoute()
     const ui = useUiStore()
@@ -97,6 +100,9 @@
                 loaderEl.value?.classList.add('mounted')
             })
         }
+        requestAnimationFrame(() => {
+            dayGoalsEl.value?.$el?.classList?.add('mounted')
+        })
         if (route.hash) {
             nextTick(() => {
                 const behavior = prefersReducedMotion() ? 'instant' : 'smooth';
@@ -138,7 +144,7 @@
         text-shadow: var(--shadow-color) 0 0 0.5rem;
     }
 
-    ul {
+    .entries {
         position: relative;
         --t-opacity: var(--animation-duration);
         --t-transform: var(--animation-duration);
@@ -167,6 +173,18 @@
     .empty {
         .nuxt-icon {
             font-size: 2rem;
+        }
+    }
+
+    .day-goals-fade {
+        opacity: 0;
+        transform: translateY(1rem);
+        --t-opacity: var(--animation-duration);
+        --t-transform: var(--animation-duration);
+
+        &.mounted {
+            opacity: 1;
+            transform: translateY(0);
         }
     }
 

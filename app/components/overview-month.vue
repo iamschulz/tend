@@ -24,6 +24,8 @@
             </tbody>
         </table>
     </div>
+
+    <DayGoals ref="monthGoalsEl" :date="props.date" interval="month" class="month-goals-fade" />
 </template>
 
 <script setup lang="ts">
@@ -113,10 +115,14 @@
     });
 
     const todayEl = ref<HTMLElement | null>(null);
+    const monthGoalsEl = ref<ComponentPublicInstance | null>(null)
 
     onMounted(async () => {
         await nextTick();
         todayEl.value?.scrollIntoView({ inline: 'center', behavior: prefersReducedMotion() ? 'instant' : 'smooth' });
+        requestAnimationFrame(() => {
+            monthGoalsEl.value?.$el?.classList?.add('mounted')
+        })
     });
 
     const calendarWeeks = computed(() => {
@@ -155,6 +161,18 @@
         padding: var(--day-padding) 0;
         color: var(--col-fg2);
         font-size: 0.85rem;
+    }
+
+    .month-goals-fade {
+        opacity: 0;
+        transform: translateY(1rem);
+        --t-opacity: var(--animation-duration);
+        --t-transform: var(--animation-duration);
+
+        &.mounted {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     td.empty {

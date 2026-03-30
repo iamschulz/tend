@@ -1,6 +1,6 @@
 {
   "name": "tend",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "type": "module",
   "private": true,
   "scripts": {
@@ -14,6 +14,7 @@
     "test:e2e": "nuxt build && vitest run --config vitest.e2e.config.ts",
     "test:e2e:server": "NUXT_PUBLIC_BACKEND_MODE=server nuxt build && vitest run --config vitest.e2e-server.config.ts",
     "test:e2e:pwa": "nuxt generate && vitest run --config vitest.e2e.config.ts test/e2e/pwa.spec.ts",
+    "typecheck": "nuxi typecheck",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "seed": "tsx scripts/write-seed-data.ts"

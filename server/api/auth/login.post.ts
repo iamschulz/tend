@@ -3,7 +3,7 @@ import { getRequestIP } from 'h3'
 import { createRateLimiter } from '~~/server/utils/rateLimiter'
 import { safeCompare } from '~~/server/utils/safeCompare'
 import { getSessionVersion } from '~~/server/utils/sessionVersion'
-import { verifyPassword, isBcryptHash } from '~~/server/utils/passwordHash'
+import { verifyPasswordHash, isBcryptHash } from '~~/server/utils/passwordHash'
 
 const loginSchema = z.object({
     username: z.string().min(1),
@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const validUsername = safeCompare(username, config.adminUsername)
-    const validPassword = await verifyPassword(password, config.adminPassword)
+    const validPassword = await verifyPasswordHash(password, config.adminPassword)
     if (!validUsername || !validPassword) {
         limiter.recordFailure(ip)
         throw createError({ statusCode: 401, message: 'Invalid credentials' })

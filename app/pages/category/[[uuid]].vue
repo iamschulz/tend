@@ -65,8 +65,27 @@
             </dl>
         </section>
         <section data-card data-shadow="1">
-            <header><h3>{{ $t('goals') }}</h3></header>
+            <header><h2>{{ $t('goals') }}</h2></header>
             <CategoryGoals :category-id="category.id" :goals="category.goals ?? []" />
+        </section>
+        <section v-if="entryYears.length > 0" data-card data-shadow="1">
+            <header><h2>{{ $t('statistics') }}</h2></header>
+            <details
+                v-for="year in entryYears"
+                :key="year"
+                @toggle="onDetailsToggle($event, year)"
+            >
+                <summary>{{ year }}</summary>
+                <ActivityGraph
+                    v-if="openYears.has(year)"
+                    :year="year"
+                    :entries="entriesForYear(year)"
+                    :all-entries="data.entries"
+                    :category-id="category.id"
+                    :goals="category.goals ?? []"
+                    :color="category.color"
+                />
+            </details>
         </section>
     </template>
     <ErrorNotice v-else />
@@ -192,6 +211,39 @@
         if (category.value) data.updateCategory({ id: category.value.id, comment: val })
     })
 
+    const entryYears = computed(() => {
+        const years = new Set<number>()
+        for (const e of categoryEntries.value) {
+            years.add(new Date(e.start).getFullYear())
+        }
+        return [...years].sort((a, b) => b - a)
+    })
+
+    const openYears = ref(new Set<number>())
+
+    /**
+     * Tracks which year details are open so the activity graph only renders when visible.
+     * @param event - The toggle event from the details element
+     * @param year - The year associated with the toggled details
+     */
+    const onDetailsToggle = (event: Event, year: number) => {
+        const details = event.target as HTMLDetailsElement
+        if (details.open) {
+            openYears.value = new Set([...openYears.value, year])
+        } else {
+            const next = new Set(openYears.value)
+            next.delete(year)
+            openYears.value = next
+        }
+    }
+
+    /**
+     * Returns all category entries whose start timestamp falls within the given year.
+     * @param year - The year to filter entries by
+     */
+    const entriesForYear = (year: number) =>
+        categoryEntries.value.filter(e => new Date(e.start).getFullYear() === year)
+
     useHead({ title: computed(() => `${category.value?.title} | `) })
 
     const nuxtApp = useNuxtApp()
@@ -203,6 +255,10 @@
 </script>
 
 <style scoped>
+    section h2 {
+        font-size: 1.5rem;
+    }
+
     [data-card] {
         display: block;
         margin: 1rem auto;
