@@ -276,6 +276,56 @@ describe('Day Goals', () => {
         expect(texts.some(t => t.includes('GoalB'))).toBe(true)
     })
 
+    it('clips duration for entry spanning midnight — only today portion counts', async () => {
+        // Set up a 240-minute daily goal
+        await setupDailyGoal(page, 'MidnightClip', { count: 240, unit: 'minutes' })
+
+        await page.waitForSelector('.day-goals', { timeout: 5000 })
+
+        // Inject an entry that spans midnight: 2h before today + 2h into today = 4h total
+        // Only the 2h within today should count toward the goal (50%)
+        await page.evaluate(() => {
+            const el = document.querySelector('#__nuxt') as any // eslint-disable-line
+            const store = el?.__vue_app__?.config?.globalProperties?.$pinia?._s?.get('data')
+            const cat = store?.categories?.[0]
+
+            // Calculate today's local midnight
+            const now = new Date()
+            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+
+            // Replace entries array to trigger Vue reactivity
+            store.entries = [...store.entries, {
+                id: 'midnight-test-entry',
+                categoryId: cat.id,
+                start: todayStart - 2 * 3_600_000,  // 2h before midnight
+                end: todayStart + 2 * 3_600_000,    // 2h after midnight
+                running: false,
+                comment: '',
+            }]
+        })
+
+        // Wait for progress animation to settle at ~50% (120min / 240min)
+        await page.waitForFunction(
+            () => {
+                const el = document.querySelector('.day-goals .circular-text')
+                const pct = parseInt(el?.textContent ?? '0')
+                return pct >= 49
+            },
+            undefined,
+            { timeout: 5000 },
+        )
+
+        const pctText = await page.$eval(
+            '.day-goals .circular-text',
+            el => el.textContent?.trim() ?? '',
+        )
+        const pct = parseInt(pctText)
+
+        // Should be 50% (2h clipped to today / 4h goal), not 100% (full 4h / 4h)
+        expect(pct).toBeGreaterThanOrEqual(49)
+        expect(pct).toBeLessThanOrEqual(51)
+    })
+
     it('day-goals section fades in with animation', async () => {
         await setupDailyGoal(page, 'FadeTest')
 
