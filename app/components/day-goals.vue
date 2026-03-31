@@ -97,15 +97,20 @@
     }
 
     .day-goals {
-        display: flex;
+        display: grid;
+        grid-template-columns: repeat( auto-fit, minmax(25ch, 1fr) );   
         gap: 1rem;
     }
 
     .day-goal {
         position: relative;
-        display: flex;
+        display: inline-flex;
         gap: 1rem;
         align-items: center;
+    }
+
+    .day-goal-meter {
+        flex: 0 0 3.5rem;
     }
 
     .crown {
