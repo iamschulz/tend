@@ -225,10 +225,17 @@ describe('Day Goals', () => {
         await addGoal(page, { count: 5, unit: 'event', interval: 'week' })
         await navigateTo(page, '/')
 
-        // day-goals should not appear since the goal is weekly, not daily
+        // The daily DayGoals section should not render for a weekly-only goal
         await new Promise(r => setTimeout(r, 500))
-        const dayGoals = await page.$('.day-goals')
-        expect(dayGoals).toBeNull()
+        const sections = await page.$$('.goals-fade .day-goals')
+        for (const section of sections) {
+            const heading = await section.evaluate(el => el.parentElement?.querySelector('h2')?.textContent ?? '')
+            // If this is the daily section (heading contains "today"), it shouldn't show
+            if (/today/i.test(heading)) {
+                const text = await section.evaluate(el => el.textContent ?? '')
+                expect(text).not.toContain('WeeklyOnly')
+            }
+        }
     })
 
     it('shows multiple daily goals from different categories', async () => {
@@ -272,10 +279,10 @@ describe('Day Goals', () => {
     it('day-goals section fades in with animation', async () => {
         await setupDailyGoal(page, 'FadeTest')
 
-        // The wrapper has .day-goals-fade class and gets .mounted added via rAF
-        await page.waitForSelector('.day-goals-fade.mounted', { timeout: 5000 })
+        // The wrapper has .goals-fade class and gets .mounted added via rAF
+        await page.waitForSelector('.goals-fade.mounted', { timeout: 5000 })
 
-        const mounted = await page.$('.day-goals-fade.mounted')
+        const mounted = await page.$('.goals-fade.mounted')
         expect(mounted).not.toBeNull()
     })
 })
