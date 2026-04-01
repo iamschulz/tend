@@ -23,18 +23,24 @@
         </li>
     </TransitionGroup>
 
-    <DayGoals ref="dayGoalsEl" :date="props.date || new Date()" class="day-goals-fade" />
+    <div ref="goalsEl" class="goals-fade">
+        <DayGoals :date="props.date || new Date()" />
+        <DayGoals v-if="isToday" :date="props.date || new Date()" interval="week" />
+        <DayGoals v-if="isToday" :date="props.date || new Date()" interval="month" />
+    </div>
 </template>
 
 <script setup lang="ts">
     import { useDataStore } from '~/stores/data';
     import TrackerEntry from './tracker-entry.vue';
     import { getDayRange } from '~/util/getDayRange';
+    import { toLocalDateStr } from '~/util/toLocalDateStr';
     import { prefersReducedMotion } from '~/util/prefersReducedMotion';
     const props = defineProps<{
         date?: Date,
     }>()
     const dateRange = getDayRange(props.date || new Date());
+    const isToday = computed(() => toLocalDateStr(props.date || new Date()) === toLocalDateStr(new Date()))
 
     const data = useDataStore();
     const entries = computed(() => data.getEntriesForRange(dateRange[0], dateRange[1]));
@@ -73,7 +79,7 @@
     watchForDelete(entries, (entry) => `${t('deleted')} ${formatEntry(entry)}`)
 
     const loaderEl = ref<HTMLDialogElement | null>(null)
-    const dayGoalsEl = ref<ComponentPublicInstance | null>(null)
+    const goalsEl = ref<HTMLDivElement | null>(null)
 
     const route = useRoute()
     const ui = useUiStore()
@@ -101,7 +107,7 @@
             })
         }
         requestAnimationFrame(() => {
-            dayGoalsEl.value?.$el?.classList?.add('mounted')
+            goalsEl.value!.classList?.add('mounted')
         })
         if (route.hash) {
             nextTick(() => {
@@ -176,7 +182,7 @@
         }
     }
 
-    .day-goals-fade {
+    .goals-fade {
         opacity: 0;
         transform: translateY(1rem);
         --t-opacity: var(--animation-duration);

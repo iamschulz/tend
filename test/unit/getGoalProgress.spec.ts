@@ -178,6 +178,71 @@ describe('getGoalProgress', () => {
       ]
       expect(getGoalProgress(goal, entries, 'cat-1', PINNED_NOW)).toBe(0.5)
     })
+
+    it('clips duration to range boundaries for entry starting before the day', () => {
+      const goal = makeGoal({ unit: 'minutes', interval: 'day' })
+      // Use local day boundaries for June 11
+      const dayStart = new Date(2025, 5, 11).getTime()
+      // Entry starts 2h before day, ends 2h into day (4h total, only 2h in range)
+      const entries = [
+        makeEntry({
+          start: dayStart - 2 * 3_600_000,
+          end: dayStart + 2 * 3_600_000,
+        }),
+      ]
+      expect(getGoalProgress(goal, entries, 'cat-1', PINNED_NOW)).toBe(120)
+    })
+
+    it('clips duration to range boundaries for entry ending after the day', () => {
+      const goal = makeGoal({ unit: 'minutes', interval: 'day' })
+      const dayEnd = new Date(2025, 5, 11, 23, 59, 59, 999).getTime()
+      // Entry starts 1h before end of day, ends 1h after (2h total, ~1h in range)
+      const entries = [
+        makeEntry({
+          start: dayEnd - 3_600_000,
+          end: dayEnd + 3_600_000,
+        }),
+      ]
+      // Clipped to dayEnd: 1h minus 1ms
+      const result = getGoalProgress(goal, entries, 'cat-1', PINNED_NOW)
+      expect(result).toBeGreaterThan(59)
+      expect(result).toBeLessThanOrEqual(60)
+    })
+
+    it('clips duration on both sides for entry spanning the entire day', () => {
+      const goal = makeGoal({ unit: 'hours', interval: 'day' })
+      const dayStart = new Date(2025, 5, 11).getTime()
+      const dayEnd = new Date(2025, 5, 11, 23, 59, 59, 999).getTime()
+      // Entry spans well beyond the day on both sides
+      const entries = [
+        makeEntry({
+          start: dayStart - 12 * 3_600_000,
+          end: dayEnd + 12 * 3_600_000,
+        }),
+      ]
+      const result = getGoalProgress(goal, entries, 'cat-1', PINNED_NOW)
+      // Full day is 23:59:59.999 ≈ 24 hours
+      expect(result).toBeGreaterThan(23.99)
+      expect(result).toBeLessThanOrEqual(24)
+    })
+
+    it('clips running entry to range end when now extends beyond the day', () => {
+      const goal = makeGoal({ unit: 'minutes', interval: 'day' })
+      const dayEnd = new Date(2025, 5, 11, 23, 59, 59, 999).getTime()
+      // Running entry started 30min before end of day, now is 30min after
+      const laterNow = dayEnd + 30 * 60_000
+      const entries = [
+        makeEntry({
+          start: dayEnd - 30 * 60_000,
+          end: null,
+          running: true,
+        }),
+      ]
+      // Should clip to dayEnd: ~30 min
+      const result = getGoalProgress(goal, entries, 'cat-1', laterNow)
+      expect(result).toBeGreaterThan(29)
+      expect(result).toBeLessThanOrEqual(30)
+    })
   })
 })
 

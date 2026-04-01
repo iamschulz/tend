@@ -225,10 +225,17 @@ describe('Day Goals', () => {
         await addGoal(page, { count: 5, unit: 'event', interval: 'week' })
         await navigateTo(page, '/')
 
-        // day-goals should not appear since the goal is weekly, not daily
+        // The daily DayGoals section should not render for a weekly-only goal
         await new Promise(r => setTimeout(r, 500))
-        const dayGoals = await page.$('.day-goals')
-        expect(dayGoals).toBeNull()
+        const sections = await page.$$('.goals-fade .day-goals')
+        for (const section of sections) {
+            const heading = await section.evaluate(el => el.parentElement?.querySelector('h2')?.textContent ?? '')
+            // If this is the daily section (heading contains "today"), it shouldn't show
+            if (/today/i.test(heading)) {
+                const text = await section.evaluate(el => el.textContent ?? '')
+                expect(text).not.toContain('WeeklyOnly')
+            }
+        }
     })
 
     it('shows multiple daily goals from different categories', async () => {
@@ -269,13 +276,63 @@ describe('Day Goals', () => {
         expect(texts.some(t => t.includes('GoalB'))).toBe(true)
     })
 
+    it('clips duration for entry spanning midnight — only today portion counts', async () => {
+        // Set up a 240-minute daily goal
+        await setupDailyGoal(page, 'MidnightClip', { count: 240, unit: 'minutes' })
+
+        await page.waitForSelector('.day-goals', { timeout: 5000 })
+
+        // Inject an entry that spans midnight: 2h before today + 2h into today = 4h total
+        // Only the 2h within today should count toward the goal (50%)
+        await page.evaluate(() => {
+            const el = document.querySelector('#__nuxt') as any // eslint-disable-line
+            const store = el?.__vue_app__?.config?.globalProperties?.$pinia?._s?.get('data')
+            const cat = store?.categories?.[0]
+
+            // Calculate today's local midnight
+            const now = new Date()
+            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+
+            // Replace entries array to trigger Vue reactivity
+            store.entries = [...store.entries, {
+                id: 'midnight-test-entry',
+                categoryId: cat.id,
+                start: todayStart - 2 * 3_600_000,  // 2h before midnight
+                end: todayStart + 2 * 3_600_000,    // 2h after midnight
+                running: false,
+                comment: '',
+            }]
+        })
+
+        // Wait for progress animation to settle at ~50% (120min / 240min)
+        await page.waitForFunction(
+            () => {
+                const el = document.querySelector('.day-goals .circular-text')
+                const pct = parseInt(el?.textContent ?? '0')
+                return pct >= 49
+            },
+            undefined,
+            { timeout: 5000 },
+        )
+
+        const pctText = await page.$eval(
+            '.day-goals .circular-text',
+            el => el.textContent?.trim() ?? '',
+        )
+        const pct = parseInt(pctText)
+
+        // Should be 50% (2h clipped to today / 4h goal), not 100% (full 4h / 4h)
+        expect(pct).toBeGreaterThanOrEqual(49)
+        expect(pct).toBeLessThanOrEqual(51)
+    })
+
     it('day-goals section fades in with animation', async () => {
         await setupDailyGoal(page, 'FadeTest')
 
-        // The wrapper has .day-goals-fade class and gets .mounted added via rAF
-        await page.waitForSelector('.day-goals-fade.mounted', { timeout: 5000 })
+        // The wrapper has .goals-fade class and gets .mounted added via rAF
+        await page.waitForSelector('.goals-fade.mounted', { timeout: 5000 })
 
-        const mounted = await page.$('.day-goals-fade.mounted')
+        const mounted = await page.$('.goals-fade.mounted')
         expect(mounted).not.toBeNull()
     })
 })

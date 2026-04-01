@@ -22,8 +22,8 @@
             <summary><h3>{{ $t('settings') }}</h3></summary>
             <LanguageSelect />
             <DisplaySettings />
-            <span data-group>
-                {{ $t('data') }}:&nbsp;
+            {{ $t('data') }}:&nbsp;
+            <span data-group class="import-export">
                 <DataImport />
                 <DataExport />
             </span>
@@ -179,5 +179,9 @@
             bottom: 0;
             left: min(var(--menu-width), 80svw);
         }
+    }
+
+    .import-export {
+        flex: wrap;
     }
 </style>
