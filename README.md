@@ -64,6 +64,7 @@ Tend will be available at `http://localhost:3000`.
 ```sh
 node -e "require('bcryptjs').hash('yourpassword', 12).then(console.log)"
 ```
+Please note that all `$` characters in the hash must be duplicated in the `docker-compose.yml` due do yml's character escaping.
 
 If you expose Tend to the Internet, you must use HTTPS, or else the password and session cookie are transmitted in plain text and can be intercepted. It is highly adviced to use a self-signed cert and HSTS even when not exposed to the Internet.
 

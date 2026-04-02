@@ -115,10 +115,10 @@
 
     .crown {
         position: absolute;
-        top: -1.5rem;
-        right: -0.8rem;
+        top: 0;
+        right: 0;
         font-size: 2rem;
-        transform: rotate(20deg);
+        transform: translate(0.4rem, -1.5rem) rotate(20deg);
         color: var(--categoryColor);
         animation: crown-pop var(--animation-duration) var(--animation-bounce);
         filter: drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.4));
