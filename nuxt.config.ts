@@ -9,6 +9,22 @@ export default defineNuxtConfig({
     maxBodySizeMb: 5,
     adminUsername: '',
     adminPassword: '',
+    oauth: {
+      google: {
+        clientId: '',
+        clientSecret: '',
+      },
+      apple: {
+        clientId: '',
+        teamId: '',
+        keyId: '',
+        privateKey: '',
+      },
+      github: {
+        clientId: '',
+        clientSecret: '',
+      },
+    },
     session: {
       password: '',
       maxAge: Number(process.env.NUXT_SESSION_MAX_AGE_DAYS || 60) * 60 * 60 * 24,

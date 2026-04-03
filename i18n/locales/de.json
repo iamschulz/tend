@@ -210,7 +210,12 @@
         "password": "Passwort",
         "submit": "Anmelden",
         "error": "Ungültiger Benutzername oder Passwort",
-        "rateLimited": "Zu viele Anmeldeversuche. Bitte versuche es später erneut."
+        "rateLimited": "Zu viele Anmeldeversuche. Bitte versuche es später erneut.",
+        "notAllowed": "Registrierung nicht erlaubt.",
+        "withGoogle": "Mit Google anmelden",
+        "withApple": "Mit Apple anmelden",
+        "withGitHub": "Mit GitHub anmelden",
+        "or": "oder"
     },
 
     "logout": "Abmelden"

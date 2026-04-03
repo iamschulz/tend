@@ -1,6 +1,14 @@
 import { getSessionVersion } from '~~/server/utils/sessionVersion'
 
-const publicRoutes = ['/api/auth/login', '/api/auth/session', '/api/_auth/session']
+const publicRoutes = [
+    '/api/auth/login',
+    '/api/auth/session',
+    '/api/_auth/session',
+    '/api/auth/google',
+    '/api/auth/apple',
+    '/api/auth/github',
+    '/api/auth/providers',
+]
 
 /**
  * Server auth middleware — guards all /api/ routes except public ones.

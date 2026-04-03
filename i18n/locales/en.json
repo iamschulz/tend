@@ -210,7 +210,12 @@
         "password": "Password",
         "submit": "Log in",
         "error": "Invalid username or password",
-        "rateLimited": "Too many login attempts. Please try again later."
+        "rateLimited": "Too many login attempts. Please try again later.",
+        "notAllowed": "Registration not allowed.",
+        "withGoogle": "Sign in with Google",
+        "withApple": "Sign in with Apple",
+        "withGitHub": "Sign in with GitHub",
+        "or": "or"
     },
 
     "logout": "Log out"
