@@ -2,6 +2,11 @@ import { getSessionVersion } from '~~/server/utils/sessionVersion'
 
 const publicRoutes = ['/api/auth/login', '/api/auth/session', '/api/_auth/session']
 
+/**
+ * Server auth middleware — guards all /api/ routes except public ones.
+ * Validates the session and its version, then populates event.context with
+ * the authenticated user's ID and role for downstream handlers.
+ */
 export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig()
     if (config.public.backendMode !== 'server') return
@@ -18,5 +23,10 @@ export default defineEventHandler(async (event) => {
     if (session.sessionVersion !== getSessionVersion()) {
         await clearUserSession(event)
         throw createError({ statusCode: 401, message: 'Session expired' })
+    }
+
+    if (session.user) {
+        event.context.userId = session.user.id
+        event.context.userRole = session.user.role
     }
 })
