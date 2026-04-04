@@ -207,14 +207,21 @@
 
     "login": {
         "username": "Benutzername",
+        "email": "E-Mail",
+        "name": "Name",
         "password": "Passwort",
         "submit": "Anmelden",
+        "createAccount": "Konto erstellen",
+        "noAccount": "Noch kein Konto? Registrieren",
+        "hasAccount": "Bereits ein Konto? Anmelden",
         "error": "Ungültiger Benutzername oder Passwort",
-        "rateLimited": "Zu viele Anmeldeversuche. Bitte versuche es später erneut.",
+        "emailTaken": "Ein Konto mit dieser E-Mail existiert bereits.",
+        "rateLimited": "Zu viele Versuche. Bitte versuche es später erneut.",
         "notAllowed": "Registrierung nicht erlaubt.",
         "withGoogle": "Mit Google anmelden",
         "withApple": "Mit Apple anmelden",
         "withGitHub": "Mit GitHub anmelden",
+        "withOidc": "Mit SSO anmelden",
         "or": "oder"
     },
 

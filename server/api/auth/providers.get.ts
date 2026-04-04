@@ -8,6 +8,7 @@ export default defineEventHandler(() => {
         google: !!(config.oauth?.google?.clientId && config.oauth?.google?.clientSecret),
         apple: !!(config.oauth?.apple?.clientId && config.oauth?.apple?.privateKey),
         github: !!(config.oauth?.github?.clientId && config.oauth?.github?.clientSecret),
-        password: !!(config.adminUsername && config.adminPassword),
+        oidc: !!(config.oauth?.oidc?.clientId && config.oauth?.oidc?.clientSecret && config.oauth?.oidc?.openidConfig),
+        password: true,
     }
 })

@@ -57,6 +57,66 @@ When moving from serverless to self-hosted (or vice versa), you can use the impo
 
 Tend will be available at `http://localhost:3000`.
 
+### Authentication
+
+Tend supports multiple authentication methods. Password-based accounts always work out of the box. OAuth providers are optional.
+
+#### Password (default)
+
+No extra configuration needed. The first user to register becomes admin. Additional users must be invited by the admin (via the admin panel's email allowlist).
+
+#### OAuth Providers (optional)
+
+Add any combination of these to your `docker-compose.yml` environment:
+
+```yaml
+# Google
+- NUXT_OAUTH_GOOGLE_CLIENT_ID=
+- NUXT_OAUTH_GOOGLE_CLIENT_SECRET=
+
+# Apple
+- NUXT_OAUTH_APPLE_CLIENT_ID=
+- NUXT_OAUTH_APPLE_TEAM_ID=
+- NUXT_OAUTH_APPLE_KEY_ID=
+- NUXT_OAUTH_APPLE_PRIVATE_KEY=
+
+# GitHub
+- NUXT_OAUTH_GITHUB_CLIENT_ID=
+- NUXT_OAUTH_GITHUB_CLIENT_SECRET=
+```
+
+#### Self-hosted SSO (Authelia, Authentik, Keycloak, etc.)
+
+Tend supports any OpenID Connect-compliant provider via the generic OIDC handler. This is the recommended approach if you want SSO without depending on third-party services.
+
+Example with Authelia:
+
+1. In your Authelia configuration, register Tend as a client:
+   ```yaml
+   identity_providers:
+     oidc:
+       clients:
+         - client_id: tend
+           client_secret: '<your-secret-hash>'
+           redirect_uris:
+             - https://tend.example.com/api/auth/oidc
+           scopes:
+             - openid
+             - profile
+             - email
+           authorization_policy: two_factor  # optional
+   ```
+
+2. Add the OIDC environment variables to your `docker-compose.yml`:
+   ```yaml
+   environment:
+     - NUXT_OAUTH_OIDC_CLIENT_ID=tend
+     - NUXT_OAUTH_OIDC_CLIENT_SECRET=<your-client-secret>
+     - NUXT_OAUTH_OIDC_OPENID_CONFIG=https://auth.example.com/.well-known/openid-configuration
+   ```
+
+The login page will show a "Sign in with SSO" button when configured.
+
 ### Security
 
 `NUXT_ADMIN_PASSWORD` must be a bcrypt hash, not a plaintext password. Generate one with Node.js:

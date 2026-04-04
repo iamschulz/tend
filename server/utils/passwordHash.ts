@@ -1,9 +1,18 @@
 import bcrypt from 'bcryptjs'
 
 /**
+ * Hashes a plaintext password using bcrypt.
+ * @param password - The plaintext password to hash
+ * @returns The bcrypt hash
+ */
+export function hashPassword(password: string): Promise<string> {
+    return bcrypt.hash(password, 10)
+}
+
+/**
  * Verifies a plaintext password against a bcrypt hash.
  * @param input - The plaintext password from the login request
- * @param hash - The bcrypt hash stored in NUXT_ADMIN_PASSWORD
+ * @param hash - The bcrypt hash to verify against
  * @returns True if the password matches the hash
  */
 export function verifyPasswordHash(input: string, hash: string): Promise<boolean> {

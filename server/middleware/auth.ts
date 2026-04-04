@@ -7,6 +7,8 @@ const publicRoutes = [
     '/api/auth/google',
     '/api/auth/apple',
     '/api/auth/github',
+    '/api/auth/oidc',
+    '/api/auth/register',
     '/api/auth/providers',
 ]
 

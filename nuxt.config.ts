@@ -24,6 +24,11 @@ export default defineNuxtConfig({
         clientId: '',
         clientSecret: '',
       },
+      oidc: {
+        clientId: '',
+        clientSecret: '',
+        openidConfig: '',
+      },
     },
     session: {
       password: '',

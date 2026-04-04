@@ -207,14 +207,21 @@
 
     "login": {
         "username": "Username",
+        "email": "Email",
+        "name": "Name",
         "password": "Password",
         "submit": "Log in",
+        "createAccount": "Create account",
+        "noAccount": "Don't have an account? Sign up",
+        "hasAccount": "Already have an account? Log in",
         "error": "Invalid username or password",
-        "rateLimited": "Too many login attempts. Please try again later.",
+        "emailTaken": "An account with this email already exists.",
+        "rateLimited": "Too many attempts. Please try again later.",
         "notAllowed": "Registration not allowed.",
         "withGoogle": "Sign in with Google",
         "withApple": "Sign in with Apple",
         "withGitHub": "Sign in with GitHub",
+        "withOidc": "Sign in with SSO",
         "or": "or"
     },
 
