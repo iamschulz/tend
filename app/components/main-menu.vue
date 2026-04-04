@@ -27,6 +27,9 @@
                 <DataImport />
                 <DataExport />
             </span>
+            <p v-if="data.isServerMode && user" class="user-info">
+                {{ user.name }} <span class="user-email">({{ user.email }})</span>
+            </p>
             <p v-if="data.isServerMode && user?.role === 'admin'">
                 <NuxtLink to="/admin" data-button @click="ui.menuOpen = false">
                     {{ $t('admin.title') }}
@@ -142,6 +145,14 @@
         .appname {
             color: var(--col-fg);
             font-weight: 700;
+        }
+
+        .user-info {
+            font-size: 0.875rem;
+        }
+
+        .user-email {
+            color: var(--col-fg2);
         }
     }
 </style>

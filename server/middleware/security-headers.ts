@@ -20,6 +20,8 @@ const CSP = [
     "object-src 'none'",
     // Prevents <base> tag injection attacks.
     "base-uri 'self'",
+    // OAuth redirects (Apple uses form POST callbacks). 'self' covers same-origin callbacks.
+    "form-action 'self' https://accounts.google.com https://appleid.apple.com https://github.com",
     // Redundant with X-Frame-Options but enforced by CSP-aware browsers.
     "frame-ancestors 'none'",
 ].join('; ')
