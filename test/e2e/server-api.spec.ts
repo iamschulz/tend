@@ -80,7 +80,7 @@ describe('Server API', () => {
             expect(res.status).toBe(200)
             const body = await res.json()
             expect(body.loggedIn).toBe(true)
-            expect(body.user.username).toBe('admin')
+            expect(body.user.name).toBe('admin')
         })
 
         it('rejects unauthenticated API requests', async () => {
