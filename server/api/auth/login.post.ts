@@ -3,13 +3,17 @@ import { getRequestIP } from 'h3'
 import { createRateLimiter } from '~~/server/utils/rateLimiter'
 import { safeCompare } from '~~/server/utils/safeCompare'
 import { getSessionVersion } from '~~/server/utils/sessionVersion'
-import { verifyPasswordHash, isBcryptHash } from '~~/server/utils/passwordHash'
+import { hashPassword, verifyPasswordHash, isBcryptHash } from '~~/server/utils/passwordHash'
 import { users } from '~~/server/database/schema'
 
 const loginSchema = z.object({
     username: z.string().min(1),
     password: z.string().min(1),
 })
+
+// Dummy hash used to ensure constant-time rejection when no user is found,
+// preventing timing-based user enumeration.
+let dummyHash: string | null = null
 
 const limiter = createRateLimiter(5, 15 * 60 * 1000)
 
@@ -30,6 +34,9 @@ export default defineEventHandler(async (event) => {
     const { username, password } = await readValidatedBody(event, loginSchema.parse)
     const db = useDb()
 
+    // Lazily initialize dummy hash for constant-time rejection
+    if (!dummyHash) dummyHash = await hashPassword('__dummy__')
+
     // Try database-backed auth first: look up by email or name
     const user = db
         .select()
@@ -44,7 +51,8 @@ export default defineEventHandler(async (event) => {
 
     if (user?.passwordHash) {
         if (!isBcryptHash(user.passwordHash)) {
-            throw createError({ statusCode: 500, message: 'Stored password must be a bcrypt hash' })
+            console.error('[tend] User has non-bcrypt password hash:', user.id)
+            throw createError({ statusCode: 500, message: 'Internal server error' })
         }
 
         const validPassword = await verifyPasswordHash(password, user.passwordHash)
@@ -68,12 +76,15 @@ export default defineEventHandler(async (event) => {
     // Fallback: env-var credentials (backward compat for migration period)
     const config = useRuntimeConfig()
     if (!config.adminUsername || !config.adminPassword) {
+        // Run bcrypt against dummy hash to prevent timing-based user enumeration
+        await verifyPasswordHash(password, dummyHash)
         limiter.recordFailure(ip)
         throw createError({ statusCode: 401, message: 'Invalid credentials' })
     }
 
     if (!isBcryptHash(config.adminPassword)) {
-        throw createError({ statusCode: 500, message: 'NUXT_ADMIN_PASSWORD must be a bcrypt hash' })
+        console.error('[tend] NUXT_ADMIN_PASSWORD is not a bcrypt hash')
+        throw createError({ statusCode: 500, message: 'Internal server error' })
     }
 
     const validUsername = safeCompare(username, config.adminUsername)
@@ -88,7 +99,8 @@ export default defineEventHandler(async (event) => {
     // Find the migrated admin user to populate the new session shape
     const adminUser = db.select().from(users).where(eq(users.role, 'admin')).get()
     if (!adminUser) {
-        throw createError({ statusCode: 500, message: 'No admin user found. Database migration may not have run.' })
+        console.error('[tend] No admin user in database — migration may not have run')
+        throw createError({ statusCode: 500, message: 'Internal server error' })
     }
 
     db.update(users).set({ lastLoginAt: Date.now() }).where(eq(users.id, adminUser.id)).run()

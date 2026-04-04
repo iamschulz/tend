@@ -106,6 +106,43 @@ describe('Multi-User', () => {
         })
     })
 
+    // -- Timing attack prevention ------------------------------------------
+
+    describe('timing', () => {
+        async function timeLogin(username: string): Promise<number> {
+            const start = performance.now()
+            await fetch(`${getBaseUrl()}/api/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password: 'wrongpassword' }),
+                redirect: 'manual',
+            })
+            return performance.now() - start
+        }
+
+        it('responds in similar time for existing and nonexistent users', async () => {
+            // Warm up the dummy hash (first call is slow due to lazy init)
+            await timeLogin('nonexistent@example.com')
+
+            const times = { existing: [] as number[], nonexistent: [] as number[] }
+            const runs = 5
+
+            for (let i = 0; i < runs; i++) {
+                times.existing.push(await timeLogin('admin'))
+                times.nonexistent.push(await timeLogin(`nobody-${i}@example.com`))
+            }
+
+            const avg = (arr: number[]) => arr.reduce((a, b) => a + b, 0) / arr.length
+            const avgExisting = avg(times.existing)
+            const avgNonexistent = avg(times.nonexistent)
+
+            // Both paths should run bcrypt, so times should be within 3x of each other.
+            // Without the fix, nonexistent would be ~10-100x faster.
+            const ratio = Math.max(avgExisting, avgNonexistent) / Math.min(avgExisting, avgNonexistent)
+            expect(ratio, `timing ratio ${ratio.toFixed(2)} (existing: ${avgExisting.toFixed(0)}ms, nonexistent: ${avgNonexistent.toFixed(0)}ms)`).toBeLessThan(3)
+        })
+    })
+
     // -- Registration ------------------------------------------------------
 
     describe('registration', () => {
