@@ -31,7 +31,7 @@ export const federatedCredentials = sqliteTable('federated_credentials', {
 export const allowedEmails = sqliteTable('allowed_emails', {
     id: text('id').primaryKey(),
     email: text('email').notNull().unique(),
-    invitedBy: text('invited_by').references(() => users.id),
+    invitedBy: text('invited_by').references(() => users.id, { onDelete: 'set null' }),
     createdAt: integer('created_at').notNull(),
 })
 

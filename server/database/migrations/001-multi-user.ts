@@ -36,7 +36,7 @@ export default function migrate(sqlite: InstanceType<typeof Database>) {
         CREATE TABLE IF NOT EXISTS allowed_emails (
             id TEXT PRIMARY KEY,
             email TEXT NOT NULL UNIQUE,
-            invited_by TEXT REFERENCES users(id),
+            invited_by TEXT REFERENCES users(id) ON DELETE SET NULL,
             created_at INTEGER NOT NULL
         );
 
