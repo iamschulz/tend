@@ -6,9 +6,7 @@ import { incrementSessionVersion } from '~~/server/utils/sessionVersion'
  * Restricted to admin users.
  */
 export default defineEventHandler(async (event) => {
-    if (event.context.userRole !== 'admin') {
-        throw createError({ statusCode: 403, statusMessage: 'Admin access required' })
-    }
+    requireAdmin(event)
 
     incrementSessionVersion()
     await clearUserSession(event)
