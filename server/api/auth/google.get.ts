@@ -9,15 +9,28 @@ export default defineOAuthGoogleEventHandler({
     config: {
         scope: ['email', 'profile'],
     },
-    async onSuccess(event: H3Event, { user }: { user: { sub: string; email: string; name?: string }; tokens: unknown }) {
+    /**
+     * @param event - The H3 request event
+     * @param result - The OAuth result
+     * @param result.user - The Google user profile
+     * @param result.user.sub - Google subject identifier
+     * @param result.user.email - User email
+     * @param [result.user.name] - User display name
+     * @param result.tokens - OAuth tokens
+     */
+    async onSuccess(event: H3Event, result: { user: { sub: string; email: string; name?: string }; tokens: unknown }) {
         await findOrCreateOAuthUser(
             event,
             'google',
-            user.sub,
-            user.email,
-            user.name ?? user.email,
+            result.user.sub,
+            result.user.email,
+            result.user.name ?? result.user.email,
         )
     },
+    /**
+     * @param event - The H3 request event
+     * @param error - The OAuth error
+     */
     onError(event: H3Event, error: H3Error) {
         console.error('[tend] Google OAuth error:', error.message)
         throw createError({ statusCode: 401, statusMessage: 'Google authentication failed' })

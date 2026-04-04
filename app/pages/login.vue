@@ -105,6 +105,7 @@ const name = ref('')
 const error = ref('')
 const loading = ref(false)
 
+/** Switches between login and registration mode. */
 function toggleMode() {
     isRegistering.value = !isRegistering.value
     error.value = ''

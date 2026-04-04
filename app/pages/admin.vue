@@ -75,6 +75,10 @@ interface InviteItem { id: string; email: string; createdAt: number }
 const { data: userList, refresh: refreshUsers } = await useFetch<UserItem[]>('/api/admin/users')
 const { data: inviteList, refresh: refreshInvites } = await useFetch<InviteItem[]>('/api/admin/invites')
 
+/**
+ * Toggles a user's role between admin and user.
+ * @param user - The user to update
+ */
 async function toggleRole(user: UserItem) {
     error.value = ''
     try {
@@ -89,6 +93,10 @@ async function toggleRole(user: UserItem) {
     }
 }
 
+/**
+ * Deletes a user after confirmation.
+ * @param user - The user to delete
+ */
 async function deleteUser(user: UserItem) {
     error.value = ''
     if (!confirm($i18n.t('admin.deleteConfirm', { name: user.name }))) return
@@ -101,6 +109,7 @@ async function deleteUser(user: UserItem) {
     }
 }
 
+/** Adds an email to the allowlist. */
 async function addInvite() {
     error.value = ''
     try {
@@ -116,6 +125,10 @@ async function addInvite() {
     }
 }
 
+/**
+ * Removes an email from the allowlist.
+ * @param invite - The invite to remove
+ */
 async function removeInvite(invite: InviteItem) {
     error.value = ''
     try {
