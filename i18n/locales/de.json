@@ -225,5 +225,17 @@
         "or": "oder"
     },
 
+    "admin": {
+        "title": "Admin",
+        "users": "Benutzer",
+        "invites": "Einladungen",
+        "invite": "Einladen",
+        "invitePlaceholder": "email{'@'}example.com",
+        "noInvites": "Keine offenen Einladungen",
+        "promote": "Zum Admin machen",
+        "demote": "Admin entfernen",
+        "deleteConfirm": "Benutzer {name} und alle Daten löschen?"
+    },
+
     "logout": "Abmelden"
 }

@@ -225,5 +225,17 @@
         "or": "or"
     },
 
+    "admin": {
+        "title": "Admin",
+        "users": "Users",
+        "invites": "Invites",
+        "invite": "Invite",
+        "invitePlaceholder": "email{'@'}example.com",
+        "noInvites": "No pending invites",
+        "promote": "Make admin",
+        "demote": "Remove admin",
+        "deleteConfirm": "Delete user {name} and all their data?"
+    },
+
     "logout": "Log out"
 }

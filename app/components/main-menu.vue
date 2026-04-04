@@ -27,6 +27,11 @@
                 <DataImport />
                 <DataExport />
             </span>
+            <p v-if="data.isServerMode && user?.role === 'admin'">
+                <NuxtLink to="/admin" data-button @click="ui.menuOpen = false">
+                    {{ $t('admin.title') }}
+                </NuxtLink>
+            </p>
             <p>
                 <button v-if="data.isServerMode" data-button @click="logout">
                     {{ $t('logout') }}
@@ -55,7 +60,7 @@
     const runtimeConfig = useRuntimeConfig();
     const ui = useUiStore();
     const data = useDataStore();
-    const { clear } = useUserSession();
+    const { clear, user } = useUserSession();
 
     /** Clears the session and local data, then redirects to the login page. */
     async function logout() {
