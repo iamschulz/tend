@@ -28,48 +28,61 @@ export default defineEventHandler(async (event) => {
 
     const { email, name, password } = await readValidatedBody(event, registerSchema.parse)
     const db = useDb()
+    const passwordHash = await hashPassword(password)
 
-    // Check if email is already taken
-    const existing = db.select().from(users).where(eq(users.email, email)).get()
-    if (existing) {
-        limiter.recordFailure(ip)
-        throw createError({ statusCode: 409, message: 'An account with this email already exists' })
+    // Transaction prevents race conditions (e.g. two concurrent requests
+    // both seeing zero users and both becoming admin)
+    let userId: string
+    let role: 'admin' | 'user'
+
+    try {
+        const result = db.transaction((tx) => {
+            const existing = tx.select().from(users).where(eq(users.email, email)).get()
+            if (existing) throw new Error('__rejected__')
+
+            const isFirstUser = tx.select().from(users).all().length === 0
+
+            if (!isFirstUser) {
+                const allowed = tx.select().from(allowedEmails).where(eq(allowedEmails.email, email)).get()
+                if (!allowed) throw new Error('__rejected__')
+                tx.delete(allowedEmails).where(eq(allowedEmails.id, allowed.id)).run()
+            }
+
+            const id = crypto.randomUUID()
+            const userRole = isFirstUser ? 'admin' as const : 'user' as const
+
+            tx.insert(users).values({
+                id,
+                email,
+                name,
+                passwordHash,
+                role: userRole,
+                createdAt: Date.now(),
+                lastLoginAt: Date.now(),
+            }).run()
+
+            if (isFirstUser) {
+                console.log(`[tend] First user registered as admin via password`)
+            }
+
+            return { id, role: userRole }
+        })
+
+        userId = result.id
+        role = result.role
     }
-
-    // First user becomes admin, others need to be on the allowlist
-    const userCount = db.select().from(users).all().length
-    const isFirstUser = userCount === 0
-
-    if (!isFirstUser) {
-        const allowed = db.select().from(allowedEmails).where(eq(allowedEmails.email, email)).get()
-        if (!allowed) {
+    catch (e) {
+        if ((e as Error).message === '__rejected__') {
             limiter.recordFailure(ip)
             throw createError({ statusCode: 403, message: 'Registration not allowed' })
         }
-        db.delete(allowedEmails).where(eq(allowedEmails.id, allowed.id)).run()
-    }
-
-    const userId = crypto.randomUUID()
-    const passwordHash = await hashPassword(password)
-
-    db.insert(users).values({
-        id: userId,
-        email,
-        name,
-        passwordHash,
-        role: isFirstUser ? 'admin' : 'user',
-        createdAt: Date.now(),
-        lastLoginAt: Date.now(),
-    }).run()
-
-    if (isFirstUser) {
-        console.log(`[tend] First user "${name}" (${email}) registered as admin via password`)
+        throw e
     }
 
     limiter.clear(ip)
 
     await setUserSession(event, {
-        user: { id: userId, email, name, role: isFirstUser ? 'admin' : 'user' },
+        user: { id: userId, email, name, role },
         sessionVersion: getSessionVersion(),
     })
 

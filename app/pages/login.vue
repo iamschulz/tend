@@ -151,9 +151,7 @@ async function register() {
             ? $i18n.t('login.rateLimited')
             : status === 403
                 ? $i18n.t('login.notAllowed')
-                : status === 409
-                    ? $i18n.t('login.emailTaken')
-                    : $i18n.t('login.error')
+                : $i18n.t('login.error')
     }
     finally {
         loading.value = false

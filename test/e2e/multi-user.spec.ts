@@ -175,13 +175,14 @@ describe('Multi-User', () => {
             expect(session.user.role).toBe('user')
         })
 
-        it('rejects duplicate email registration', async () => {
+        it('rejects duplicate email registration with same error as not-allowed', async () => {
             const res = await fetch(`${getBaseUrl()}/api/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: 'friend@example.com', name: 'Duplicate', password: 'password789' }),
             })
-            expect(res.status).toBe(409)
+            // Returns 403 (same as not-on-allowlist) to prevent user enumeration
+            expect(res.status).toBe(403)
         })
 
         it('rejects registration with short password', async () => {
@@ -197,6 +198,30 @@ describe('Multi-User', () => {
                 body: JSON.stringify({ email: 'short@example.com', name: 'Short', password: 'abc' }),
             })
             expect(res.status).toBe(400)
+        })
+
+        it('concurrent registrations for the same email produce exactly one account', async () => {
+            await apiFetch(adminCookie, '/api/admin/invites', {
+                method: 'POST',
+                body: JSON.stringify({ email: 'race@example.com' }),
+            })
+
+            const attempt = () => fetch(`${getBaseUrl()}/api/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: 'race@example.com', name: 'Racer', password: 'password123' }),
+                redirect: 'manual',
+            })
+
+            // Fire 5 concurrent registrations for the same email
+            const results = await Promise.all([attempt(), attempt(), attempt(), attempt(), attempt()])
+            const statuses = results.map(r => r.status)
+
+            // Exactly one should succeed (200), rest should be rejected (403)
+            const successes = statuses.filter(s => s === 200)
+            const rejections = statuses.filter(s => s === 403)
+            expect(successes, `expected exactly 1 success, got ${successes.length} (statuses: ${statuses})`).toHaveLength(1)
+            expect(rejections).toHaveLength(4)
         })
 
         it('removes email from allowlist after registration', async () => {

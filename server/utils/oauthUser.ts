@@ -46,45 +46,47 @@ export async function findOrCreateOAuthUser(
         return sendRedirect(event, '/')
     }
 
-    // First user becomes admin automatically
-    const userCount = db.select().from(users).all().length
-    const isFirstUser = userCount === 0
+    // Transaction prevents race conditions (e.g. two concurrent OAuth callbacks
+    // both seeing zero users and both becoming admin)
+    const result = db.transaction((tx) => {
+        const isFirstUser = tx.select().from(users).all().length === 0
 
-    if (!isFirstUser) {
-        // Check allowlist
-        const allowed = db.select().from(allowedEmails).where(eq(allowedEmails.email, email)).get()
-        if (!allowed) {
-            throw createError({ statusCode: 403, statusMessage: 'Registration not allowed' })
+        if (!isFirstUser) {
+            const allowed = tx.select().from(allowedEmails).where(eq(allowedEmails.email, email)).get()
+            if (!allowed) {
+                throw createError({ statusCode: 403, statusMessage: 'Registration not allowed' })
+            }
+            tx.delete(allowedEmails).where(eq(allowedEmails.id, allowed.id)).run()
         }
-        // Remove from allowlist after use
-        db.delete(allowedEmails).where(eq(allowedEmails.id, allowed.id)).run()
-    }
 
-    // Create user
-    const userId = crypto.randomUUID()
-    db.insert(users).values({
-        id: userId,
-        email,
-        name,
-        role: isFirstUser ? 'admin' : 'user',
-        createdAt: Date.now(),
-        lastLoginAt: Date.now(),
-    }).run()
+        const userId = crypto.randomUUID()
+        const role = isFirstUser ? 'admin' as const : 'user' as const
 
-    // Link federated credential
-    db.insert(federatedCredentials).values({
-        id: crypto.randomUUID(),
-        userId,
-        provider,
-        providerUserId,
-    }).run()
+        tx.insert(users).values({
+            id: userId,
+            email,
+            name,
+            role,
+            createdAt: Date.now(),
+            lastLoginAt: Date.now(),
+        }).run()
 
-    if (isFirstUser) {
-        console.log(`[tend] First user "${name}" (${email}) registered as admin via ${provider}`)
-    }
+        tx.insert(federatedCredentials).values({
+            id: crypto.randomUUID(),
+            userId,
+            provider,
+            providerUserId,
+        }).run()
+
+        if (isFirstUser) {
+            console.log(`[tend] First user registered as admin via ${provider}`)
+        }
+
+        return { userId, role }
+    })
 
     await setUserSession(event, {
-        user: { id: userId, email, name, role: isFirstUser ? 'admin' : 'user' },
+        user: { id: result.userId, email, name, role: result.role },
         sessionVersion: getSessionVersion(),
     })
 
