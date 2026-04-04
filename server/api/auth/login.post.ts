@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { getRequestIP } from 'h3'
 import { createRateLimiter } from '~~/server/utils/rateLimiter'
+import { safeCompare } from '~~/server/utils/safeCompare'
 import { getSessionVersion } from '~~/server/utils/sessionVersion'
 import { verifyPasswordHash, isBcryptHash } from '~~/server/utils/passwordHash'
 import { users } from '~~/server/database/schema'
@@ -75,7 +76,6 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 500, message: 'NUXT_ADMIN_PASSWORD must be a bcrypt hash' })
     }
 
-    const { safeCompare } = await import('~~/server/utils/safeCompare')
     const validUsername = safeCompare(username, config.adminUsername)
     const validPassword = await verifyPasswordHash(password, config.adminPassword)
     if (!validUsername || !validPassword) {
