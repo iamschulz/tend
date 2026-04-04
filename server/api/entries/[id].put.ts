@@ -1,5 +1,5 @@
 import { entryUpdateSchema } from '~~/shared/schemas/entry'
-import { entries } from '~~/server/database/schema'
+import { categories, entries } from '~~/server/database/schema'
 
 /**
  * PUT /api/entries/:id — Partially updates an entry owned by the authenticated user.
@@ -12,6 +12,11 @@ export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, entryUpdateSchema.parse)
 
     findByIdAndUserOrThrow(entries, id, userId, 'Entry')
+
+    // If categoryId is being changed, verify the target category belongs to this user
+    if (body.categoryId) {
+        findByIdAndUserOrThrow(categories, body.categoryId, userId, 'Category')
+    }
 
     const db = useDb()
     db.update(entries).set(body).where(eq(entries.id, id)).run()
