@@ -75,28 +75,30 @@ export default function migrate(sqlite: InstanceType<typeof Database>) {
         sqlite.exec(`ALTER TABLE entries ADD COLUMN user_id TEXT REFERENCES users(id) ON DELETE CASCADE`)
     }
 
-    // Migrate existing data: create an admin user from env vars and assign all data to them
-    const hasData = sqlite.prepare('SELECT COUNT(*) as count FROM categories').get() as { count: number }
+    // Create admin user from env vars if no users exist yet
     const hasUsers = sqlite.prepare('SELECT COUNT(*) as count FROM users').get() as { count: number }
 
-    if (hasData.count > 0 && hasUsers.count === 0) {
+    if (hasUsers.count === 0) {
         const config = useRuntimeConfig()
-        const adminId = crypto.randomUUID()
-        const email = config.adminUsername ? `${config.adminUsername}@local` : 'admin@local'
-        const name = config.adminUsername || 'Admin'
-        const passwordHash = config.adminPassword || null
+        if (config.adminUsername && config.adminPassword) {
+            const adminId = crypto.randomUUID()
+            const email = `${config.adminUsername}@local`
+            const name = config.adminUsername
+            const passwordHash = config.adminPassword
 
-        sqlite
-            .prepare('INSERT INTO users (id, email, name, password_hash, role, created_at) VALUES (?, ?, ?, ?, ?, ?)')
-            .run(adminId, email, name, passwordHash, 'admin', Date.now())
+            sqlite
+                .prepare('INSERT INTO users (id, email, name, password_hash, role, created_at) VALUES (?, ?, ?, ?, ?, ?)')
+                .run(adminId, email, name, passwordHash, 'admin', Date.now())
 
-        sqlite.prepare('UPDATE categories SET user_id = ? WHERE user_id IS NULL').run(adminId)
-        sqlite.prepare('UPDATE entries SET user_id = ? WHERE user_id IS NULL').run(adminId)
+            // Assign any orphaned data to this admin
+            sqlite.prepare('UPDATE categories SET user_id = ? WHERE user_id IS NULL').run(adminId)
+            sqlite.prepare('UPDATE entries SET user_id = ? WHERE user_id IS NULL').run(adminId)
 
-        // Invalidate old sessions since the session shape changed
-        sqlite.prepare('UPDATE session_meta SET session_version = session_version + 1 WHERE id = 1').run()
+            // Invalidate old sessions since the session shape changed
+            sqlite.prepare('UPDATE session_meta SET session_version = session_version + 1 WHERE id = 1').run()
 
-        console.log(`[tend] Migrated existing data to admin user "${name}" (${email})`)
+            console.log(`[tend] Created admin user "${name}" (${email})`)
+        }
     }
 
     sqlite.exec(`
