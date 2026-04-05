@@ -1,0 +1,67 @@
+import { z } from 'zod'
+import { getRequestIP } from 'h3'
+import { users } from '~~/server/database/schema'
+import { createRateLimiter } from '~~/server/utils/rateLimiter'
+import { hashPassword, verifyPasswordHash, isBcryptHash } from '~~/server/utils/passwordHash'
+import { incrementSessionVersion } from '~~/server/utils/sessionVersion'
+
+const changePasswordSchema = z.object({
+    currentPassword: z.string().min(1),
+    newPassword: z.string().min(8),
+})
+
+const limiter = createRateLimiter(5, 15 * 60 * 1000)
+
+/**
+ * POST /api/auth/change-password — Lets an authenticated user change their own password.
+ * Requires the current password for verification.
+ * Only works for users who have a password (not OAuth-only users).
+ * Rate-limited to 5 failed attempts per IP per 15 minutes.
+ * @param event - The H3 request event
+ * @param event.body.currentPassword - The user's current password
+ * @param event.body.newPassword - The desired new password (min 8 chars)
+ */
+export default defineEventHandler(async (event) => {
+    const ip = getRequestIP(event, { xForwardedFor: true }) ?? 'unknown'
+
+    if (limiter.isLimited(ip)) {
+        throw createError({ statusCode: 429, message: 'Too many attempts. Try again later.' })
+    }
+
+    const userId = event.context.userId
+    if (!userId) {
+        throw createError({ statusCode: 401, message: 'Not authenticated' })
+    }
+
+    const { currentPassword, newPassword } = await readValidatedBody(event, changePasswordSchema.parse)
+    const db = useDb()
+
+    const user = db.select().from(users).where(eq(users.id, userId)).get()
+    if (!user) {
+        throw createError({ statusCode: 404, message: 'User not found' })
+    }
+
+    if (!user.passwordHash || !isBcryptHash(user.passwordHash)) {
+        throw createError({ statusCode: 400, message: 'No password set for this account' })
+    }
+
+    const valid = await verifyPasswordHash(currentPassword, user.passwordHash)
+    if (!valid) {
+        limiter.recordFailure(ip)
+        throw createError({ statusCode: 401, message: 'Invalid current password' })
+    }
+
+    limiter.clear(ip)
+
+    const newHash = await hashPassword(newPassword)
+    db.update(users).set({ passwordHash: newHash }).where(eq(users.id, userId)).run()
+
+    // Invalidate all sessions, then re-issue the current user's session
+    const newVersion = incrementSessionVersion()
+    await setUserSession(event, {
+        user: { id: user.id, email: user.email, name: user.name, role: user.role as 'admin' | 'user' },
+        sessionVersion: newVersion,
+    })
+
+    return { ok: true }
+})

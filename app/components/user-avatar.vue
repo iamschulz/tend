@@ -6,10 +6,15 @@
 </template>
 
 <script setup lang="ts">
+    /** @prop name - The user's display name, used for the initial and color generation */
     const props = defineProps<{
         name: string,
     }>();
 
+    /**
+     * Produces a deterministic numeric hash from a string.
+     * @param str - The input string to hash
+     */
     function hashString(str: string): number {
         let hash = 0;
         for (let i = 0; i < str.length; i++) {
@@ -18,6 +23,10 @@
         return hash;
     }
 
+    /**
+     * Derives a deterministic OKLCH color from a name.
+     * @param name - The name to generate a color for
+     */
     function oklchFromName(name: string): { l: number; c: number; h: number } {
         const hash = hashString(name);
         const h = ((hash % 360) + 360) % 360;

@@ -1,5 +1,5 @@
 <template>
-    <DialogWrapper ref="menuEl" class="menu" data-shadow="5" name="menu" title="Tend" icon="tend">
+    <DialogWrapper ref="menuEl" class="menu" name="menu" title="Tend" icon="tend">
         <details :open="!!data.categories.length" >
             <summary><h3>{{ $t('selectDay') }}</h3></summary>
             <TimeSelect v-if="ui.menuOpen" />
@@ -34,14 +34,21 @@
             <p v-if="user">
                 <UserAvatar :name="user.name" /> {{ user.name }}
             </p>
-            <button data-button @click="logout">
-                {{ $t('logout') }}
-            </button>
-            &nbsp;
-            <NuxtLink v-if="user?.role === 'admin'" to="/admin" data-button @click="ui.menuOpen = false">
-                {{ $t('admin.title') }}
-            </NuxtLink>
+
+            <span data-group class="account-actions">
+                <button data-button @click="ui.toggleChangePassword(true)">
+                    {{ $t('password.change') }}
+                </button>
+                <button data-button @click="logout">
+                    {{ $t('logout') }}
+                </button>
+                <NuxtLink v-if="user?.role === 'admin'" to="/admin" data-button @click="ui.menuOpen = false">
+                    {{ $t('admin.title') }}
+                </NuxtLink>
+            </span>
         </details>
+
+        <ChangePasswordDialog v-if="data.isServerMode" name="changePassword" />
 
         <details>
             <summary><h3>{{ $t('info') }}</h3></summary>

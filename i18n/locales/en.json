@@ -226,6 +226,22 @@
         "or": "or"
     },
 
+    "password": {
+        "change": "Change password",
+        "current": "Current password",
+        "new": "New password",
+        "confirmNew": "Confirm new password",
+        "mismatch": "Passwords do not match",
+        "changed": "Password changed",
+        "changeConfirm": "Change your password?",
+        "invalidCurrent": "Invalid current password",
+        "noPassword": "No password set for this account",
+        "reset": "Reset password",
+        "resetConfirm": "Reset password for {name}?",
+        "resetDone": "Password reset",
+        "newPassword": "New password"
+    },
+
     "admin": {
         "title": "Admin",
         "users": "Users",

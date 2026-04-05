@@ -31,6 +31,10 @@
                                 <option value="admin">{{ $t('admin.admin') }}</option>
                             </select>
                         </label>
+
+                        <button data-button @click="openResetPassword(user)">
+                            {{ $t('password.reset') }}
+                        </button>
                     </article>
                 </li>
             </ul>
@@ -38,14 +42,14 @@
 
         <h2>{{ $t('admin.invites') }}</h2>
         <section data-card data-shadow="1">
-            <form class="invite-form" @submit.prevent="addInvite" data-group>
+            <form data-group class="invite-form" @submit.prevent="addInvite">
                 <input
                     v-model="inviteEmail"
                     type="email"
                     :placeholder="$t('admin.invitePlaceholder')"
                     required
                 >
-                <button type="submit" data-button :disabled="!inviteEmail">
+                <button type="submit" data-button>
                     {{ $t('admin.invite') }}
                 </button>
             </form>
@@ -61,6 +65,12 @@
         </section>
 
         <p v-if="error" class="error" role="alert">{{ error }}</p>
+
+        <ChangePasswordDialog
+            name="adminResetPassword"
+            :user-id="resetUser?.id"
+            :user-name="resetUser?.name"
+        />
     </div>
 </template>
 
@@ -73,6 +83,16 @@ const ui = useUiStore()
 
 const error = ref('')
 const inviteEmail = ref('')
+const resetUser = ref<UserItem | null>(null)
+
+/**
+ * Opens the password reset dialog for the given user.
+ * @param user - The user whose password should be reset
+ */
+function openResetPassword(user: UserItem) {
+    resetUser.value = user
+    ui.toggleAdminResetPassword(true)
+}
 
 interface UserItem { id: string; email: string; name: string; role: string; createdAt: number; lastLoginAt: number | null }
 interface InviteItem { id: string; email: string; createdAt: number }
@@ -88,7 +108,7 @@ const { data: inviteList, refresh: refreshInvites } = await useFetch<InviteItem[
 async function changeRole(user: UserItem, role: string) {
     error.value = ''
     try {
-        await $fetch(`/api/admin/users/${user.id}`, {
+        await $fetch(`/api/admin/users/${encodeURIComponent(user.id)}`, {
             method: 'PUT',
             body: { role },
         })
@@ -107,7 +127,7 @@ async function deleteUser(user: UserItem) {
     error.value = ''
     if (!await ui.requestConfirm($i18n.t('admin.deleteConfirm', { name: user.name }))) return
     try {
-        await $fetch(`/api/admin/users/${user.id}`, { method: 'DELETE' })
+        await $fetch(`/api/admin/users/${encodeURIComponent(user.id)}`, { method: 'DELETE' })
         await refreshUsers()
     }
     catch (e: unknown) {
@@ -138,7 +158,7 @@ async function addInvite() {
 async function removeInvite(invite: InviteItem) {
     error.value = ''
     try {
-        await $fetch(`/api/admin/invites/${invite.id}`, { method: 'DELETE' })
+        await $fetch(`/api/admin/invites/${encodeURIComponent(invite.id)}`, { method: 'DELETE' })
         await refreshInvites()
     }
     catch (e: unknown) {

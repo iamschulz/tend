@@ -226,6 +226,22 @@
         "or": "oder"
     },
 
+    "password": {
+        "change": "Passwort ändern",
+        "current": "Aktuelles Passwort",
+        "new": "Neues Passwort",
+        "confirmNew": "Neues Passwort bestätigen",
+        "mismatch": "Passwörter stimmen nicht überein",
+        "changed": "Passwort geändert",
+        "changeConfirm": "Passwort ändern?",
+        "invalidCurrent": "Aktuelles Passwort ungültig",
+        "noPassword": "Kein Passwort für dieses Konto gesetzt",
+        "reset": "Passwort zurücksetzen",
+        "resetConfirm": "Passwort für {name} zurücksetzen?",
+        "resetDone": "Passwort zurückgesetzt",
+        "newPassword": "Neues Passwort"
+    },
+
     "admin": {
         "title": "Admin",
         "users": "Benutzer",
