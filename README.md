@@ -67,7 +67,7 @@ No extra configuration needed. The first user to register becomes admin. Additio
 
 #### OAuth Providers (optional)
 
-Add any combination of these to your `docker-compose.yml` environment:
+Fill out any of these in your `.env` file:
 
 ```yaml
 # Google
