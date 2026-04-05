@@ -23,10 +23,9 @@ async function clickLogout(page: Page): Promise<void> {
     await openMenu(page)
     // Open the Settings <details> section so the logout button becomes visible
     await page.evaluate(() => {
-        const sections = document.querySelectorAll('dialog.menu details')
-        const settingsSection = sections[2]
-        if (settingsSection && !settingsSection.hasAttribute('open')) {
-            settingsSection.querySelector('summary')?.click()
+        const section = document.querySelector('dialog.menu details.user-info')
+        if (section && !section.hasAttribute('open')) {
+            section.querySelector('summary')?.click()
         }
     })
     const logoutButton = page.locator('dialog.menu button[data-button]', { hasText: /log\s*out|abmelden/i })
