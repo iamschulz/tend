@@ -452,6 +452,30 @@ describe('Multi-User', () => {
             const after = await afterRes.json()
             expect(after.find((u: { id: string }) => u.id === victim.id)).toBeUndefined()
         })
+
+        it('deleted user session is invalidated immediately', async () => {
+            // Invite and register a user
+            await apiFetch(adminCookie, '/api/admin/invites', {
+                method: 'POST',
+                body: JSON.stringify({ email: 'doomed@example.com' }),
+            })
+            const doomedCookie = await register('doomed@example.com', 'Doomed', 'password123')
+
+            // Verify the session works before deletion
+            const beforeRes = await apiFetch(doomedCookie, '/api/categories')
+            expect(beforeRes.status).toBe(200)
+
+            // Find the user and delete them
+            const usersRes = await apiFetch(adminCookie, '/api/admin/users')
+            const users = await usersRes.json()
+            const doomed = users.find((u: { email: string }) => u.email === 'doomed@example.com')
+            const deleteRes = await apiFetch(adminCookie, `/api/admin/users/${doomed.id}`, { method: 'DELETE' })
+            expect(deleteRes.status).toBe(200)
+
+            // Deleted user's session should now be rejected
+            const afterRes = await apiFetch(doomedCookie, '/api/categories')
+            expect(afterRes.status).toBe(401)
+        })
     })
 
     // -- Invite management -------------------------------------------------

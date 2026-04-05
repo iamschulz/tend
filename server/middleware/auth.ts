@@ -1,4 +1,5 @@
 import { getSessionVersion } from '~~/server/utils/sessionVersion'
+import { users } from '~~/server/database/schema'
 
 const publicRoutes = [
     '/api/auth/login',
@@ -41,6 +42,13 @@ export default defineEventHandler(async (event) => {
     }
 
     if (session.user) {
+        // Verify the user still exists (e.g. not deleted by an admin)
+        const user = useDb().select({ id: users.id }).from(users).where(eq(users.id, session.user.id)).get()
+        if (!user) {
+            await clearUserSession(event)
+            throw createError({ statusCode: 401, message: 'Session expired' })
+        }
+
         event.context.userId = session.user.id
         event.context.userRole = session.user.role
     }
