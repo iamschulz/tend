@@ -19,9 +19,14 @@ const publicRoutes = [
  */
 export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig()
-    if (config.public.backendMode !== 'server') return
-
     const path = getRequestURL(event).pathname
+
+    if (config.public.backendMode !== 'server') {
+        if (path.startsWith('/api/admin/')) {
+            throw createError({ statusCode: 403, statusMessage: 'Admin routes are disabled in serverless mode' })
+        }
+        return
+    }
 
     if (!path.startsWith('/api/') || publicRoutes.includes(path)) {
         return
