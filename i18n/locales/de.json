@@ -206,6 +206,7 @@
     "goBack": "Zurück",
 
     "login": {
+        "account": "Konto",
         "username": "Benutzername",
         "email": "E-Mail",
         "name": "Name",

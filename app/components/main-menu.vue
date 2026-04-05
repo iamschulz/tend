@@ -27,19 +27,20 @@
                 <DataImport />
                 <DataExport />
             </span>
-            <p v-if="data.isServerMode && user" class="user-info">
-                {{ user.name }} <span class="user-email">({{ user.email }})</span>
+        </details>
+
+        <details v-if="data.isServerMode" class="user-info">
+            <summary><h3>{{ $t('login.account') }}</h3></summary>
+            <p v-if="user">
+                <UserAvatar :name="user.name" /> {{ user.name }}
             </p>
-            <p v-if="data.isServerMode && user?.role === 'admin'">
-                <NuxtLink to="/admin" data-button @click="ui.menuOpen = false">
-                    {{ $t('admin.title') }}
-                </NuxtLink>
-            </p>
-            <p>
-                <button v-if="data.isServerMode" data-button @click="logout">
-                    {{ $t('logout') }}
-                </button>
-            </p>
+            <button data-button @click="logout">
+                {{ $t('logout') }}
+            </button>
+            &nbsp;
+            <NuxtLink v-if="user?.role === 'admin'" to="/admin" data-button @click="ui.menuOpen = false">
+                {{ $t('admin.title') }}
+            </NuxtLink>
         </details>
 
         <details>
@@ -59,6 +60,7 @@
 <script lang="ts" setup>
     import DisplaySettings from '~/components/display-settings.vue';
     import { idbStorage } from '~/util/idbStorage';
+import UserAvatar from './user-avatar.vue';
 
     const runtimeConfig = useRuntimeConfig();
     const ui = useUiStore();
@@ -148,7 +150,9 @@
         }
 
         .user-info {
-            font-size: 0.875rem;
+            a, button {
+                display: inline-grid;
+            }
         }
 
         .user-email {
