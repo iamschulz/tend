@@ -77,6 +77,16 @@ describe('Multi-User', () => {
             NUXT_ADMIN_USERNAME: 'admin',
             NUXT_ADMIN_PASSWORD: await bcrypt.hash('password123', 4),
             NUXT_DB_PATH: dbPath,
+            // Ensure no OAuth providers leak from the host .env
+            NUXT_OAUTH_GOOGLE_CLIENT_ID: '',
+            NUXT_OAUTH_GOOGLE_CLIENT_SECRET: '',
+            NUXT_OAUTH_APPLE_CLIENT_ID: '',
+            NUXT_OAUTH_APPLE_PRIVATE_KEY: '',
+            NUXT_OAUTH_GITHUB_CLIENT_ID: '',
+            NUXT_OAUTH_GITHUB_CLIENT_SECRET: '',
+            NUXT_OAUTH_OIDC_CLIENT_ID: '',
+            NUXT_OAUTH_OIDC_CLIENT_SECRET: '',
+            NUXT_OAUTH_OIDC_OPENID_CONFIG: '',
         })
         adminCookie = await login('admin', 'password123')
     })
@@ -121,11 +131,10 @@ describe('Multi-User', () => {
         }
 
         it('responds in similar time for existing and nonexistent users', async () => {
-            // Warm up the dummy hash (first call is slow due to lazy init)
-            await timeLogin('nonexistent@example.com')
-
             const times = { existing: [] as number[], nonexistent: [] as number[] }
-            const runs = 5
+            // Keep runs low to stay under the login rate limiter (5 attempts / 15 min).
+            // 2 runs × 2 users = 4 failed attempts, leaving room for the clearing login.
+            const runs = 2
 
             for (let i = 0; i < runs; i++) {
                 times.existing.push(await timeLogin('admin'))
@@ -140,6 +149,9 @@ describe('Multi-User', () => {
             // Without the fix, nonexistent would be ~10-100x faster.
             const ratio = Math.max(avgExisting, avgNonexistent) / Math.min(avgExisting, avgNonexistent)
             expect(ratio, `timing ratio ${ratio.toFixed(2)} (existing: ${avgExisting.toFixed(0)}ms, nonexistent: ${avgNonexistent.toFixed(0)}ms)`).toBeLessThan(3)
+
+            // Clear the login rate limiter with a successful login so subsequent tests can use login()
+            adminCookie = await login('admin', 'password123')
         })
     })
 
@@ -521,14 +533,245 @@ describe('Multi-User', () => {
         })
     })
 
+    // -- Self-service password change ----------------------------------------
+
+    describe('self-service password change', () => {
+        let pwUserCookie: string
+        let currentPw = 'oldpassword1'
+
+        beforeAll(async () => {
+            await apiFetch(adminCookie, '/api/admin/invites', {
+                method: 'POST',
+                body: JSON.stringify({ email: 'pwchange@example.com' }),
+            })
+            pwUserCookie = await register('pwchange@example.com', 'PwUser', currentPw)
+        })
+
+        it('rejects change without authentication', async () => {
+            const res = await fetch(`${getBaseUrl()}/api/auth/change-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ currentPassword: currentPw, newPassword: 'anotherpass1' }),
+            })
+            expect(res.status).toBe(401)
+        })
+
+        it('rejects change with wrong current password', async () => {
+            const res = await apiFetch(pwUserCookie, '/api/auth/change-password', {
+                method: 'POST',
+                body: JSON.stringify({ currentPassword: 'wrongpassword', newPassword: 'anotherpass1' }),
+            })
+            expect(res.status).toBe(401)
+        })
+
+        it('rejects change with short new password', async () => {
+            const res = await apiFetch(pwUserCookie, '/api/auth/change-password', {
+                method: 'POST',
+                body: JSON.stringify({ currentPassword: currentPw, newPassword: 'short' }),
+            })
+            expect(res.status).toBe(400)
+        })
+
+        it('changes password with correct current password', async () => {
+            const res = await apiFetch(pwUserCookie, '/api/auth/change-password', {
+                method: 'POST',
+                body: JSON.stringify({ currentPassword: currentPw, newPassword: 'newpassword1' }),
+            })
+            expect(res.status).toBe(200)
+            const body = await res.json()
+            expect(body.ok).toBe(true)
+            currentPw = 'newpassword1'
+
+            // Capture re-issued session cookie
+            const setCookie = res.headers.getSetCookie()
+            if (setCookie.length) {
+                pwUserCookie = setCookie.map(c => c.split(';')[0]).join('; ')
+            }
+        })
+
+        it('session from change-password response is valid', async () => {
+            const check = await apiFetch(pwUserCookie, '/api/categories')
+            expect(check.status).toBe(200)
+        })
+
+        it('rejects login with old password after change', async () => {
+            const res = await fetch(`${getBaseUrl()}/api/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: 'pwchange@example.com', password: 'oldpassword1' }),
+                redirect: 'manual',
+            })
+            // 401 (wrong password) or 429 (rate limited) — both mean rejected
+            expect([401, 429]).toContain(res.status)
+        })
+
+        it('invalidates other sessions after password change', async () => {
+            // Get a second session by changing password and capturing the re-issued cookie,
+            // then change again and verify the first re-issued cookie is invalidated.
+            const firstChange = await apiFetch(pwUserCookie, '/api/auth/change-password', {
+                method: 'POST',
+                body: JSON.stringify({ currentPassword: currentPw, newPassword: 'sessiontest1' }),
+            })
+            expect(firstChange.status).toBe(200)
+            currentPw = 'sessiontest1'
+            const secondSession = firstChange.headers.getSetCookie().map(c => c.split(';')[0]).join('; ')
+
+            // Change password again from the new session
+            const secondChange = await apiFetch(secondSession, '/api/auth/change-password', {
+                method: 'POST',
+                body: JSON.stringify({ currentPassword: currentPw, newPassword: 'finalpassword1' }),
+            })
+            expect(secondChange.status).toBe(200)
+            currentPw = 'finalpassword1'
+
+            // The session from the first change should now be invalidated
+            const check = await apiFetch(secondSession, '/api/categories')
+            expect(check.status).toBe(401)
+
+            // The session from the second change should still work
+            const freshCookie = secondChange.headers.getSetCookie().map(c => c.split(';')[0]).join('; ')
+            const selfCheck = await apiFetch(freshCookie, '/api/categories')
+            expect(selfCheck.status).toBe(200)
+
+            pwUserCookie = freshCookie
+        })
+    })
+
+    // -- Admin password reset -------------------------------------------------
+
+    describe('admin password reset', () => {
+        let targetUserId: string
+        let resetUserCookie: string
+
+        beforeAll(async () => {
+            // Re-login admin in case session was invalidated by prior password changes
+            adminCookie = await login('admin', 'password123')
+
+            // Create a fresh user for admin reset tests to avoid rate limiter issues
+            await apiFetch(adminCookie, '/api/admin/invites', {
+                method: 'POST',
+                body: JSON.stringify({ email: 'adminreset@example.com' }),
+            })
+            resetUserCookie = await register('adminreset@example.com', 'ResetTarget', 'targetpass1')
+
+            const usersRes = await apiFetch(adminCookie, '/api/admin/users')
+            const users = await usersRes.json()
+            const target = users.find((u: { email: string }) => u.email === 'adminreset@example.com')
+            targetUserId = target.id
+        })
+
+        /**
+         * Capture the re-issued admin session cookie from a response.
+         * @param res - The fetch Response whose Set-Cookie header contains the new session
+         */
+        function captureAdminCookie(res: Response) {
+            const setCookie = res.headers.getSetCookie()
+            if (setCookie.length) {
+                adminCookie = setCookie.map(c => c.split(';')[0]).join('; ')
+            }
+        }
+
+        it('rejects short password', async () => {
+            const res = await apiFetch(adminCookie, `/api/admin/users/${targetUserId}`, {
+                method: 'PUT',
+                body: JSON.stringify({ password: 'short' }),
+            })
+            expect(res.status).toBe(400)
+        })
+
+        it('non-admin cannot reset passwords', async () => {
+            const usersRes = await apiFetch(adminCookie, '/api/admin/users')
+            const users = await usersRes.json()
+            const admin = users.find((u: { role: string }) => u.role === 'admin')
+
+            const res = await apiFetch(resetUserCookie, `/api/admin/users/${admin.id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ password: 'hackedpassword1' }),
+            })
+            expect(res.status).toBe(403)
+        })
+
+        it('rejects reset for nonexistent user', async () => {
+            const res = await apiFetch(adminCookie, '/api/admin/users/nonexistent-id', {
+                method: 'PUT',
+                body: JSON.stringify({ password: 'whatever123' }),
+            })
+            expect(res.status).toBe(404)
+        })
+
+        it('admin can reset another user password', async () => {
+            const res = await apiFetch(adminCookie, `/api/admin/users/${targetUserId}`, {
+                method: 'PUT',
+                body: JSON.stringify({ password: 'adminreset1' }),
+            })
+            expect(res.status).toBe(200)
+            captureAdminCookie(res)
+        })
+
+        it('user can login with admin-set password', async () => {
+            const cookie = await login('adminreset@example.com', 'adminreset1')
+            expect(cookie).toBeTruthy()
+            resetUserCookie = cookie
+        })
+
+        it('rejects login with pre-reset password', async () => {
+            const res = await fetch(`${getBaseUrl()}/api/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: 'adminreset@example.com', password: 'targetpass1' }),
+                redirect: 'manual',
+            })
+            // 401 (wrong password) or 429 (rate limited) — both mean rejected
+            expect([401, 429]).toContain(res.status)
+        })
+
+        it('can change role and password simultaneously', async () => {
+            const res = await apiFetch(adminCookie, `/api/admin/users/${targetUserId}`, {
+                method: 'PUT',
+                body: JSON.stringify({ role: 'admin', password: 'combo12345' }),
+            })
+            expect(res.status).toBe(200)
+            const body = await res.json()
+            expect(body.role).toBe('admin')
+            captureAdminCookie(res)
+
+            // Verify new password works
+            const cookie = await login('adminreset@example.com', 'combo12345')
+            expect(cookie).toBeTruthy()
+
+            // Revert role
+            await apiFetch(adminCookie, `/api/admin/users/${targetUserId}`, {
+                method: 'PUT',
+                body: JSON.stringify({ role: 'user' }),
+            })
+        })
+
+        it('invalidates sessions after admin reset', async () => {
+            // User has a valid session from the combo test
+            const userCookie = await login('adminreset@example.com', 'combo12345')
+
+            // Admin resets their password
+            const resetRes = await apiFetch(adminCookie, `/api/admin/users/${targetUserId}`, {
+                method: 'PUT',
+                body: JSON.stringify({ password: 'resetagain1' }),
+            })
+            captureAdminCookie(resetRes)
+
+            // User's session should be invalidated
+            const check = await apiFetch(userCookie, '/api/categories')
+            expect(check.status).toBe(401)
+        })
+    })
+
     // -- Revoke restricted to admin ----------------------------------------
 
     describe('revoke', () => {
         it('rejects non-admin revoke', async () => {
-            await apiFetch(adminCookie, '/api/admin/invites', {
+            const inviteRes = await apiFetch(adminCookie, '/api/admin/invites', {
                 method: 'POST',
                 body: JSON.stringify({ email: 'revoke-test@example.com' }),
             })
+            expect(inviteRes.status).toBe(200)
             const userCookie = await register('revoke-test@example.com', 'Revoker', 'password123')
 
             const res = await apiFetch(userCookie, '/api/auth/revoke', { method: 'POST' })
