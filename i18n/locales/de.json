@@ -228,6 +228,9 @@
     "admin": {
         "title": "Admin",
         "users": "Benutzer",
+        "user": "Benutzer",
+        "admin": "Admin",
+        "role": "Accounttyp",
         "invites": "Einladungen",
         "invite": "Einladen",
         "invitePlaceholder": "email{'@'}example.com",

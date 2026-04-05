@@ -228,6 +228,9 @@
     "admin": {
         "title": "Admin",
         "users": "Users",
+        "user": "User",
+        "admin": "Admin",
+        "role": "Role",
         "invites": "Invites",
         "invite": "Invite",
         "invitePlaceholder": "email{'@'}example.com",

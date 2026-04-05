@@ -57,6 +57,16 @@
             return titleForYear(dateStr) ?? fallback;
         }
 
+        // /admin
+        if (path.startsWith('/admin')) {
+            return {
+                short: t('admin.title'),
+                long: t('admin.title'),
+                prevLink: null,
+                nextLink: null,
+            };
+        }
+
         return fallback;
     });
 

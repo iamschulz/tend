@@ -1,40 +1,44 @@
 <template>
     <div class="admin-page">
-        <h1>{{ $t('admin.title') }}</h1>
-
         <section>
             <h2>{{ $t('admin.users') }}</h2>
-            <ul class="nolist user-list">
-                <li v-for="user in userList" :key="user.id" class="user-item">
-                    <div class="user-info">
-                        <strong>{{ user.name }}</strong>
-                        <span class="user-email">{{ user.email }}</span>
-                        <span class="user-role" :data-role="user.role">{{ user.role }}</span>
-                    </div>
-                    <div class="user-actions" data-group>
-                        <button
-                            v-if="user.id !== session.user?.id"
-                            data-button
-                            @click="toggleRole(user)"
-                        >
-                            {{ user.role === 'admin' ? $t('admin.demote') : $t('admin.promote') }}
-                        </button>
-                        <button
-                            v-if="user.id !== session.user?.id"
-                            data-button
-                            class="danger"
-                            @click="deleteUser(user)"
-                        >
-                            {{ $t('delete') }}
-                        </button>
-                    </div>
+            <ul class="nolist user-list" data-autogrid="1/3">
+                <li v-for="user in userList" :key="user.id" class="user-item" >
+                    <article data-card data-shadow="1">
+                        <header class="user-info">
+                            <span>
+                                <UserAvatar :name="user.name" />&nbsp;
+                                <strong>{{ user.name }}</strong>
+                            </span>
+                            <button
+                                v-if="user.id !== session.user?.id"
+                                @click="deleteUser(user)"
+                            >
+                                <nuxt-icon name="delete" />
+                                <span class="sr-only">{{ $t('delete') }}</span>
+                            </button>
+                        </header>
+
+                        <span class="user-email">{{ $t("login.email") }}: {{ user.email }}</span><br>
+                        <label class="user-role">
+                            {{ $t("admin.role") }}:
+                            <select
+                                :value="user.role"
+                                :disabled="user.id === session.user?.id"
+                                @change="changeRole(user, ($event.target as HTMLSelectElement).value)"
+                            >
+                                <option value="user">{{ $t('admin.user') }}</option>
+                                <option value="admin">{{ $t('admin.admin') }}</option>
+                            </select>
+                        </label>
+                    </article>
                 </li>
             </ul>
         </section>
 
-        <section>
-            <h2>{{ $t('admin.invites') }}</h2>
-            <form class="invite-form" @submit.prevent="addInvite">
+        <h2>{{ $t('admin.invites') }}</h2>
+        <section data-card data-shadow="1">
+            <form class="invite-form" @submit.prevent="addInvite" data-group>
                 <input
                     v-model="inviteEmail"
                     type="email"
@@ -57,14 +61,15 @@
         </section>
 
         <p v-if="error" class="error" role="alert">{{ error }}</p>
-
-        <NuxtLink to="/" class="back-link">{{ $t('goBack') }}</NuxtLink>
     </div>
 </template>
 
 <script setup lang="ts">
+import UserAvatar from '~/components/user-avatar.vue';
+
 const { $i18n } = useNuxtApp()
 const { session } = useUserSession()
+const ui = useUiStore()
 
 const error = ref('')
 const inviteEmail = ref('')
@@ -76,15 +81,16 @@ const { data: userList, refresh: refreshUsers } = await useFetch<UserItem[]>('/a
 const { data: inviteList, refresh: refreshInvites } = await useFetch<InviteItem[]>('/api/admin/invites')
 
 /**
- * Toggles a user's role between admin and user.
+ * Changes a user's role.
  * @param user - The user to update
+ * @param role - The new role
  */
-async function toggleRole(user: UserItem) {
+async function changeRole(user: UserItem, role: string) {
     error.value = ''
     try {
         await $fetch(`/api/admin/users/${user.id}`, {
             method: 'PUT',
-            body: { role: user.role === 'admin' ? 'user' : 'admin' },
+            body: { role },
         })
         await refreshUsers()
     }
@@ -99,7 +105,7 @@ async function toggleRole(user: UserItem) {
  */
 async function deleteUser(user: UserItem) {
     error.value = ''
-    if (!confirm($i18n.t('admin.deleteConfirm', { name: user.name }))) return
+    if (!await ui.requestConfirm($i18n.t('admin.deleteConfirm', { name: user.name }))) return
     try {
         await $fetch(`/api/admin/users/${user.id}`, { method: 'DELETE' })
         await refreshUsers()
@@ -142,83 +148,29 @@ async function removeInvite(invite: InviteItem) {
 </script>
 
 <style scoped>
-.admin-page {
-    max-width: 40rem;
-    margin: 0 auto;
-    padding: 1rem;
-}
+    .user-item,
+    .invite-item {
+        [data-card] {
+            width: 100%;
+        }
+    }
 
-h1 {
-    font-family: var(--font-accent);
-}
+    .user-info {
+        display: flex;
+        justify-content: space-between;
+        
+        button {
+            margin-left: auto;
+        }   
+    }
 
-section {
-    margin-block: 2rem;
-}
+    .user-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1ch;
+    }
 
-.user-item,
-.invite-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid var(--col-bg3);
-}
-
-.user-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.125rem;
-}
-
-.user-email {
-    font-size: 0.875rem;
-    color: var(--col-fg2);
-}
-
-.user-role {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.user-role[data-role="admin"] {
-    color: var(--col-accent);
-}
-
-.invite-form {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.invite-form input {
-    flex: 1;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--col-fg2);
-    border-radius: var(--border-radius);
-    background: var(--col-bg3);
-    color: var(--col-fg);
-    font-family: var(--font);
-    font-size: 1rem;
-}
-
-.danger {
-    color: var(--col-accent2);
-}
-
-.empty {
-    color: var(--col-fg2);
-    font-size: 0.875rem;
-}
-
-.error {
-    color: var(--col-accent2);
-    font-size: 0.875rem;
-}
-
-.back-link {
-    display: inline-block;
-    margin-top: 1rem;
-}
+    .invite-form input {
+        flex: 1;
+    }
 </style>
