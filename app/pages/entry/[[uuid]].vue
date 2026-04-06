@@ -2,9 +2,9 @@
     <loading-indicator v-if="!mounted" />
     <section v-else-if="entry" data-card data-shadow="1" :style="{ viewTransitionName: `entry-card-${entry.id}` }">
         <header>
-            <span class="icon" :style="{ '--categoryColor': entry.category!.color }">
+            <NuxtLink :to="`/category/${entry.category!.id}`" class="icon" :style="{ '--categoryColor': entry.category!.color }">
                 {{ entry.category!.activity.emoji }}
-            </span>
+            </NuxtLink>
             <h2 class="title">
                 {{ entry.category!.title }}
             </h2>
