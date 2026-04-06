@@ -5,6 +5,8 @@
             class="month-link"
             :aria-label="ariaLabel"
             :aria-current="isCurrentMonth ? 'date' : undefined"
+            :tabindex="tabindex"
+            :data-date="dateStr"
             data-card-link
         >
             <span class="month-name">{{ monthLabel }}</span>
@@ -29,6 +31,7 @@
         entryCount: number;
         ariaLabel: string;
         categories: { id: string; title: string; color: string; count: number }[];
+        tabindex: number;
     }>();
 
     const monthLabel = new Date(Date.UTC(2024, props.month, 1)).toLocaleDateString(undefined, { month: 'short' });

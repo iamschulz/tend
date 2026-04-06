@@ -242,83 +242,11 @@
         return rows;
     });
 
-    // Initial focused date: Jan 1 of the year
-    const focusedDate = ref(
-        `${props.year}-01-01`
+    const { focusedKey: focusedDate, onGridKeydown } = useGridNavigation(
+        gridEl,
+        () => gridRows.value.flatMap(row => row.map(cell => ({ key: cell.date, row: cell.row, col: cell.col }))),
+        `${props.year}-01-01`,
     );
-
-    // Flat lookup: date -> { row, colIndex within that row }
-    const cellIndex = computed(() => {
-        const map = new Map<string, { row: number; colIdx: number }>();
-        for (let row = 0; row < gridRows.value.length; row++) {
-            const cells = gridRows.value[row]!;
-            for (let colIdx = 0; colIdx < cells.length; colIdx++) {
-                map.set(cells[colIdx]!.date, { row, colIdx });
-            }
-        }
-        return map;
-    });
-
-    /**
-     * Updates the roving tabindex and moves focus to the cell matching the given date string.
-     * @param date - The ISO date string (YYYY-MM-DD) of the cell to focus
-     */
-    const focusCellByDate = (date: string) => {
-        focusedDate.value = date;
-        nextTick(() => {
-            const el = gridEl.value?.querySelector<HTMLElement>(`[data-date="${date}"]`);
-            el?.focus();
-        });
-    };
-
-    /**
-     * Handles arrow-key navigation within the activity grid per WAI-ARIA grid pattern.
-     * @param e - The keyboard event from the grid
-     */
-    const onGridKeydown = (e: KeyboardEvent) => {
-        const pos = cellIndex.value.get(focusedDate.value);
-        if (!pos) return;
-
-        const { row, colIdx } = pos;
-        const rows = gridRows.value;
-        const currentRow = rows[row]!;
-        const currentCell = currentRow[colIdx]!;
-        let nextDate: string | undefined;
-
-        switch (e.key) {
-            case 'ArrowRight':
-                nextDate = currentRow[colIdx + 1]?.date;
-                break;
-            case 'ArrowLeft':
-                nextDate = currentRow[colIdx - 1]?.date;
-                break;
-            case 'ArrowDown':
-                for (let r = row + 1; r < 7; r++) {
-                    const candidate = rows[r]!.find(c => c.col === currentCell.col);
-                    if (candidate) { nextDate = candidate.date; break; }
-                }
-                break;
-            case 'ArrowUp':
-                for (let r = row - 1; r >= 0; r--) {
-                    const candidate = rows[r]!.find(c => c.col === currentCell.col);
-                    if (candidate) { nextDate = candidate.date; break; }
-                }
-                break;
-            case 'Home':
-                nextDate = currentRow[0]?.date;
-                break;
-            case 'End':
-                nextDate = currentRow[currentRow.length - 1]?.date;
-                break;
-            default:
-                return;
-        }
-
-        if (nextDate) {
-            e.preventDefault();
-            focusCellByDate(nextDate);
-        }
-    };
 
     // Month labels positioned at the first week column of each month
     const monthLabels = computed(() => {

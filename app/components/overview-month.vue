@@ -1,13 +1,13 @@
 <template>
     <div data-carousel>
-        <table class="month-grid" :aria-label="monthLabel">
+        <table ref="gridEl" class="month-grid" role="grid" :aria-label="monthLabel" @keydown="onGridKeydown">
             <thead>
                 <tr>
                     <th v-for="day in weekdays" :key="day.short" :aria-label="day.full" class="weekday-header">{{ day.short }}</th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(week, wi) in calendarWeeks" :key="wi">
+                <tr v-for="(week, wi) in calendarWeeks" :key="wi" role="row">
                     <td
                         v-for="(cell, ci) in week"
                         :key="ci"
@@ -17,8 +17,9 @@
                             today: cell?.isToday,
                             'has-entries': cell && cell.categories.length > 0,
                         }"
+                        role="gridcell"
                     >
-                        <MonthEntry v-if="cell" v-bind="cell" />
+                        <MonthEntry v-if="cell" v-bind="cell" :tabindex="cell.dateStr === focusedDate ? 0 : -1" />
                     </td>
                 </tr>
             </tbody>
@@ -115,6 +116,7 @@
     });
 
     const todayEl = ref<HTMLElement | null>(null);
+    const gridEl = ref<HTMLTableElement | null>(null);
     const monthGoalsEl = ref<ComponentPublicInstance | null>(null)
 
     onMounted(async () => {
@@ -135,6 +137,18 @@
         }
         return weeks;
     });
+
+    // Grid navigation (roving tabindex + arrow keys)
+    const firstCellDate = calendarCells.value.find(c => c !== null)?.dateStr;
+    const initialFocus = calendarCells.value.some(c => c?.dateStr === todayStr) ? todayStr : firstCellDate ?? '';
+
+    const { focusedKey: focusedDate, onGridKeydown } = useGridNavigation(
+        gridEl,
+        () => calendarWeeks.value.flatMap((week, row) =>
+            week.flatMap((cell, col) => cell ? [{ key: cell.dateStr, row, col }] : [])
+        ),
+        initialFocus,
+    );
 </script>
 
 <style scoped>
