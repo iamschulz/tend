@@ -88,7 +88,7 @@ describe('Views', () => {
     const yearGrid = await page.$('.year-grid')
     expect(yearGrid).not.toBeNull()
 
-    const monthItems = await page.$$('.year-grid [role="listitem"]')
+    const monthItems = await page.$$('.year-grid [role="gridcell"]')
     expect(monthItems.length).toBe(12)
 
     const currentMonth = await page.$('.year-grid .current-month')
