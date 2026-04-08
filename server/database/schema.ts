@@ -69,9 +69,22 @@ export const entries = sqliteTable('entries', {
     comment: text('comment').notNull().default(''),
 })
 
+export const apiTokens = sqliteTable('api_tokens', {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+        .notNull()
+        .references(() => users.id, { onDelete: 'cascade' }),
+    tokenHash: text('token_hash').notNull().unique(),
+    label: text('label').notNull(),
+    expiresAt: integer('expires_at'),
+    createdAt: integer('created_at').notNull(),
+    lastUsedAt: integer('last_used_at'),
+})
+
 export type DbTable = typeof categories | typeof entries
 export type UserRow = typeof users.$inferSelect
 export type FederatedCredentialRow = typeof federatedCredentials.$inferSelect
 export type AllowedEmailRow = typeof allowedEmails.$inferSelect
 export type CategoryRow = typeof categories.$inferSelect
 export type EntryRow = typeof entries.$inferSelect
+export type ApiTokenRow = typeof apiTokens.$inferSelect
