@@ -135,6 +135,14 @@ chmod 600 ./data/tend.db
 
 If your login gets compromised, set a new `NUXT_ADMIN_PASSWORD` and `NUXT_SESSION_PASSWORD` in the `docker-compose.yml`.
 
+### Fail2ban
+
+Tend logs authentication events in a structured format that can be parsed by [fail2ban](https://github.com/fail2ban/fail2ban) to ban IPs at the firewall after repeated failures. The log lines look like:
+
+```
+[tend-auth] authentication-failure ip=192.168.1.1 user=alice@example.com path=/api/auth/login
+```
+
 ### Data & Backups
 
 The SQLite database is stored at `./data/tend.db` on your host machine. To create a consistent backup, use the SQLite backup command:

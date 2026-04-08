@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { getRequestIP } from 'h3'
 import { createRateLimiter } from '~~/server/utils/rateLimiter'
+import { logAuthEvent } from '~~/server/utils/authLogger'
 import { safeCompare } from '~~/server/utils/safeCompare'
 import { getSessionVersion } from '~~/server/utils/sessionVersion'
 import { hashPassword, verifyPasswordHash, isBcryptHash } from '~~/server/utils/passwordHash'
@@ -28,6 +29,7 @@ export default defineEventHandler(async (event) => {
     const ip = getRequestIP(event, { xForwardedFor: true }) ?? 'unknown'
 
     if (limiter.isLimited(ip)) {
+        logAuthEvent('rate-limited', ip, 'unknown', '/api/auth/login')
         throw createError({ statusCode: 429, message: 'Too many login attempts. Try again later.' })
     }
 
@@ -58,10 +60,12 @@ export default defineEventHandler(async (event) => {
         const validPassword = await verifyPasswordHash(password, user.passwordHash)
         if (!validPassword) {
             limiter.recordFailure(ip)
+            logAuthEvent('authentication-failure', ip, username, '/api/auth/login')
             throw createError({ statusCode: 401, message: 'Invalid credentials' })
         }
 
         limiter.clear(ip)
+        logAuthEvent('authentication-success', ip, username, '/api/auth/login')
 
         db.update(users).set({ lastLoginAt: Date.now() }).where(eq(users.id, user.id)).run()
 
@@ -79,6 +83,7 @@ export default defineEventHandler(async (event) => {
         // Run bcrypt against dummy hash to prevent timing-based user enumeration
         await verifyPasswordHash(password, dummyHash)
         limiter.recordFailure(ip)
+        logAuthEvent('authentication-failure', ip, username, '/api/auth/login')
         throw createError({ statusCode: 401, message: 'Invalid credentials' })
     }
 
@@ -91,10 +96,12 @@ export default defineEventHandler(async (event) => {
     const validPassword = await verifyPasswordHash(password, config.adminPassword)
     if (!validUsername || !validPassword) {
         limiter.recordFailure(ip)
+        logAuthEvent('authentication-failure', ip, username, '/api/auth/login')
         throw createError({ statusCode: 401, message: 'Invalid credentials' })
     }
 
     limiter.clear(ip)
+    logAuthEvent('authentication-success', ip, username, '/api/auth/login')
 
     // Find the migrated admin user to populate the new session shape
     const adminUser = db.select().from(users).where(eq(users.role, 'admin')).get()

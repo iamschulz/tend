@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { getRequestIP } from 'h3'
 import { users } from '~~/server/database/schema'
 import { createRateLimiter } from '~~/server/utils/rateLimiter'
+import { logAuthEvent } from '~~/server/utils/authLogger'
 import { hashPassword, verifyPasswordHash, isBcryptHash } from '~~/server/utils/passwordHash'
 import { incrementSessionVersion } from '~~/server/utils/sessionVersion'
 
@@ -25,6 +26,7 @@ export default defineEventHandler(async (event) => {
     const ip = getRequestIP(event, { xForwardedFor: true }) ?? 'unknown'
 
     if (limiter.isLimited(ip)) {
+        logAuthEvent('rate-limited', ip, 'unknown', '/api/auth/change-password')
         throw createError({ statusCode: 429, message: 'Too many attempts. Try again later.' })
     }
 
@@ -48,10 +50,12 @@ export default defineEventHandler(async (event) => {
     const valid = await verifyPasswordHash(currentPassword, user.passwordHash)
     if (!valid) {
         limiter.recordFailure(ip)
+        logAuthEvent('authentication-failure', ip, user.email, '/api/auth/change-password')
         throw createError({ statusCode: 401, message: 'Invalid current password' })
     }
 
     limiter.clear(ip)
+    logAuthEvent('authentication-success', ip, user.email, '/api/auth/change-password')
 
     const newHash = await hashPassword(newPassword)
     db.update(users).set({ passwordHash: newHash }).where(eq(users.id, userId)).run()

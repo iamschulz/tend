@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { getRequestIP } from 'h3'
 import crypto from 'node:crypto'
 import { createRateLimiter } from '~~/server/utils/rateLimiter'
+import { logAuthEvent } from '~~/server/utils/authLogger'
 import { hashPassword } from '~~/server/utils/passwordHash'
 import { getSessionVersion } from '~~/server/utils/sessionVersion'
 import { users, allowedEmails } from '~~/server/database/schema'
@@ -23,6 +24,7 @@ export default defineEventHandler(async (event) => {
     const ip = getRequestIP(event, { xForwardedFor: true }) ?? 'unknown'
 
     if (limiter.isLimited(ip)) {
+        logAuthEvent('rate-limited', ip, 'unknown', '/api/auth/register')
         throw createError({ statusCode: 429, message: 'Too many attempts. Try again later.' })
     }
 
@@ -74,12 +76,14 @@ export default defineEventHandler(async (event) => {
     catch (e) {
         if ((e as Error).message === '__rejected__') {
             limiter.recordFailure(ip)
+            logAuthEvent('registration-rejected', ip, email, '/api/auth/register')
             throw createError({ statusCode: 403, message: 'Registration not allowed' })
         }
         throw e
     }
 
     limiter.clear(ip)
+    logAuthEvent('registration-success', ip, email, '/api/auth/register')
 
     await setUserSession(event, {
         user: { id: userId, email, name, role },
