@@ -206,11 +206,55 @@
     "goBack": "Zurück",
 
     "login": {
+        "account": "Konto",
         "username": "Benutzername",
+        "email": "E-Mail",
+        "name": "Name",
         "password": "Passwort",
         "submit": "Anmelden",
+        "createAccount": "Konto erstellen",
+        "noAccount": "Noch kein Konto? Registrieren",
+        "hasAccount": "Bereits ein Konto? Anmelden",
         "error": "Ungültiger Benutzername oder Passwort",
-        "rateLimited": "Zu viele Anmeldeversuche. Bitte versuche es später erneut."
+        "emailTaken": "Ein Konto mit dieser E-Mail existiert bereits.",
+        "rateLimited": "Zu viele Versuche. Bitte versuche es später erneut.",
+        "notAllowed": "Registrierung nicht erlaubt.",
+        "withGoogle": "Mit Google anmelden",
+        "withApple": "Mit Apple anmelden",
+        "withGitHub": "Mit GitHub anmelden",
+        "withOidc": "Mit SSO anmelden",
+        "or": "oder"
+    },
+
+    "password": {
+        "change": "Passwort ändern",
+        "current": "Aktuelles Passwort",
+        "new": "Neues Passwort",
+        "confirmNew": "Neues Passwort bestätigen",
+        "mismatch": "Passwörter stimmen nicht überein",
+        "changed": "Passwort geändert",
+        "changeConfirm": "Passwort ändern?",
+        "invalidCurrent": "Aktuelles Passwort ungültig",
+        "noPassword": "Kein Passwort für dieses Konto gesetzt",
+        "reset": "Passwort zurücksetzen",
+        "resetConfirm": "Passwort für {name} zurücksetzen?",
+        "resetDone": "Passwort zurückgesetzt",
+        "newPassword": "Neues Passwort"
+    },
+
+    "admin": {
+        "title": "Admin",
+        "users": "Benutzer",
+        "user": "Benutzer",
+        "admin": "Admin",
+        "role": "Accounttyp",
+        "invites": "Einladungen",
+        "invite": "Einladen",
+        "invitePlaceholder": "email{'@'}example.com",
+        "noInvites": "Keine offenen Einladungen",
+        "promote": "Zum Admin machen",
+        "demote": "Admin entfernen",
+        "deleteConfirm": "Benutzer {name} und alle Daten löschen?"
     },
 
     "logout": "Abmelden"

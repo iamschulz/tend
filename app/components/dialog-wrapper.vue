@@ -1,5 +1,5 @@
 <template>
-    <dialog ref="dialogEl">
+    <dialog ref="dialogEl" data-shadow="5">
         <header>
             <div class="headline">
                 <nuxt-icon v-if="icon" :name="icon" filled />

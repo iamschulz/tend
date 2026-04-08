@@ -206,11 +206,55 @@
     "goBack": "Go back",
 
     "login": {
+        "account": "Account",
         "username": "Username",
+        "email": "Email",
+        "name": "Name",
         "password": "Password",
         "submit": "Log in",
+        "createAccount": "Create account",
+        "noAccount": "Don't have an account? Sign up",
+        "hasAccount": "Already have an account? Log in",
         "error": "Invalid username or password",
-        "rateLimited": "Too many login attempts. Please try again later."
+        "emailTaken": "An account with this email already exists.",
+        "rateLimited": "Too many attempts. Please try again later.",
+        "notAllowed": "Registration not allowed.",
+        "withGoogle": "Sign in with Google",
+        "withApple": "Sign in with Apple",
+        "withGitHub": "Sign in with GitHub",
+        "withOidc": "Sign in with SSO",
+        "or": "or"
+    },
+
+    "password": {
+        "change": "Change password",
+        "current": "Current password",
+        "new": "New password",
+        "confirmNew": "Confirm new password",
+        "mismatch": "Passwords do not match",
+        "changed": "Password changed",
+        "changeConfirm": "Change your password?",
+        "invalidCurrent": "Invalid current password",
+        "noPassword": "No password set for this account",
+        "reset": "Reset password",
+        "resetConfirm": "Reset password for {name}?",
+        "resetDone": "Password reset",
+        "newPassword": "New password"
+    },
+
+    "admin": {
+        "title": "Admin",
+        "users": "Users",
+        "user": "User",
+        "admin": "Admin",
+        "role": "Role",
+        "invites": "Invites",
+        "invite": "Invite",
+        "invitePlaceholder": "email{'@'}example.com",
+        "noInvites": "No pending invites",
+        "promote": "Make admin",
+        "demote": "Remove admin",
+        "deleteConfirm": "Delete user {name} and all their data?"
     },
 
     "logout": "Log out"

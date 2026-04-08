@@ -2,22 +2,24 @@ import { importDataSchema } from '~~/shared/schemas/importData'
 import { categories, entries } from '~~/server/database/schema'
 
 /**
- * POST /api/data/import — Replaces all data. Wipes and re-inserts in a single transaction.
+ * POST /api/data/import — Replaces the authenticated user's data. Wipes and re-inserts in a single transaction.
  * @param event.body - Full dataset validated against `importDataSchema`
  */
 export default defineEventHandler(async (event) => {
+    const userId = requireUserId(event)
     const body = await readValidatedBody(event, importDataSchema.parse)
 
     const db = useDb()
 
-    // Wipe existing data and insert everything in a transaction
+    // Wipe only this user's data and insert everything in a transaction
     db.transaction((tx) => {
-        tx.delete(entries).run()
-        tx.delete(categories).run()
+        tx.delete(entries).where(eq(entries.userId, userId)).run()
+        tx.delete(categories).where(eq(categories.userId, userId)).run()
 
         for (const cat of body.categories) {
             tx.insert(categories).values({
                 id: cat.id,
+                userId,
                 title: cat.title,
                 activityTitle: cat.activity.title,
                 activityIcon: cat.activity.icon,
@@ -31,6 +33,7 @@ export default defineEventHandler(async (event) => {
             for (const entry of cat.entries) {
                 tx.insert(entries).values({
                     id: entry.id,
+                    userId,
                     categoryId: entry.categoryId,
                     start: entry.start,
                     end: entry.end,

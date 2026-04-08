@@ -1,5 +1,5 @@
 <template>
-    <DialogWrapper ref="menuEl" class="menu" data-shadow="5" name="menu" title="Tend" icon="tend">
+    <DialogWrapper ref="menuEl" class="menu" name="menu" title="Tend" icon="tend">
         <details :open="!!data.categories.length" >
             <summary><h3>{{ $t('selectDay') }}</h3></summary>
             <TimeSelect v-if="ui.menuOpen" />
@@ -27,12 +27,28 @@
                 <DataImport />
                 <DataExport />
             </span>
-            <p>
-                <button v-if="data.isServerMode" data-button @click="logout">
+        </details>
+
+        <details v-if="data.isServerMode" class="user-info">
+            <summary><h3>{{ $t('login.account') }}</h3></summary>
+            <p v-if="user">
+                <UserAvatar :name="user.name" /> {{ user.name }}
+            </p>
+
+            <span data-group class="account-actions">
+                <button data-button @click="ui.toggleChangePassword(true)">
+                    {{ $t('password.change') }}
+                </button>
+                <button data-button @click="logout">
                     {{ $t('logout') }}
                 </button>
-            </p>
+                <NuxtLink v-if="user?.role === 'admin'" to="/admin" data-button @click="ui.menuOpen = false">
+                    {{ $t('admin.title') }}
+                </NuxtLink>
+            </span>
         </details>
+
+        <ChangePasswordDialog v-if="data.isServerMode" name="changePassword" />
 
         <details>
             <summary><h3>{{ $t('info') }}</h3></summary>
@@ -51,11 +67,12 @@
 <script lang="ts" setup>
     import DisplaySettings from '~/components/display-settings.vue';
     import { idbStorage } from '~/util/idbStorage';
+import UserAvatar from './user-avatar.vue';
 
     const runtimeConfig = useRuntimeConfig();
     const ui = useUiStore();
     const data = useDataStore();
-    const { clear } = useUserSession();
+    const { clear, user } = useUserSession();
 
     /** Clears the session and local data, then redirects to the login page. */
     async function logout() {
@@ -137,6 +154,16 @@
         .appname {
             color: var(--col-fg);
             font-weight: 700;
+        }
+
+        .user-info {
+            a, button {
+                display: inline-grid;
+            }
+        }
+
+        .user-email {
+            color: var(--col-fg2);
         }
     }
 </style>

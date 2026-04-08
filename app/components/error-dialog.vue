@@ -1,5 +1,5 @@
 <template>
-    <DialogWrapper name="error" :title="ui.errorMessage" class="error-dialog" data-shadow="5">
+    <DialogWrapper name="error" :title="ui.errorMessage" class="error-dialog">
         <div class="error-actions">
             <button data-variant="primary" @click="ui.toggleError(false)">{{ $t('close') }}</button>
         </div>

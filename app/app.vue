@@ -47,6 +47,8 @@
         && route.path !== '/login'
     )
 
+    const { user } = useUserSession()
+
     if (import.meta.client) {
         watch(serverLoading, async (loading) => {
             if (loading) {
@@ -54,6 +56,15 @@
                 catch { data.serverHydrated = true }
             }
         }, { immediate: true })
+
+        // Re-hydrate when user identity changes (e.g. session expiry + re-login as different user)
+        watch(() => user.value?.id, async (newId, oldId) => {
+            if (oldId && newId && newId !== oldId) {
+                data.serverHydrated = false
+                try { await data.hydrateFromServer() }
+                catch { data.serverHydrated = true }
+            }
+        })
     }
 
     const ready = ref(false)

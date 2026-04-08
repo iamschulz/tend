@@ -1,5 +1,5 @@
 <template>
-    <DialogWrapper name="confirm" :title="ui.confirmMessage" class="confirm-dialog" data-shadow="5">
+    <DialogWrapper name="confirm" :title="ui.confirmMessage" class="confirm-dialog">
         <div class="confirm-actions">
             <button @click="ui.resolveConfirm(false)"><nuxt-icon name="close" />{{ $t('cancel') }}</button>
             <button data-variant="primary" @click="ui.resolveConfirm(true)"><nuxt-icon name="check" />{{ $t('confirm') }}</button>
