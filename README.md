@@ -43,8 +43,6 @@ When moving from serverless to self-hosted (or vice versa), you can use the impo
          - ./data:/data
        environment:
          - NUXT_SESSION_PASSWORD=   # random string, min 32 characters
-         - NUXT_ADMIN_USERNAME=     # your login username
-         - NUXT_ADMIN_PASSWORD=     # bcrypt hash of your password (see Security below)
          - NUXT_MAX_BODY_SIZE_MB=5       # optional, max request body in MB
          - NUXT_SESSION_MAX_AGE_DAYS=60  # optional, session lifetime in days
        restart: unless-stopped
@@ -55,7 +53,7 @@ When moving from serverless to self-hosted (or vice versa), you can use the impo
    docker compose up -d
    ```
 
-Tend will be available at `http://localhost:3000`.
+Tend will be available at `http://localhost:3000`. The first created user will have admin rights.
 
 ### Authentication
 
@@ -119,21 +117,12 @@ The login page will show a "Sign in with SSO" button when configured.
 
 ### Security
 
-`NUXT_ADMIN_PASSWORD` must be a bcrypt hash, not a plaintext password. Generate one with Node.js:
-
-```sh
-node -e "require('bcryptjs').hash('yourpassword', 12).then(console.log)"
-```
-Please note that all `$` characters in the hash must be duplicated in the `docker-compose.yml` due do yml's character escaping.
-
 If you expose Tend to the Internet, you must use HTTPS, or else the password and session cookie are transmitted in plain text and can be intercepted. It is highly adviced to use a self-signed cert and HSTS even when not exposed to the Internet.
 
 Also run this comtainer root-less and check your database permissions:
 ```sh
 chmod 600 ./data/tend.db
 ```
-
-If your login gets compromised, set a new `NUXT_ADMIN_PASSWORD` and `NUXT_SESSION_PASSWORD` in the `docker-compose.yml`.
 
 ### Fail2ban
 
