@@ -4,15 +4,16 @@ import { categories } from '~~/server/database/schema'
 const updateSchema = categoryCreateSchema.partial()
 
 /**
- * PUT /api/categories/:id — Partially updates a category. Returns 404 if not found.
+ * PUT /api/categories/:id — Partially updates a category owned by the authenticated user.
  * @param event.params.id - The category UUID
  * @param event.body - Partial category data validated against `categoryCreateSchema.partial()`
  */
 export default defineEventHandler(async (event) => {
+    const userId = requireUserId(event)
     const id = getRouterParam(event, 'id')!
     const body = await readValidatedBody(event, updateSchema.parse)
 
-    findByIdOrThrow(categories, id, 'Category')
+    findByIdAndUserOrThrow(categories, id, userId, 'Category')
 
     const { activity, ...rest } = body
     const values: Record<string, unknown> = { ...rest }

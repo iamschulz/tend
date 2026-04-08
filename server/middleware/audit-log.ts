@@ -1,7 +1,6 @@
 /**
- * Logs every API request with method, path, IP address, and response status.
+ * Logs every API request with method, path, IP address, user ID, and response status.
  * Runs after the response is sent so it captures the final status code.
- * @param event - The H3 request event
  */
 export default defineEventHandler((event) => {
     if (!event.path.startsWith('/api/')) return
@@ -12,6 +11,7 @@ export default defineEventHandler((event) => {
 
     event.node.res.on('finish', () => {
         const status = event.node.res.statusCode
-        console.log(`[audit] ${method} ${path} ${status} ip=${ip}`)
+        const userId = event.context.userId ?? 'null'
+        console.log(`[audit] ${method} ${path} ${status} ip=${ip} user=${userId}`)
     })
 })

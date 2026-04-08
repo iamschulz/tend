@@ -273,7 +273,7 @@
 
             .icon {
                 flex: 0 0 auto;
-                font-size: 1.4em;
+                font-size: 1.55em;
                 display: inline-grid;
                 place-items: center;
                 height: 4rem;
@@ -286,7 +286,7 @@
             .title-input {
                 margin: 0;
                 padding: 0;
-                font-size: 1.5rem;
+                font-size: 2rem;
                 font-weight: 700;
                 border: none;
                 border-bottom: 1px solid transparent;

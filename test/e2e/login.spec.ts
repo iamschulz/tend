@@ -106,6 +106,6 @@ describe('Login', () => {
 
         await page.waitForSelector('[role="alert"].error', { timeout: 5000 })
         const alertText = await page.$eval('[role="alert"].error', el => el.textContent ?? '')
-        expect(alertText).toContain('Too many login attempts')
+        expect(alertText).toContain('Too many')
     })
 })

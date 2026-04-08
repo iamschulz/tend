@@ -17,6 +17,8 @@ export const useUiStore = defineStore('ui', {
     errorOpen: false,
     errorMessage: '',
     triggerDialogOpen: false,
+    changePasswordOpen: false,
+    adminResetPasswordOpen: false,
   }),
 
   getters: {
@@ -32,6 +34,10 @@ export const useUiStore = defineStore('ui', {
     error: (state) => state.errorOpen,
     /** @param state - Store state */
     triggerDialog: (state) => state.triggerDialogOpen,
+    /** @param state - Store state */
+    changePassword: (state) => state.changePasswordOpen,
+    /** @param state - Store state */
+    adminResetPassword: (state) => state.adminResetPasswordOpen,
   },
 
   actions: {
@@ -56,6 +62,16 @@ export const useUiStore = defineStore('ui', {
     /** @param force - Optional value to force the trigger dialog open or closed */
     toggleTriggerDialog(force?: boolean) {
       this.triggerDialogOpen = force === undefined ? !this.triggerDialogOpen : force;
+    },
+
+    /** @param force - Optional value to force the change password dialog open or closed */
+    toggleChangePassword(force?: boolean) {
+      this.changePasswordOpen = force === undefined ? !this.changePasswordOpen : force;
+    },
+
+    /** @param force - Optional value to force the admin reset password dialog open or closed */
+    toggleAdminResetPassword(force?: boolean) {
+      this.adminResetPasswordOpen = force === undefined ? !this.adminResetPasswordOpen : force;
     },
 
     /** @param force - Optional value to force the error dialog open or closed */

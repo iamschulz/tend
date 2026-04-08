@@ -1,10 +1,11 @@
 import { categories, entries, type EntryRow } from '~~/server/database/schema'
 
-/** GET /api/data/export — Returns all data in the client-compatible import/export format. */
-export default defineEventHandler(async () => {
+/** GET /api/data/export — Returns the authenticated user's data in the import/export format. */
+export default defineEventHandler(async (event) => {
+    const userId = requireUserId(event)
     const db = useDb()
-    const allCategories = db.select().from(categories).all()
-    const allEntries = db.select().from(entries).all()
+    const allCategories = db.select().from(categories).where(eq(categories.userId, userId)).all()
+    const allEntries = db.select().from(entries).where(eq(entries.userId, userId)).all()
 
     const entryMap = new Map<string, EntryRow[]>()
     for (const e of allEntries) {

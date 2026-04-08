@@ -1,11 +1,40 @@
 import Database from 'better-sqlite3'
 import { drizzle } from 'drizzle-orm/better-sqlite3'
 import * as schema from './schema'
+import migration001 from './migrations/001-multi-user'
 
 let _db: ReturnType<typeof drizzle<typeof schema>> | null = null
 
+/** Ordered list of migration functions. Each entry corresponds to a schema version (1-indexed). */
+const migrations = [migration001]
+
 /**
- * Opens the SQLite database, enables WAL mode and foreign keys, and creates tables.
+ * Returns the current schema version from the migrations table, or 0 if no migrations have run.
+ * @param sqlite - The raw better-sqlite3 database instance
+ */
+function getSchemaVersion(sqlite: InstanceType<typeof Database>): number {
+    const tableExists = sqlite
+        .prepare(`SELECT name FROM sqlite_master WHERE type='table' AND name='schema_migrations'`)
+        .get()
+    if (!tableExists) return 0
+    const row = sqlite.prepare('SELECT version FROM schema_migrations ORDER BY version DESC LIMIT 1').get() as
+        | { version: number }
+        | undefined
+    return row?.version ?? 0
+}
+
+/**
+ * Records a completed migration version in the schema_migrations table.
+ * @param sqlite - The raw better-sqlite3 database instance
+ * @param version - The migration version number to record
+ */
+function setSchemaVersion(sqlite: InstanceType<typeof Database>, version: number) {
+    sqlite.exec(`CREATE TABLE IF NOT EXISTS schema_migrations (version INTEGER PRIMARY KEY)`)
+    sqlite.prepare('INSERT OR REPLACE INTO schema_migrations (version) VALUES (?)').run(version)
+}
+
+/**
+ * Opens the SQLite database, enables WAL mode and foreign keys, and runs pending migrations.
  * @param dbPath - Path to the SQLite database file
  */
 export function initDatabase(dbPath: string) {
@@ -15,37 +44,12 @@ export function initDatabase(dbPath: string) {
 
     _db = drizzle(sqlite, { schema })
 
-    // Create tables if they don't exist
-    sqlite.exec(`
-        CREATE TABLE IF NOT EXISTS categories (
-            id TEXT PRIMARY KEY,
-            title TEXT NOT NULL,
-            activity_title TEXT NOT NULL,
-            activity_icon TEXT NOT NULL,
-            activity_emoji TEXT NOT NULL,
-            color TEXT NOT NULL,
-            goals TEXT NOT NULL DEFAULT '[]',
-            hidden INTEGER NOT NULL DEFAULT 0,
-            comment TEXT NOT NULL DEFAULT ''
-        );
+    const currentVersion = getSchemaVersion(sqlite)
 
-        CREATE TABLE IF NOT EXISTS entries (
-            id TEXT PRIMARY KEY,
-            category_id TEXT NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
-            start INTEGER NOT NULL,
-            "end" INTEGER,
-            running INTEGER NOT NULL DEFAULT 0,
-            comment TEXT NOT NULL DEFAULT ''
-        );
-
-        CREATE INDEX IF NOT EXISTS idx_entries_category_id ON entries(category_id);
-
-        CREATE TABLE IF NOT EXISTS session_meta (
-            id INTEGER PRIMARY KEY,
-            session_version INTEGER NOT NULL DEFAULT 1
-        );
-        INSERT OR IGNORE INTO session_meta (id, session_version) VALUES (1, 1);
-    `)
+    for (let i = currentVersion; i < migrations.length; i++) {
+        migrations[i]!(sqlite)
+        setSchemaVersion(sqlite, i + 1)
+    }
 
     return _db
 }

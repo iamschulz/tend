@@ -1,13 +1,13 @@
 <template>
-    <div class="year-grid" role="list" :aria-label="yearLabel">
+    <div ref="gridEl" class="year-grid" role="grid" :aria-label="yearLabel" @keydown="onGridKeydown">
         <div
             v-for="cell in monthCells"
             :key="cell.month"
             ref="months"
-            role="listitem"
+            role="gridcell"
             :class="{ 'current-month': cell.isCurrentMonth }"
         >
-            <YearEntry v-bind="cell" />
+            <YearEntry v-bind="cell" :tabindex="cell.dateStr === focusedDate ? 0 : -1" />
         </div>
     </div>
 </template>
@@ -45,6 +45,7 @@
     };
 
     const months = ref<HTMLElement[] | null>(null);
+    const gridEl = ref<HTMLElement | null>(null);
 
     onMounted(async () => {
         if (!isCurrentYear) return;
@@ -98,6 +99,30 @@
 
         return cells;
     });
+
+    // Grid navigation (roving tabindex + arrow keys)
+    const initialFocus = isCurrentYear
+        ? monthCells.value[currentMonthIndex]!.dateStr
+        : monthCells.value[0]!.dateStr;
+
+    /** Returns the current number of CSS grid columns (varies with viewport width). */
+    const getGridCols = () => {
+        if (!gridEl.value) return 1;
+        return getComputedStyle(gridEl.value).gridTemplateColumns.split(' ').length;
+    };
+
+    const { focusedKey: focusedDate, onGridKeydown } = useGridNavigation(
+        gridEl,
+        () => {
+            const cols = getGridCols();
+            return monthCells.value.map((cell, i) => ({
+                key: cell.dateStr,
+                row: Math.floor(i / cols),
+                col: i % cols,
+            }));
+        },
+        initialFocus,
+    );
 </script>
 
 <style scoped>

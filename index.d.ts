@@ -1,6 +1,13 @@
 declare module '#auth-utils' {
+    interface User {
+        id: string
+        email: string
+        name: string
+        role: 'admin' | 'user'
+    }
+
     interface UserSession {
-        user?: { username: string }
+        user?: User
         sessionVersion?: number
     }
 }

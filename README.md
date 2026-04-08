@@ -43,8 +43,6 @@ When moving from serverless to self-hosted (or vice versa), you can use the impo
          - ./data:/data
        environment:
          - NUXT_SESSION_PASSWORD=   # random string, min 32 characters
-         - NUXT_ADMIN_USERNAME=     # your login username
-         - NUXT_ADMIN_PASSWORD=     # bcrypt hash of your password (see Security below)
          - NUXT_MAX_BODY_SIZE_MB=5       # optional, max request body in MB
          - NUXT_SESSION_MAX_AGE_DAYS=60  # optional, session lifetime in days
        restart: unless-stopped
@@ -55,16 +53,69 @@ When moving from serverless to self-hosted (or vice versa), you can use the impo
    docker compose up -d
    ```
 
-Tend will be available at `http://localhost:3000`.
+Tend will be available at `http://localhost:3000`. The first created user will have admin rights.
+
+### Authentication
+
+Tend supports multiple authentication methods. Password-based accounts always work out of the box. OAuth providers are optional.
+
+#### Password (default)
+
+No extra configuration needed. The first user to register becomes admin. Additional users must be invited by the admin (via the admin panel's email allowlist).
+
+#### OAuth Providers (optional)
+
+Fill out any of these in your `.env` file:
+
+```yaml
+# Google
+- NUXT_OAUTH_GOOGLE_CLIENT_ID=
+- NUXT_OAUTH_GOOGLE_CLIENT_SECRET=
+
+# Apple
+- NUXT_OAUTH_APPLE_CLIENT_ID=
+- NUXT_OAUTH_APPLE_TEAM_ID=
+- NUXT_OAUTH_APPLE_KEY_ID=
+- NUXT_OAUTH_APPLE_PRIVATE_KEY=
+
+# GitHub
+- NUXT_OAUTH_GITHUB_CLIENT_ID=
+- NUXT_OAUTH_GITHUB_CLIENT_SECRET=
+```
+
+#### Self-hosted SSO (Authelia, Authentik, Keycloak, etc.)
+
+Tend supports any OpenID Connect-compliant provider via the generic OIDC handler. This is the recommended approach if you want SSO without depending on third-party services.
+
+Example with Authelia:
+
+1. In your Authelia configuration, register Tend as a client:
+   ```yaml
+   identity_providers:
+     oidc:
+       clients:
+         - client_id: tend
+           client_secret: '<your-secret-hash>'
+           redirect_uris:
+             - https://tend.example.com/api/auth/oidc
+           scopes:
+             - openid
+             - profile
+             - email
+           authorization_policy: two_factor  # optional
+   ```
+
+2. Add the OIDC environment variables to your `docker-compose.yml`:
+   ```yaml
+   environment:
+     - NUXT_OAUTH_OIDC_CLIENT_ID=tend
+     - NUXT_OAUTH_OIDC_CLIENT_SECRET=<your-client-secret>
+     - NUXT_OAUTH_OIDC_OPENID_CONFIG=https://auth.example.com/.well-known/openid-configuration
+   ```
+
+The login page will show a "Sign in with SSO" button when configured.
 
 ### Security
-
-`NUXT_ADMIN_PASSWORD` must be a bcrypt hash, not a plaintext password. Generate one with Node.js:
-
-```sh
-node -e "require('bcryptjs').hash('yourpassword', 12).then(console.log)"
-```
-Please note that all `$` characters in the hash must be duplicated in the `docker-compose.yml` due do yml's character escaping.
 
 If you expose Tend to the Internet, you must use HTTPS, or else the password and session cookie are transmitted in plain text and can be intercepted. It is highly adviced to use a self-signed cert and HSTS even when not exposed to the Internet.
 
@@ -73,7 +124,13 @@ Also run this comtainer root-less and check your database permissions:
 chmod 600 ./data/tend.db
 ```
 
-If your login gets compromised, set a new `NUXT_ADMIN_PASSWORD` and `NUXT_SESSION_PASSWORD` in the `docker-compose.yml`.
+### Fail2ban
+
+Tend logs authentication events in a structured format that can be parsed by [fail2ban](https://github.com/fail2ban/fail2ban) to ban IPs at the firewall after repeated failures. The log lines look like:
+
+```
+[tend-auth] authentication-failure ip=192.168.1.1 user=alice@example.com path=/api/auth/login
+```
 
 ### Data & Backups
 

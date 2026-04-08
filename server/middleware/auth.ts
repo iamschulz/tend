@@ -1,12 +1,33 @@
 import { getSessionVersion } from '~~/server/utils/sessionVersion'
+import { users } from '~~/server/database/schema'
 
-const publicRoutes = ['/api/auth/login', '/api/auth/session', '/api/_auth/session']
+const publicRoutes = [
+    '/api/auth/login',
+    '/api/auth/session',
+    '/api/_auth/session',
+    '/api/auth/google',
+    '/api/auth/apple',
+    '/api/auth/github',
+    '/api/auth/oidc',
+    '/api/auth/register',
+    '/api/auth/providers',
+]
 
+/**
+ * Server auth middleware — guards all /api/ routes except public ones.
+ * Validates the session and its version, then populates event.context with
+ * the authenticated user's ID and role for downstream handlers.
+ */
 export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig()
-    if (config.public.backendMode !== 'server') return
-
     const path = getRequestURL(event).pathname
+
+    if (config.public.backendMode !== 'server') {
+        if (path.startsWith('/api/admin/')) {
+            throw createError({ statusCode: 403, statusMessage: 'Admin routes are disabled in serverless mode' })
+        }
+        return
+    }
 
     if (!path.startsWith('/api/') || publicRoutes.includes(path)) {
         return
@@ -18,5 +39,17 @@ export default defineEventHandler(async (event) => {
     if (session.sessionVersion !== getSessionVersion()) {
         await clearUserSession(event)
         throw createError({ statusCode: 401, message: 'Session expired' })
+    }
+
+    if (session.user) {
+        // Verify the user still exists (e.g. not deleted by an admin)
+        const user = useDb().select({ id: users.id }).from(users).where(eq(users.id, session.user.id)).get()
+        if (!user) {
+            await clearUserSession(event)
+            throw createError({ statusCode: 401, message: 'Session expired' })
+        }
+
+        event.context.userId = session.user.id
+        event.context.userRole = session.user.role
     }
 })

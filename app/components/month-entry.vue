@@ -5,6 +5,8 @@
             class="day-link"
             :aria-label="ariaLabel"
             :aria-current="isToday ? 'date' : undefined"
+            :tabindex="tabindex"
+            :data-date="dateStr"
             data-card-link
         >
             <span class="day-number">{{ day }}</span>
@@ -29,6 +31,7 @@
         entryCount: number;
         ariaLabel: string;
         categories: { id: string; title: string; color: string; count: number }[];
+        tabindex: number;
     }>();
 </script>
 
