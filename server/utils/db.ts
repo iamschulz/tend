@@ -1,9 +1,9 @@
-import { eq, and } from 'drizzle-orm'
+import { eq, and, gte, lte, or, isNull } from 'drizzle-orm'
 import { getDatabase } from '../database'
 import type { DbTable } from '../database/schema'
 
 /** Re-exported Drizzle helpers, auto-imported in all server routes by Nitro. */
-export { eq, and }
+export { eq, and, gte, lte, or, isNull }
 
 /** Returns the Drizzle database instance. Auto-imported in all server routes by Nitro. */
 export function useDb() {

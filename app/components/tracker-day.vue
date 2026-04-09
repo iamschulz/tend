@@ -33,7 +33,7 @@
 <script setup lang="ts">
     import { useDataStore } from '~/stores/data';
     import TrackerEntry from './tracker-entry.vue';
-    import { getDayRange } from '~/util/getDayRange';
+    import { getDayRange } from '~~/shared/utils/dateRanges';
     import { toLocalDateStr } from '~/util/toLocalDateStr';
     import { prefersReducedMotion } from '~/util/prefersReducedMotion';
     const props = defineProps<{
