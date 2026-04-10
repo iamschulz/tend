@@ -1,20 +1,21 @@
 import { entries } from '~~/server/database/schema'
 import { entryQuerySchema } from '~~/shared/schemas/entryQuery'
-import { getDayRange, getWeekRange, getMonthRange, getYearRange } from '~~/shared/utils/dateRanges'
+import { getDayRangeUTC, getWeekRangeUTC, getMonthRangeUTC, getYearRangeUTC } from '~~/shared/utils/dateRanges'
 
 const rangeFns = {
-    day: getDayRange,
-    week: getWeekRange,
-    month: getMonthRange,
-    year: getYearRange,
+    day: getDayRangeUTC,
+    week: getWeekRangeUTC,
+    month: getMonthRangeUTC,
+    year: getYearRangeUTC,
 } as const
 
 /**
  * GET /api/entries — Returns entries for the authenticated user.
  * If `range` and `date` query params are provided, filters to entries overlapping that range.
  * If omitted, returns all entries for the user.
+ * Dates are interpreted as **UTC** — `date=2026-04-10` covers midnight-to-midnight UTC.
  * @param event.query.range - Optional range type: `'day' | 'week' | 'month' | 'year'`
- * @param event.query.date - Optional ISO date string (YYYY-MM-DD) as the reference point
+ * @param event.query.date - Optional ISO date string (YYYY-MM-DD), interpreted as UTC
  * @returns Array of entries
  */
 export default defineEventHandler(async (event) => {
@@ -27,9 +28,7 @@ export default defineEventHandler(async (event) => {
         return db.select().from(entries).where(eq(entries.userId, userId)).all()
     }
 
-    const [start, end] = rangeFns[query.range](new Date(query.date))
-    const startMs = start.getTime()
-    const endMs = end.getTime()
+    const [startMs, endMs] = rangeFns[query.range](new Date(query.date))
 
     return db
         .select()

@@ -43,3 +43,50 @@ export const getYearRange = (d: Date) => [
     new Date(d.getFullYear(), 0, 1),
     new Date(d.getFullYear(), 11, 31, 23, 59, 59, 999)
 ] as const
+
+// --- UTC variants for server-side use ---
+// These use UTC methods so that range boundaries are timezone-agnostic.
+// Use these when filtering DB timestamps from an API date query parameter.
+
+/**
+ * Returns the UTC start and end timestamps (ms) for a given day.
+ * @param d - The date to get the range for (interpreted as UTC)
+ * @returns A tuple of [start of day UTC, end of day UTC]
+ */
+export const getDayRangeUTC = (d: Date) => [
+    Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()),
+    Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 23, 59, 59, 999),
+] as const
+
+/**
+ * Returns the UTC start (Monday) and end (Sunday) timestamps (ms) for the ISO week containing the given date.
+ * @param d - The date to get the week range for (interpreted as UTC)
+ * @returns A tuple of [start of Monday UTC, end of Sunday UTC]
+ */
+export const getWeekRangeUTC = (d: Date) => {
+    const day = d.getUTCDay() || 7
+    const mondayDate = d.getUTCDate() - day + 1
+    const start = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), mondayDate)
+    const end = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), mondayDate + 6, 23, 59, 59, 999)
+    return [start, end] as const
+}
+
+/**
+ * Returns the UTC start and end timestamps (ms) for the month containing the given date.
+ * @param d - The date to get the month range for (interpreted as UTC)
+ * @returns A tuple of [first day of month UTC, last day of month UTC]
+ */
+export const getMonthRangeUTC = (d: Date) => [
+    Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1),
+    Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0, 23, 59, 59, 999),
+] as const
+
+/**
+ * Returns the UTC start and end timestamps (ms) for the year containing the given date.
+ * @param d - The date to get the year range for (interpreted as UTC)
+ * @returns A tuple of [Jan 1 UTC, Dec 31 UTC]
+ */
+export const getYearRangeUTC = (d: Date) => [
+    Date.UTC(d.getUTCFullYear(), 0, 1),
+    Date.UTC(d.getUTCFullYear(), 11, 31, 23, 59, 59, 999),
+] as const
