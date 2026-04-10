@@ -15,6 +15,8 @@ export function useDb() {
  * @param table - The Drizzle table to query
  * @param id - The row ID
  * @param label - Human-readable name for the error message (e.g. "Category")
+ * @returns The matching row
+ * @throws 404 if no row with the given ID exists
  */
 export function findByIdOrThrow(table: DbTable, id: string, label: string) {
     const db = useDb()
@@ -32,6 +34,8 @@ export function findByIdOrThrow(table: DbTable, id: string, label: string) {
  * @param id - The row ID
  * @param userId - The authenticated user's ID
  * @param label - Human-readable name for the error message (e.g. "Category")
+ * @returns The matching row
+ * @throws 404 if no row with the given ID and userId exists
  */
 export function findByIdAndUserOrThrow(table: DbTable, id: string, userId: string, label: string) {
     const db = useDb()
