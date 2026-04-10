@@ -306,6 +306,350 @@ describe('Server API', () => {
         })
     })
 
+    // -- API Tokens ---------------------------------------------------------
+
+    describe('api tokens', () => {
+        it('POST /api/auth/tokens creates a token', async () => {
+            const res = await apiFetch(cookie, '/api/auth/tokens', {
+                method: 'POST',
+                body: JSON.stringify({ label: 'Test token' }),
+            })
+            expect(res.status).toBe(200)
+            const body = await res.json()
+            expect(body).toHaveProperty('token')
+            expect(body.token.length).toBeGreaterThan(0)
+            expect(body.label).toBe('Test token')
+            expect(body).toHaveProperty('id')
+            expect(body).toHaveProperty('createdAt')
+        })
+
+        it('GET /api/auth/tokens lists tokens without hashes', async () => {
+            const res = await apiFetch(cookie, '/api/auth/tokens')
+            expect(res.status).toBe(200)
+            const body = await res.json()
+            expect(Array.isArray(body)).toBe(true)
+            expect(body.length).toBeGreaterThanOrEqual(1)
+            expect(body[0]).toHaveProperty('label')
+            expect(body[0]).not.toHaveProperty('tokenHash')
+            expect(body[0]).not.toHaveProperty('token')
+        })
+
+        it('Bearer token authenticates API requests', async () => {
+            const createRes = await apiFetch(cookie, '/api/auth/tokens', {
+                method: 'POST',
+                body: JSON.stringify({ label: 'Bearer test' }),
+            })
+            const { token } = await createRes.json()
+
+            const res = await fetch(`${getBaseUrl()}/api/categories`, {
+                headers: { Authorization: `Bearer ${token}` },
+            })
+            expect(res.status).toBe(200)
+        })
+
+        it('invalid Bearer token returns 401', async () => {
+            const res = await fetch(`${getBaseUrl()}/api/categories`, {
+                headers: { Authorization: 'Bearer invalid-token-value' },
+            })
+            expect(res.status).toBe(401)
+        })
+
+        it('expired Bearer token returns 401', async () => {
+            const createRes = await apiFetch(cookie, '/api/auth/tokens', {
+                method: 'POST',
+                body: JSON.stringify({ label: 'Expired', expiresAt: Date.now() + 1000 }),
+            })
+            const { token } = await createRes.json()
+
+            // Wait for token to expire
+            await new Promise(r => setTimeout(r, 1500))
+
+            const res = await fetch(`${getBaseUrl()}/api/categories`, {
+                headers: { Authorization: `Bearer ${token}` },
+            })
+            expect(res.status).toBe(401)
+        })
+
+        it('DELETE /api/auth/tokens/:id revokes a token', async () => {
+            const createRes = await apiFetch(cookie, '/api/auth/tokens', {
+                method: 'POST',
+                body: JSON.stringify({ label: 'To revoke' }),
+            })
+            const { id, token } = await createRes.json()
+
+            // Revoke the token
+            const delRes = await apiFetch(cookie, `/api/auth/tokens/${id}`, { method: 'DELETE' })
+            expect(delRes.status).toBe(200)
+
+            // Revoked token no longer works
+            const res = await fetch(`${getBaseUrl()}/api/categories`, {
+                headers: { Authorization: `Bearer ${token}` },
+            })
+            expect(res.status).toBe(401)
+        })
+
+        it('DELETE /api/auth/tokens/:id returns 404 for missing token', async () => {
+            const res = await apiFetch(cookie, `/api/auth/tokens/${crypto.randomUUID()}`, { method: 'DELETE' })
+            expect(res.status).toBe(404)
+        })
+
+        it('last_used_at is updated on token use', async () => {
+            const createRes = await apiFetch(cookie, '/api/auth/tokens', {
+                method: 'POST',
+                body: JSON.stringify({ label: 'Usage tracking' }),
+            })
+            const { id, token } = await createRes.json()
+
+            // Use the token
+            await fetch(`${getBaseUrl()}/api/categories`, {
+                headers: { Authorization: `Bearer ${token}` },
+            })
+
+            // Check last_used_at is set
+            const listRes = await apiFetch(cookie, '/api/auth/tokens')
+            const tokens = await listRes.json()
+            const found = tokens.find((t: { id: string }) => t.id === id)
+            expect(found.lastUsedAt).toBeTypeOf('number')
+            expect(found.lastUsedAt).toBeGreaterThan(0)
+        })
+    })
+
+    // -- Entry date-range filtering -----------------------------------------
+
+    describe('entry date-range filtering', () => {
+        let rangeTestCategoryId: string
+
+        beforeAll(async () => {
+            const cat = makeCategory({ title: 'Range Test' })
+            rangeTestCategoryId = cat.id
+            await apiFetch(cookie, '/api/categories', {
+                method: 'POST',
+                body: JSON.stringify(cat),
+            })
+
+            // Create entries on specific UTC dates
+            // Entry on 2025-06-15 (finished)
+            await apiFetch(cookie, '/api/entries', {
+                method: 'POST',
+                body: JSON.stringify(makeEntry(rangeTestCategoryId, {
+                    start: Date.UTC(2025, 5, 15, 10, 0, 0),
+                    end: Date.UTC(2025, 5, 15, 11, 0, 0),
+                    running: false,
+                    comment: 'june-15',
+                })),
+            })
+
+            // Entry on 2025-06-16 (finished)
+            await apiFetch(cookie, '/api/entries', {
+                method: 'POST',
+                body: JSON.stringify(makeEntry(rangeTestCategoryId, {
+                    start: Date.UTC(2025, 5, 16, 14, 0, 0),
+                    end: Date.UTC(2025, 5, 16, 15, 0, 0),
+                    running: false,
+                    comment: 'june-16',
+                })),
+            })
+
+            // Entry on 2025-07-01 (different month)
+            await apiFetch(cookie, '/api/entries', {
+                method: 'POST',
+                body: JSON.stringify(makeEntry(rangeTestCategoryId, {
+                    start: Date.UTC(2025, 6, 1, 8, 0, 0),
+                    end: Date.UTC(2025, 6, 1, 9, 0, 0),
+                    running: false,
+                    comment: 'july-01',
+                })),
+            })
+
+            // Running entry (no end) started on 2025-06-15
+            await apiFetch(cookie, '/api/entries', {
+                method: 'POST',
+                body: JSON.stringify(makeEntry(rangeTestCategoryId, {
+                    start: Date.UTC(2025, 5, 15, 20, 0, 0),
+                    end: null,
+                    running: true,
+                    comment: 'running-june-15',
+                })),
+            })
+        })
+
+        it('filters entries by day', async () => {
+            const res = await apiFetch(cookie, '/api/entries?range=day&date=2025-06-15')
+            expect(res.status).toBe(200)
+            const body = await res.json()
+            const comments = body.map((e: { comment: string }) => e.comment)
+            expect(comments).toContain('june-15')
+            expect(comments).toContain('running-june-15')
+            expect(comments).not.toContain('june-16')
+            expect(comments).not.toContain('july-01')
+        })
+
+        it('filters entries by month', async () => {
+            const res = await apiFetch(cookie, '/api/entries?range=month&date=2025-06-01')
+            expect(res.status).toBe(200)
+            const body = await res.json()
+            const comments = body.map((e: { comment: string }) => e.comment)
+            expect(comments).toContain('june-15')
+            expect(comments).toContain('june-16')
+            expect(comments).toContain('running-june-15')
+            expect(comments).not.toContain('july-01')
+        })
+
+        it('filters entries by year', async () => {
+            const res = await apiFetch(cookie, '/api/entries?range=year&date=2025-01-01')
+            expect(res.status).toBe(200)
+            const body = await res.json()
+            const comments = body.map((e: { comment: string }) => e.comment)
+            expect(comments).toContain('june-15')
+            expect(comments).toContain('july-01')
+        })
+
+        it('includes running entries (end is null) in range', async () => {
+            const res = await apiFetch(cookie, '/api/entries?range=day&date=2025-06-15')
+            const body = await res.json()
+            const running = body.find((e: { comment: string }) => e.comment === 'running-june-15')
+            expect(running).toBeDefined()
+            expect(running.end).toBeNull()
+            expect(running.running).toBe(true)
+        })
+
+        it('returns empty array for day with no entries', async () => {
+            const res = await apiFetch(cookie, '/api/entries?range=day&date=2020-01-01')
+            expect(res.status).toBe(200)
+            const body = await res.json()
+            expect(body).toHaveLength(0)
+        })
+
+        it('returns all entries when no range params given', async () => {
+            const res = await apiFetch(cookie, '/api/entries')
+            expect(res.status).toBe(200)
+            const body = await res.json()
+            expect(body.length).toBeGreaterThanOrEqual(4)
+        })
+
+        it('rejects invalid date format', async () => {
+            const res = await apiFetch(cookie, '/api/entries?range=day&date=not-a-date')
+            expect(res.status).toBeGreaterThanOrEqual(400)
+        })
+
+        it('rejects range without date', async () => {
+            const res = await apiFetch(cookie, '/api/entries?range=day')
+            expect(res.status).toBeGreaterThanOrEqual(400)
+        })
+
+        it('rejects date without range', async () => {
+            const res = await apiFetch(cookie, '/api/entries?date=2025-06-15')
+            expect(res.status).toBeGreaterThanOrEqual(400)
+        })
+    })
+
+    // -- Start/Stop timer endpoints -----------------------------------------
+
+    describe('start/stop timer', () => {
+        let timerCategoryId: string
+        let timerCategory2Id: string
+
+        beforeAll(async () => {
+            const cat = makeCategory({ title: 'Timer Test' })
+            timerCategoryId = cat.id
+            await apiFetch(cookie, '/api/categories', {
+                method: 'POST',
+                body: JSON.stringify(cat),
+            })
+
+            const cat2 = makeCategory({ title: 'Timer Test 2' })
+            timerCategory2Id = cat2.id
+            await apiFetch(cookie, '/api/categories', {
+                method: 'POST',
+                body: JSON.stringify(cat2),
+            })
+        })
+
+        it('POST /api/entries/start creates a running entry', async () => {
+            const before = Date.now()
+            const res = await apiFetch(cookie, '/api/entries/start', {
+                method: 'POST',
+                body: JSON.stringify({ categoryId: timerCategoryId }),
+            })
+            const after = Date.now()
+
+            expect(res.status).toBe(200)
+            const body = await res.json()
+            expect(body.running).toBe(true)
+            expect(body.end).toBeNull()
+            expect(body.categoryId).toBe(timerCategoryId)
+            expect(body.start).toBeGreaterThanOrEqual(before)
+            expect(body.start).toBeLessThanOrEqual(after)
+            expect(body.comment).toBe('')
+        })
+
+        it('POST /api/entries/start with comment', async () => {
+            // Use category 2 to avoid conflict
+            const res = await apiFetch(cookie, '/api/entries/start', {
+                method: 'POST',
+                body: JSON.stringify({ categoryId: timerCategory2Id, comment: 'test note' }),
+            })
+            expect(res.status).toBe(200)
+            const body = await res.json()
+            expect(body.comment).toBe('test note')
+        })
+
+        it('POST /api/entries/start returns 409 if same category already running', async () => {
+            // timerCategoryId already has a running entry from first test
+            const res = await apiFetch(cookie, '/api/entries/start', {
+                method: 'POST',
+                body: JSON.stringify({ categoryId: timerCategoryId }),
+            })
+            expect(res.status).toBe(409)
+        })
+
+        it('POST /api/entries/start returns 404 for invalid category', async () => {
+            const res = await apiFetch(cookie, '/api/entries/start', {
+                method: 'POST',
+                body: JSON.stringify({ categoryId: crypto.randomUUID() }),
+            })
+            expect(res.status).toBe(404)
+        })
+
+        it('POST /api/entries/:id/stop stops a running entry', async () => {
+            // Find the running entry for timerCategoryId
+            const listRes = await apiFetch(cookie, '/api/entries')
+            const entries = await listRes.json()
+            const running = entries.find((e: { categoryId: string, running: boolean }) =>
+                e.categoryId === timerCategoryId && e.running,
+            )
+            expect(running).toBeDefined()
+
+            const before = Date.now()
+            const res = await apiFetch(cookie, `/api/entries/${running.id}/stop`, { method: 'POST' })
+            const after = Date.now()
+
+            expect(res.status).toBe(200)
+            const body = await res.json()
+            expect(body.running).toBe(false)
+            expect(body.end).toBeGreaterThanOrEqual(before)
+            expect(body.end).toBeLessThanOrEqual(after)
+        })
+
+        it('POST /api/entries/:id/stop returns 409 if entry is not running', async () => {
+            // The entry we just stopped
+            const listRes = await apiFetch(cookie, '/api/entries')
+            const entries = await listRes.json()
+            const stopped = entries.find((e: { categoryId: string, running: boolean }) =>
+                e.categoryId === timerCategoryId && !e.running,
+            )
+            expect(stopped).toBeDefined()
+
+            const res = await apiFetch(cookie, `/api/entries/${stopped.id}/stop`, { method: 'POST' })
+            expect(res.status).toBe(409)
+        })
+
+        it('POST /api/entries/:id/stop returns 404 for missing entry', async () => {
+            const res = await apiFetch(cookie, `/api/entries/${crypto.randomUUID()}/stop`, { method: 'POST' })
+            expect(res.status).toBe(404)
+        })
+    })
+
     // -- Data import/export -------------------------------------------------
 
     describe('data import/export', () => {
