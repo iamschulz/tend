@@ -114,7 +114,7 @@ describe('Server API', () => {
                 method: 'POST',
                 body: JSON.stringify(cat),
             })
-            expect(res.status).toBe(200)
+            expect(res.status).toBe(201)
             const body = await res.json()
             expect(body.id).toBe(cat.id)
             expect(body.title).toBe('Test Category')
@@ -224,7 +224,7 @@ describe('Server API', () => {
                 method: 'POST',
                 body: JSON.stringify(cat),
             })
-            expect(res.status, 'entries: category setup').toBe(200)
+            expect(res.status, 'entries: category setup').toBe(201)
         })
 
         it('POST /api/entries creates an entry', async () => {
@@ -233,7 +233,7 @@ describe('Server API', () => {
                 method: 'POST',
                 body: JSON.stringify(entry),
             })
-            expect(res.status).toBe(200)
+            expect(res.status).toBe(201)
             const body = await res.json()
             expect(body.id).toBe(entry.id)
             expect(body.categoryId).toBe(categoryId)
@@ -340,7 +340,7 @@ describe('Server API', () => {
                 method: 'POST',
                 body: JSON.stringify({ label: 'Test token' }),
             })
-            expect(res.status).toBe(200)
+            expect(res.status).toBe(201)
             const body = await res.json()
             expect(body).toHaveProperty('token')
             expect(body.token.length).toBeGreaterThan(0)
@@ -599,7 +599,7 @@ describe('Server API', () => {
             })
             const after = Date.now()
 
-            expect(res.status).toBe(200)
+            expect(res.status).toBe(201)
             const body = await res.json()
             expect(body.running).toBe(true)
             expect(body.end).toBeNull()
@@ -615,7 +615,7 @@ describe('Server API', () => {
                 method: 'POST',
                 body: JSON.stringify({ categoryId: timerCategory2Id, comment: 'test note' }),
             })
-            expect(res.status).toBe(200)
+            expect(res.status).toBe(201)
             const body = await res.json()
             expect(body.comment).toBe('test note')
         })

@@ -29,5 +29,6 @@ export default defineEventHandler(async (event) => {
         createdAt: Date.now(),
     }).run()
 
+    setResponseStatus(event, 201)
     return db.select().from(allowedEmails).where(eq(allowedEmails.id, id)).get()
 })

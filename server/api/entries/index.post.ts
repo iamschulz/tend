@@ -49,5 +49,6 @@ export default defineEventHandler(async (event) => {
         return tx.select().from(entries).where(eq(entries.id, id)).get()!
     })
 
+    setResponseStatus(event, 201)
     return created
 })

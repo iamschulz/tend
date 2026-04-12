@@ -29,6 +29,7 @@ export default defineEventHandler(async (event) => {
         lastUsedAt: null,
     }).run()
 
+    setResponseStatus(event, 201)
     return {
         id,
         token: plaintext,

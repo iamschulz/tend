@@ -43,5 +43,6 @@ export default defineEventHandler(async (event) => {
         return rowToCategory(tx.select().from(categories).where(eq(categories.id, id)).get()!)
     })
 
+    setResponseStatus(event, 201)
     return created
 })
