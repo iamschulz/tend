@@ -113,7 +113,7 @@ export default defineEventHandler(async (event) => {
     const session = await getUserSession(event)
     if (session.sessionVersion !== getSessionVersion()) {
         await clearUserSession(event)
-        throw createError({ statusCode: 401, message: 'Session expired' })
+        throw createError({ statusCode: 401, statusMessage: 'Session expired' })
     }
 
     if (session.user) {
@@ -121,7 +121,7 @@ export default defineEventHandler(async (event) => {
         const user = useDb().select({ id: users.id }).from(users).where(eq(users.id, session.user.id)).get()
         if (!user) {
             await clearUserSession(event)
-            throw createError({ statusCode: 401, message: 'Session expired' })
+            throw createError({ statusCode: 401, statusMessage: 'Session expired' })
         }
 
         event.context.userId = session.user.id

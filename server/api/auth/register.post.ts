@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
 
     if (limiter.isLimited(ip)) {
         logAuthEvent('rate-limited', ip, 'unknown', '/api/auth/register')
-        throw createError({ statusCode: 429, message: 'Too many attempts. Try again later.' })
+        throw createError({ statusCode: 429, statusMessage: 'Too many attempts. Try again later.' })
     }
 
     const { email, name, password } = await readValidatedBody(event, registerSchema.parse)
@@ -77,7 +77,7 @@ export default defineEventHandler(async (event) => {
         if ((e as Error).message === '__rejected__') {
             limiter.recordFailure(ip)
             logAuthEvent('registration-rejected', ip, email, '/api/auth/register')
-            throw createError({ statusCode: 403, message: 'Registration not allowed' })
+            throw createError({ statusCode: 403, statusMessage: 'Registration not allowed' })
         }
         throw e
     }

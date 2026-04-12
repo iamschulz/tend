@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
 
     const existing = db.select().from(allowedEmails).where(eq(allowedEmails.email, email)).get()
     if (existing) {
-        throw createError({ statusCode: 409, message: 'Email already on the allowlist' })
+        throw createError({ statusCode: 409, statusMessage: 'Email already on the allowlist' })
     }
 
     const id = crypto.randomUUID()

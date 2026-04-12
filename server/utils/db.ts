@@ -22,7 +22,7 @@ export function findByIdOrThrow(table: DbTable, id: string, label: string) {
     const db = useDb()
     const row = db.select().from(table).where(eq(table.id, id)).get()
     if (!row) {
-        throw createError({ statusCode: 404, message: `${label} not found` })
+        throw createError({ statusCode: 404, statusMessage: `${label} not found` })
     }
     return row
 }
@@ -45,7 +45,7 @@ export function findByIdAndUserOrThrow(table: DbTable, id: string, userId: strin
         .where(and(eq(table.id, id), eq(table.userId, userId)))
         .get()
     if (!row) {
-        throw createError({ statusCode: 404, message: `${label} not found` })
+        throw createError({ statusCode: 404, statusMessage: `${label} not found` })
     }
     return row
 }
