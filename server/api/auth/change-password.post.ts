@@ -3,7 +3,7 @@ import { getRequestIP } from 'h3'
 import { users } from '~~/server/database/schema'
 import { createRateLimiter } from '~~/server/utils/rateLimiter'
 import { logAuthEvent } from '~~/server/utils/authLogger'
-import { hashPassword, verifyPasswordHash, isBcryptHash } from '~~/server/utils/passwordHash'
+import { bcryptHash, verifyPasswordHash, isBcryptHash } from '~~/server/utils/passwordHash'
 import { incrementSessionVersion } from '~~/server/utils/sessionVersion'
 
 const changePasswordSchema = z.object({
@@ -57,7 +57,7 @@ export default defineEventHandler(async (event) => {
     limiter.clear(ip)
     logAuthEvent('authentication-success', ip, user.email, '/api/auth/change-password')
 
-    const newHash = await hashPassword(newPassword)
+    const newHash = await bcryptHash(newPassword)
     db.update(users).set({ passwordHash: newHash }).where(eq(users.id, userId)).run()
 
     // Invalidate all sessions, then re-issue the current user's session

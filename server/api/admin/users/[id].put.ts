@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { getRequestIP } from 'h3'
 import { users } from '~~/server/database/schema'
-import { hashPassword } from '~~/server/utils/passwordHash'
+import { bcryptHash } from '~~/server/utils/passwordHash'
 import { createRateLimiter } from '~~/server/utils/rateLimiter'
 import { incrementSessionVersion } from '~~/server/utils/sessionVersion'
 
@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
 
     const updates: Record<string, string> = {}
     if (role) updates.role = role
-    if (password) updates.passwordHash = await hashPassword(password)
+    if (password) updates.passwordHash = await bcryptHash(password)
 
     db.update(users).set(updates).where(eq(users.id, id)).run()
 

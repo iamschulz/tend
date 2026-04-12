@@ -4,7 +4,7 @@ import { createRateLimiter } from '~~/server/utils/rateLimiter'
 import { logAuthEvent } from '~~/server/utils/authLogger'
 import { safeCompare } from '~~/server/utils/safeCompare'
 import { getSessionVersion } from '~~/server/utils/sessionVersion'
-import { hashPassword, verifyPasswordHash, isBcryptHash } from '~~/server/utils/passwordHash'
+import { bcryptHash, verifyPasswordHash, isBcryptHash } from '~~/server/utils/passwordHash'
 import { users } from '~~/server/database/schema'
 
 const loginSchema = z.object({
@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
     const db = useDb()
 
     // Lazily initialize dummy hash for constant-time rejection
-    if (!dummyHash) dummyHash = await hashPassword('__dummy__')
+    if (!dummyHash) dummyHash = await bcryptHash('__dummy__')
 
     // Try database-backed auth first: look up by email or name
     const user = db

@@ -3,7 +3,7 @@ import { getRequestIP } from 'h3'
 import crypto from 'node:crypto'
 import { createRateLimiter } from '~~/server/utils/rateLimiter'
 import { logAuthEvent } from '~~/server/utils/authLogger'
-import { hashPassword } from '~~/server/utils/passwordHash'
+import { bcryptHash } from '~~/server/utils/passwordHash'
 import { getSessionVersion } from '~~/server/utils/sessionVersion'
 import { users, allowedEmails } from '~~/server/database/schema'
 
@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
 
     const { email, name, password } = await readValidatedBody(event, registerSchema.parse)
     const db = useDb()
-    const passwordHash = await hashPassword(password)
+    const passwordHash = await bcryptHash(password)
 
     // Transaction prevents race conditions (e.g. two concurrent requests
     // both seeing zero users and both becoming admin)
