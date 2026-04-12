@@ -179,6 +179,19 @@ describe('Server API', () => {
             expect(res.status).toBe(404)
         })
 
+        it('POST /api/categories returns 409 for duplicate id', async () => {
+            const cat = makeCategory()
+            await apiFetch(cookie, '/api/categories', {
+                method: 'POST',
+                body: JSON.stringify(cat),
+            })
+            const res = await apiFetch(cookie, '/api/categories', {
+                method: 'POST',
+                body: JSON.stringify(cat),
+            })
+            expect(res.status).toBe(409)
+        })
+
         it('DELETE /api/categories/:id cascades to entries', async () => {
             const cat = makeCategory()
             await apiFetch(cookie, '/api/categories', {
@@ -283,6 +296,19 @@ describe('Server API', () => {
                 body: JSON.stringify({ id: missingId, running: false }),
             })
             expect(res.status).toBe(404)
+        })
+
+        it('POST /api/entries returns 409 for duplicate id', async () => {
+            const entry = makeEntry(categoryId)
+            await apiFetch(cookie, '/api/entries', {
+                method: 'POST',
+                body: JSON.stringify(entry),
+            })
+            const res = await apiFetch(cookie, '/api/entries', {
+                method: 'POST',
+                body: JSON.stringify(entry),
+            })
+            expect(res.status).toBe(409)
         })
 
         it('DELETE /api/entries/:id deletes an entry', async () => {

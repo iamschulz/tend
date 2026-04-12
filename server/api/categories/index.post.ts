@@ -1,17 +1,32 @@
-import { categorySchema } from '~~/shared/schemas/category'
+import { randomUUID } from 'node:crypto'
+import { categoryCreateSchema } from '~~/shared/schemas/category'
 import { categories } from '~~/server/database/schema'
 
 /**
  * POST /api/categories — Creates a new category owned by the authenticated user.
+ * If no `id` is provided, the server generates one.
+ * @param event - The H3 event (must be authenticated)
  * @param event.body - Category data validated against `categorySchema`
+ * @returns The created category
+ * @throws 401 if not authenticated
+ * @throws 422 if the request body fails validation
  */
 export default defineEventHandler(async (event) => {
     const userId = requireUserId(event)
-    const body = await readValidatedBody(event, categorySchema.parse)
+    const body = await readValidatedBody(event, categoryCreateSchema.parse)
 
+    const id = body.id ?? randomUUID()
     const db = useDb()
+
+    if (body.id) {
+        const existing = db.select({ id: categories.id }).from(categories).where(eq(categories.id, id)).get()
+        if (existing) {
+            throw createError({ statusCode: 409, statusMessage: 'A category with this ID already exists' })
+        }
+    }
+
     db.insert(categories).values({
-        id: body.id,
+        id,
         userId,
         title: body.title,
         activityTitle: body.activity.title,
@@ -23,5 +38,5 @@ export default defineEventHandler(async (event) => {
         comment: body.comment,
     }).run()
 
-    return rowToCategory(db.select().from(categories).where(eq(categories.id, body.id)).get()!)
+    return rowToCategory(db.select().from(categories).where(eq(categories.id, id)).get()!)
 })
