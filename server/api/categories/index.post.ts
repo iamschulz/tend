@@ -18,25 +18,30 @@ export default defineEventHandler(async (event) => {
     const id = body.id ?? randomUUID()
     const db = useDb()
 
-    if (body.id) {
-        const existing = db.select({ id: categories.id }).from(categories).where(eq(categories.id, id)).get()
-        if (existing) {
-            throw createError({ statusCode: 409, statusMessage: 'A category with this ID already exists' })
+    // Transaction ensures the duplicate-check and insert are atomic.
+    const created = db.transaction((tx) => {
+        if (body.id) {
+            const existing = tx.select({ id: categories.id }).from(categories).where(eq(categories.id, id)).get()
+            if (existing) {
+                throw createError({ statusCode: 409, statusMessage: 'A category with this ID already exists' })
+            }
         }
-    }
 
-    db.insert(categories).values({
-        id,
-        userId,
-        title: body.title,
-        activityTitle: body.activity.title,
-        activityIcon: body.activity.icon,
-        activityEmoji: body.activity.emoji,
-        color: body.color,
-        goals: body.goals,
-        hidden: body.hidden,
-        comment: body.comment,
-    }).run()
+        tx.insert(categories).values({
+            id,
+            userId,
+            title: body.title,
+            activityTitle: body.activity.title,
+            activityIcon: body.activity.icon,
+            activityEmoji: body.activity.emoji,
+            color: body.color,
+            goals: body.goals,
+            hidden: body.hidden,
+            comment: body.comment,
+        }).run()
 
-    return rowToCategory(db.select().from(categories).where(eq(categories.id, id)).get()!)
+        return rowToCategory(tx.select().from(categories).where(eq(categories.id, id)).get()!)
+    })
+
+    return created
 })

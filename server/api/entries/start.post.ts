@@ -20,30 +20,34 @@ export default defineEventHandler(async (event) => {
     findByIdAndUserOrThrow(categories, body.categoryId, userId, 'Category')
 
     const db = useDb()
-
-    // Prevent multiple concurrent timers for the same category
-    const running = db
-        .select({ id: entries.id })
-        .from(entries)
-        .where(and(eq(entries.userId, userId), eq(entries.categoryId, body.categoryId), eq(entries.running, true)))
-        .get()
-
-    if (running) {
-        throw createError({ statusCode: 409, statusMessage: 'This category already has a running timer' })
-    }
-
     const id = randomUUID()
     const now = Date.now()
 
-    db.insert(entries).values({
-        id,
-        userId,
-        categoryId: body.categoryId,
-        start: now,
-        end: null,
-        running: true,
-        comment: body.comment,
-    }).run()
+    // Transaction ensures the running-check and insert are atomic,
+    // preventing two concurrent requests from both passing the check.
+    const created = db.transaction((tx) => {
+        const running = tx
+            .select({ id: entries.id })
+            .from(entries)
+            .where(and(eq(entries.userId, userId), eq(entries.categoryId, body.categoryId), eq(entries.running, true)))
+            .get()
 
-    return db.select().from(entries).where(eq(entries.id, id)).get()!
+        if (running) {
+            throw createError({ statusCode: 409, statusMessage: 'This category already has a running timer' })
+        }
+
+        tx.insert(entries).values({
+            id,
+            userId,
+            categoryId: body.categoryId,
+            start: now,
+            end: null,
+            running: true,
+            comment: body.comment,
+        }).run()
+
+        return tx.select().from(entries).where(eq(entries.id, id)).get()!
+    })
+
+    return created
 })

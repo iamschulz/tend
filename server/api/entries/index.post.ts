@@ -27,22 +27,27 @@ export default defineEventHandler(async (event) => {
     const id = body.id ?? randomUUID()
     const db = useDb()
 
-    if (body.id) {
-        const existing = db.select({ id: entries.id }).from(entries).where(eq(entries.id, id)).get()
-        if (existing) {
-            throw createError({ statusCode: 409, statusMessage: 'An entry with this ID already exists' })
+    // Transaction ensures the duplicate-check and insert are atomic.
+    const created = db.transaction((tx) => {
+        if (body.id) {
+            const existing = tx.select({ id: entries.id }).from(entries).where(eq(entries.id, id)).get()
+            if (existing) {
+                throw createError({ statusCode: 409, statusMessage: 'An entry with this ID already exists' })
+            }
         }
-    }
 
-    db.insert(entries).values({
-        id,
-        userId,
-        categoryId: body.categoryId,
-        start: body.start,
-        end: body.end,
-        running: body.running,
-        comment: body.comment,
-    }).run()
+        tx.insert(entries).values({
+            id,
+            userId,
+            categoryId: body.categoryId,
+            start: body.start,
+            end: body.end,
+            running: body.running,
+            comment: body.comment,
+        }).run()
 
-    return db.select().from(entries).where(eq(entries.id, id)).get()!
+        return tx.select().from(entries).where(eq(entries.id, id)).get()!
+    })
+
+    return created
 })
