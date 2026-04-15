@@ -3,8 +3,15 @@ import { categories, entries } from '~~/server/database/schema'
 
 /**
  * PUT /api/entries/:id — Partially updates an entry owned by the authenticated user.
- * @param event.params.id - The entry UUID
+ * Any subset of entry fields can be provided; only those fields are updated.
+ * @param event - The H3 event (must be authenticated)
+ * @param event.params.id - The entry UUID to update
  * @param event.body - Partial entry data validated against `entryUpdateSchema`
+ * @returns The full updated entry
+ * @throws 401 if not authenticated
+ * @throws 404 if the entry does not belong to the user
+ * @throws 404 if a new categoryId does not belong to the user
+ * @throws 422 if the request body fails validation
  */
 export default defineEventHandler(async (event) => {
     const userId = requireUserId(event)

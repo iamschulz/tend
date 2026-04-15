@@ -2,11 +2,12 @@ import Database from 'better-sqlite3'
 import { drizzle } from 'drizzle-orm/better-sqlite3'
 import * as schema from './schema'
 import migration001 from './migrations/001-multi-user'
+import migration002 from './migrations/002-api-tokens'
 
 let _db: ReturnType<typeof drizzle<typeof schema>> | null = null
 
 /** Ordered list of migration functions. Each entry corresponds to a schema version (1-indexed). */
-const migrations = [migration001]
+const migrations = [migration001, migration002]
 
 /**
  * Returns the current schema version from the migrations table, or 0 if no migrations have run.

@@ -173,7 +173,7 @@ describe('Multi-User', () => {
                 method: 'POST',
                 body: JSON.stringify({ email: 'friend@example.com' }),
             })
-            expect(inviteRes.status).toBe(200)
+            expect(inviteRes.status).toBe(201)
 
             // User registers
             const cookie = await register('friend@example.com', 'Friend', 'password456')
@@ -498,7 +498,7 @@ describe('Multi-User', () => {
                 method: 'POST',
                 body: JSON.stringify({ email: 'newinvite@example.com' }),
             })
-            expect(res.status).toBe(200)
+            expect(res.status).toBe(201)
             const invite = await res.json()
             expect(invite.email).toBe('newinvite@example.com')
             expect(invite).toHaveProperty('id')
@@ -771,7 +771,7 @@ describe('Multi-User', () => {
                 method: 'POST',
                 body: JSON.stringify({ email: 'revoke-test@example.com' }),
             })
-            expect(inviteRes.status).toBe(200)
+            expect(inviteRes.status).toBe(201)
             const userCookie = await register('revoke-test@example.com', 'Revoker', 'password123')
 
             const res = await apiFetch(userCookie, '/api/auth/revoke', { method: 'POST' })

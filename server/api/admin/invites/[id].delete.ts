@@ -12,7 +12,7 @@ export default defineEventHandler((event) => {
 
     const invite = db.select().from(allowedEmails).where(eq(allowedEmails.id, id)).get()
     if (!invite) {
-        throw createError({ statusCode: 404, message: 'Invite not found' })
+        throw createError({ statusCode: 404, statusMessage: 'Invite not found' })
     }
 
     db.delete(allowedEmails).where(eq(allowedEmails.id, id)).run()

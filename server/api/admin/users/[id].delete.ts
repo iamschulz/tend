@@ -13,14 +13,14 @@ export default defineEventHandler((event) => {
 
     const user = db.select().from(users).where(eq(users.id, id)).get()
     if (!user) {
-        throw createError({ statusCode: 404, message: 'User not found' })
+        throw createError({ statusCode: 404, statusMessage: 'User not found' })
     }
 
     // Prevent deleting the last admin
     if (user.role === 'admin') {
         const adminCount = db.select().from(users).where(eq(users.role, 'admin')).all().length
         if (adminCount <= 1) {
-            throw createError({ statusCode: 400, message: 'Cannot delete the last admin' })
+            throw createError({ statusCode: 400, statusMessage: 'Cannot delete the last admin' })
         }
     }
 

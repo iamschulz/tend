@@ -1,7 +1,7 @@
-import { categoryCreateSchema } from '~~/shared/schemas/category'
+import { categorySchema } from '~~/shared/schemas/category'
 import { categories } from '~~/server/database/schema'
 
-const updateSchema = categoryCreateSchema.partial()
+const updateSchema = categorySchema.omit({ id: true }).partial()
 
 /**
  * PUT /api/categories/:id — Partially updates a category owned by the authenticated user.

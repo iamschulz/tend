@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getDayRange } from '~/util/getDayRange'
+import { getDayRange } from '~~/shared/utils/dateRanges'
 
 describe('getDayRange', () => {
   it('returns start and end of a mid-month date', () => {

@@ -27,12 +27,12 @@ export default defineEventHandler(async (event) => {
 
     if (limiter.isLimited(ip)) {
         logAuthEvent('rate-limited', ip, 'unknown', '/api/auth/change-password')
-        throw createError({ statusCode: 429, message: 'Too many attempts. Try again later.' })
+        throw createError({ statusCode: 429, statusMessage: 'Too many attempts. Try again later.' })
     }
 
     const userId = event.context.userId
     if (!userId) {
-        throw createError({ statusCode: 401, message: 'Not authenticated' })
+        throw createError({ statusCode: 401, statusMessage: 'Not authenticated' })
     }
 
     const { currentPassword, newPassword } = await readValidatedBody(event, changePasswordSchema.parse)
@@ -40,18 +40,18 @@ export default defineEventHandler(async (event) => {
 
     const user = db.select().from(users).where(eq(users.id, userId)).get()
     if (!user) {
-        throw createError({ statusCode: 404, message: 'User not found' })
+        throw createError({ statusCode: 404, statusMessage: 'User not found' })
     }
 
     if (!user.passwordHash || !isBcryptHash(user.passwordHash)) {
-        throw createError({ statusCode: 400, message: 'No password set for this account' })
+        throw createError({ statusCode: 400, statusMessage: 'No password set for this account' })
     }
 
     const valid = await verifyPasswordHash(currentPassword, user.passwordHash)
     if (!valid) {
         limiter.recordFailure(ip)
         logAuthEvent('authentication-failure', ip, user.email, '/api/auth/change-password')
-        throw createError({ statusCode: 401, message: 'Invalid current password' })
+        throw createError({ statusCode: 401, statusMessage: 'Invalid current password' })
     }
 
     limiter.clear(ip)

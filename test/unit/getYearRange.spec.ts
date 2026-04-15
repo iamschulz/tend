@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getYearRange } from '~/util/getYearRange'
+import { getYearRange } from '~~/shared/utils/dateRanges'
 
 describe('getYearRange', () => {
   it('returns full year range', () => {

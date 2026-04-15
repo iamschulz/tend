@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-    import { getMonthRange } from '~/util/getMonthRange';
+    import { getMonthRange } from '~~/shared/utils/dateRanges';
     import { getWeekdays } from '~/contants/weekdays';
     import { prefersReducedMotion } from '~/util/prefersReducedMotion';
     import { toLocalDateStr } from '~/util/toLocalDateStr';

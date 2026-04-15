@@ -19,8 +19,7 @@
 
 <script setup lang="ts">
     import type { EntryWithCategory } from '~/types/EntryWithCategory';
-    import { getDayRange } from '~/util/getDayRange';
-    import { getWeekRange } from '~/util/getWeekRange';
+    import { getDayRange, getWeekRange } from '~~/shared/utils/dateRanges';
     import { toLocalDateStr } from '~/util/toLocalDateStr';
     import { getWeekdays } from '~/contants/weekdays';
     import { prefersReducedMotion } from '~/util/prefersReducedMotion';

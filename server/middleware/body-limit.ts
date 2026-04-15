@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
     // Fast path: reject immediately if the declared size already exceeds the limit.
     const contentLength = Number(getRequestHeader(event, 'content-length'))
     if (contentLength > maxBytes) {
-        throw createError({ statusCode: 413, message: 'Request body too large' })
+        throw createError({ statusCode: 413, statusMessage: 'Request body too large' })
     }
 
     // Skip requests that declare no body.
@@ -24,6 +24,6 @@ export default defineEventHandler(async (event) => {
     // Read the body through H3 so it is properly cached for downstream handlers.
     const raw = await readRawBody(event, false)
     if (raw && raw.length > maxBytes) {
-        throw createError({ statusCode: 413, message: 'Request body too large' })
+        throw createError({ statusCode: 413, statusMessage: 'Request body too large' })
     }
 })

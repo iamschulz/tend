@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-    import { getYearRange } from '~/util/getYearRange'
+    import { getYearRange } from '~~/shared/utils/dateRanges'
     import { prefersReducedMotion } from '~/util/prefersReducedMotion'
     import { aggregateCategoryCounts, type CategoryCount } from '~/util/aggregateCategoryCounts'
 
