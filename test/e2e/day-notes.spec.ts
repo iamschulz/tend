@@ -8,7 +8,7 @@ import {
   getPage,
   navigateTo,
 } from './_setup'
-import { addCategory, getCurrentWeekStr } from './_helpers'
+import { addCategory, getCurrentWeekStr, quickClickTrigger } from './_helpers'
 
 describe('Day notes', () => {
   let page: Page
@@ -25,8 +25,10 @@ describe('Day notes', () => {
 
   beforeEach(async () => {
     page = await getPage('/')
-    // Seed a category so the FirstSteps view is replaced by the normal tracker
+    // The notes textarea only renders when the store has at least one entry
+    // (`v-if="!data.hasNoEntries"`), so seed both a category and an entry.
     await addCategory(page, 'NoteTest')
+    await quickClickTrigger(page, 0)
   })
 
   afterEach(async () => {
