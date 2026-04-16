@@ -676,6 +676,103 @@ describe('Server API', () => {
         })
     })
 
+    // -- Days (daily notes) -------------------------------------------------
+
+    describe('days', () => {
+        it('GET /api/days/:date returns empty notes when no record exists', async () => {
+            const res = await apiFetch(cookie, '/api/days/2025-01-05')
+            expect(res.status).toBe(200)
+            const body = await res.json()
+            expect(body.date).toBe('2025-01-05')
+            expect(body.notes).toBe('')
+        })
+
+        it('PUT /api/days/:date creates a new day note', async () => {
+            const res = await apiFetch(cookie, '/api/days/2025-01-06', {
+                method: 'PUT',
+                body: JSON.stringify({ notes: 'first note' }),
+            })
+            expect(res.status).toBe(200)
+            const body = await res.json()
+            expect(body.date).toBe('2025-01-06')
+            expect(body.notes).toBe('first note')
+
+            // Verify persistence via GET
+            const getRes = await apiFetch(cookie, '/api/days/2025-01-06')
+            expect(await getRes.json()).toEqual({ date: '2025-01-06', notes: 'first note' })
+        })
+
+        it('PUT /api/days/:date updates an existing day note (upsert)', async () => {
+            await apiFetch(cookie, '/api/days/2025-01-07', {
+                method: 'PUT',
+                body: JSON.stringify({ notes: 'initial' }),
+            })
+            const res = await apiFetch(cookie, '/api/days/2025-01-07', {
+                method: 'PUT',
+                body: JSON.stringify({ notes: 'updated' }),
+            })
+            expect(res.status).toBe(200)
+            expect((await res.json()).notes).toBe('updated')
+
+            const getRes = await apiFetch(cookie, '/api/days/2025-01-07')
+            expect((await getRes.json()).notes).toBe('updated')
+        })
+
+        it('PUT /api/days/:date accepts empty string to clear notes', async () => {
+            await apiFetch(cookie, '/api/days/2025-01-08', {
+                method: 'PUT',
+                body: JSON.stringify({ notes: 'something' }),
+            })
+            const res = await apiFetch(cookie, '/api/days/2025-01-08', {
+                method: 'PUT',
+                body: JSON.stringify({ notes: '' }),
+            })
+            expect(res.status).toBe(200)
+            expect((await res.json()).notes).toBe('')
+        })
+
+        it('GET /api/days/:date rejects malformed date', async () => {
+            const res = await apiFetch(cookie, '/api/days/not-a-date')
+            expect(res.status).toBeGreaterThanOrEqual(400)
+        })
+
+        it('PUT /api/days/:date rejects malformed date', async () => {
+            const res = await apiFetch(cookie, '/api/days/15-04-2026', {
+                method: 'PUT',
+                body: JSON.stringify({ notes: 'x' }),
+            })
+            expect(res.status).toBeGreaterThanOrEqual(400)
+        })
+
+        it('PUT /api/days/:date rejects notes over 10000 characters', async () => {
+            const res = await apiFetch(cookie, '/api/days/2025-01-09', {
+                method: 'PUT',
+                body: JSON.stringify({ notes: 'x'.repeat(10001) }),
+            })
+            expect(res.status).toBeGreaterThanOrEqual(400)
+        })
+
+        it('PUT /api/days/:date rejects missing notes field', async () => {
+            const res = await apiFetch(cookie, '/api/days/2025-01-10', {
+                method: 'PUT',
+                body: JSON.stringify({}),
+            })
+            expect(res.status).toBeGreaterThanOrEqual(400)
+        })
+
+        it('rejects unauthenticated requests', async () => {
+            const getRes = await fetch(`${getBaseUrl()}/api/days/2025-01-11`)
+            expect(getRes.status).toBe(401)
+
+            const putRes = await fetch(`${getBaseUrl()}/api/days/2025-01-11`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ notes: 'x' }),
+            })
+            expect(putRes.status).toBe(401)
+        })
+    })
+
     // -- Data import/export -------------------------------------------------
 
     describe('data import/export', () => {
