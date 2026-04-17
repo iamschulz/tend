@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, shallowRef, computed } from 'vue'
 import type { Category } from '~/types/Category'
 import type { CategoryData } from '~/types/CategoryData'
+import type { Day } from '~/types/Day'
 import type { Entry } from '~/types/Entry'
 import type { EntryWithCategory } from '~/types/EntryWithCategory'
 import type { CategoryWithEntries } from '~/types/CategoryWithEntries'
@@ -10,6 +11,8 @@ import { idbStorage } from '~/util/idbStorage';
 export const useDataStore = defineStore('data', () => {
     const categories = shallowRef<Category[]>([])
     const entries = shallowRef<Entry[]>([])
+    /** Per-day notes keyed by YYYY-MM-DD local date string. */
+    const days = shallowRef<Record<string, Day>>({})
 
     // --- Server sync ---
 
@@ -230,6 +233,40 @@ export const useDataStore = defineStore('data', () => {
     }
 
     /**
+     * Returns the stored notes for a given local date, or '' if none are cached.
+     * @param date - Local YYYY-MM-DD date string
+     */
+    function getDayNotes(date: string): string {
+        return days.value[date]?.notes ?? ''
+    }
+
+    /**
+     * Fetches a day's notes from the server (server mode only) and caches
+     * the result in the local store. Safe to call multiple times.
+     * @param date - Local YYYY-MM-DD date string
+     */
+    async function loadDay(date: string): Promise<void> {
+        if (!isServerMode) return
+        try {
+            const day = await $fetch<Day>(`/api/days/${date}`)
+            days.value = { ...days.value, [date]: day }
+        } catch (err) {
+            console.warn(`[loadDay] GET /api/days/${date} failed:`, err)
+        }
+    }
+
+    /**
+     * Optimistically updates the cached notes for a date and syncs the
+     * change to the server.
+     * @param date - Local YYYY-MM-DD date string
+     * @param notes - The new notes text
+     */
+    function updateDayNotes(date: string, notes: string): void {
+        days.value = { ...days.value, [date]: { date, notes } }
+        sync(`/api/days/${date}`, { method: 'PUT', body: { notes } })
+    }
+
+    /**
      * Closes all running entries for a category.
      * @param categoryId - The category whose entries to close
      */
@@ -248,6 +285,7 @@ export const useDataStore = defineStore('data', () => {
     return {
         categories,
         entries,
+        days,
         isServerMode,
         serverHydrated,
         getAllCategories,
@@ -267,10 +305,14 @@ export const useDataStore = defineStore('data', () => {
         updateEntry,
         closeAllEntries,
         hydrateFromServer,
+        getDayNotes,
+        loadDay,
+        updateDayNotes,
     }
 }, {
     persist: [
         { key: 'tend-categories', pick: ['categories'], storage: idbStorage },
         { key: 'tend-entries', pick: ['entries'], storage: idbStorage },
+        { key: 'tend-days', pick: ['days'], storage: idbStorage },
     ],
 })

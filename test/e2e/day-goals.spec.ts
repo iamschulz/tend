@@ -227,7 +227,7 @@ describe('Day Goals', () => {
 
         // The daily DayGoals section should not render for a weekly-only goal
         await new Promise(r => setTimeout(r, 500))
-        const sections = await page.$$('.goals-fade .day-goals')
+        const sections = await page.$$('.additional-fade .day-goals')
         for (const section of sections) {
             const heading = await section.evaluate(el => el.parentElement?.querySelector('h2')?.textContent ?? '')
             // If this is the daily section (heading contains "today"), it shouldn't show
@@ -329,10 +329,10 @@ describe('Day Goals', () => {
     it('day-goals section fades in with animation', async () => {
         await setupDailyGoal(page, 'FadeTest')
 
-        // The wrapper has .goals-fade class and gets .mounted added via rAF
-        await page.waitForSelector('.goals-fade.mounted', { timeout: 5000 })
+        // The wrapper has .additional-fade class and gets .mounted added via rAF
+        await page.waitForSelector('.additional-fade.mounted', { timeout: 5000 })
 
-        const mounted = await page.$('.goals-fade.mounted')
+        const mounted = await page.$('.additional-fade.mounted')
         expect(mounted).not.toBeNull()
     })
 })
