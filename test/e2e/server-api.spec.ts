@@ -771,6 +771,81 @@ describe('Server API', () => {
             })
             expect(putRes.status).toBe(401)
         })
+
+        // GET /api/days?q=... — search endpoint used by /search page
+
+        it('GET /api/days?q=... returns days whose notes match (case-insensitive)', async () => {
+            await apiFetch(cookie, '/api/days/2025-02-01', {
+                method: 'PUT',
+                body: JSON.stringify({ notes: 'Great morning RUN along the river' }),
+            })
+            await apiFetch(cookie, '/api/days/2025-02-02', {
+                method: 'PUT',
+                body: JSON.stringify({ notes: 'short rest day, no activity' }),
+            })
+
+            const res = await apiFetch(cookie, '/api/days?q=RUN')
+            expect(res.status).toBe(200)
+            const body: Array<{ date: string; notes: string }> = await res.json()
+            const dates = body.map(d => d.date)
+            expect(dates).toContain('2025-02-01')
+            expect(dates).not.toContain('2025-02-02')
+
+            // Case-insensitive match
+            const resLower = await apiFetch(cookie, '/api/days?q=run')
+            const dataLower: Array<{ date: string }> = await resLower.json()
+            expect(dataLower.map(d => d.date)).toContain('2025-02-01')
+        })
+
+        it('GET /api/days?q=... returns empty array when nothing matches', async () => {
+            const res = await apiFetch(cookie, '/api/days?q=xxxxnomatchxxxx')
+            expect(res.status).toBe(200)
+            expect(await res.json()).toEqual([])
+        })
+
+        it('GET /api/days rejects requests without a q parameter', async () => {
+            const res = await apiFetch(cookie, '/api/days')
+            expect(res.status).toBe(422)
+        })
+
+        it('GET /api/days?q=... escapes LIKE wildcards so `%` is literal', async () => {
+            await apiFetch(cookie, '/api/days/2025-02-10', {
+                method: 'PUT',
+                body: JSON.stringify({ notes: 'cpu at 100% today' }),
+            })
+            await apiFetch(cookie, '/api/days/2025-02-11', {
+                method: 'PUT',
+                body: JSON.stringify({ notes: 'plain text without percent' }),
+            })
+
+            const res = await apiFetch(cookie, `/api/days?q=${encodeURIComponent('100%')}`)
+            expect(res.status).toBe(200)
+            const body: Array<{ date: string }> = await res.json()
+            // '%' must match literally, so only the '100%' note matches.
+            expect(body.map(d => d.date)).toContain('2025-02-10')
+            expect(body.map(d => d.date)).not.toContain('2025-02-11')
+        })
+
+        it('GET /api/days?q=... escapes `_` so it is literal', async () => {
+            await apiFetch(cookie, '/api/days/2025-02-20', {
+                method: 'PUT',
+                body: JSON.stringify({ notes: 'file_name.txt uploaded' }),
+            })
+            await apiFetch(cookie, '/api/days/2025-02-21', {
+                method: 'PUT',
+                body: JSON.stringify({ notes: 'another random line' }),
+            })
+
+            const res = await apiFetch(cookie, `/api/days?q=${encodeURIComponent('file_name')}`)
+            const body: Array<{ date: string }> = await res.json()
+            expect(body.map(d => d.date)).toContain('2025-02-20')
+            expect(body.map(d => d.date)).not.toContain('2025-02-21')
+        })
+
+        it('GET /api/days?q=... rejects unauthenticated requests', async () => {
+            const res = await fetch(`${getBaseUrl()}/api/days?q=hello`)
+            expect(res.status).toBe(401)
+        })
     })
 
     // -- Data import/export -------------------------------------------------

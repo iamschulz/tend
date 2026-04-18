@@ -41,10 +41,10 @@ describe('Data export', () => {
     async function clickExport(): Promise<string> {
         await openMenu(page)
 
-        // Open the settings details section (last one)
+        // Open the Settings details section (index 3: Select Day, Categories, Search, Settings)
         await page.evaluate(() => {
             const details = document.querySelectorAll('dialog.menu details')
-            const dataDetails = details[2]
+            const dataDetails = details[3]
             if (dataDetails && !dataDetails.hasAttribute('open')) {
                 dataDetails.querySelector('summary')?.click()
             }
@@ -56,7 +56,7 @@ describe('Data export', () => {
 
         // Click the Export button
         await page.evaluate(() => {
-            const buttons = document.querySelectorAll('dialog.menu details:nth-of-type(3) button')
+            const buttons = document.querySelectorAll('dialog.menu details:nth-of-type(4) button')
             const exportBtn = Array.from(buttons).find(b => b.textContent?.trim() === 'Export')
             if (exportBtn) (exportBtn as HTMLElement).click()
         })
@@ -93,10 +93,10 @@ describe('Data export', () => {
         // Import seed data via the file input
         await openMenu(page)
 
-        // Open the Settings details section
+        // Open the Settings details section (index 3: Select Day, Categories, Search, Settings)
         await page.evaluate(() => {
             const details = document.querySelectorAll('dialog.menu details')
-            const dataDetails = details[2]
+            const dataDetails = details[3]
             if (dataDetails && !dataDetails.hasAttribute('open')) {
                 dataDetails.querySelector('summary')?.click()
             }
@@ -104,7 +104,7 @@ describe('Data export', () => {
         await new Promise(r => setTimeout(r, 300))
 
         // Upload seed data via the hidden file input
-        const fileInput = await page.$('dialog.menu details:nth-of-type(3) input[type="file"]')
+        const fileInput = await page.$('dialog.menu details:nth-of-type(4) input[type="file"]')
         expect(fileInput).not.toBeNull()
 
         // Write seed data to a temp file for upload
