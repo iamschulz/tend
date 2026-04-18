@@ -15,29 +15,12 @@
             <p v-if="!query">{{ $t('searchEmptyQuery') }}</p>
             <p v-else-if="results.length === 0">{{ $t('searchNoResults') }}</p>
 
-            <ul v-else class="nolist">
+            <TransitionGroup v-else name="list" tag="ul" class="nolist">
                 <li v-for="result in pageResults" :key="result.key">
-                    <NuxtLink v-if="result.kind === 'entry'" :to="`/entry/${result.entry.id}`" data-card data-shadow="1-hover" class="result-card">
-                        <span class="icon" :style="{ '--categoryColor': result.entry.category?.color }" aria-hidden="true">
-                            {{ result.entry.category?.activity.emoji }}
-                        </span>
-                        <div class="details">
-                            <strong>{{ result.entry.category?.title ?? $t('error') }}</strong>
-                            <time>{{ formatTs(result.sortKey) }}</time>
-                            <p v-if="result.entry.comment" class="snippet">{{ result.entry.comment }}</p>
-                        </div>
-                    </NuxtLink>
-                    <NuxtLink v-else :to="`/day/${result.day.date}`" data-card data-shadow="1-hover" class="result-card">
-                        <span class="icon day-icon" aria-hidden="true">
-                            <nuxt-icon name="calendar_month" />
-                        </span>
-                        <div class="details">
-                            <strong>{{ formatDate(result.day.date) }}</strong>
-                            <p class="snippet">{{ result.day.notes }}</p>
-                        </div>
-                    </NuxtLink>
+                    <TrackerEntry v-if="result.kind === 'entry'" :entry="result.entry" :deletable="false" show-date />
+                    <DayEntry v-else :day="result.day" />
                 </li>
-            </ul>
+            </TransitionGroup>
 
             <nav v-if="totalPages > 1" class="pagination" :aria-label="$t('pagination')">
                 <NuxtLink v-if="page > 1" :to="pageLink(page - 1)" data-button>
@@ -57,81 +40,51 @@
 <script setup lang="ts">
     import { useSearch } from '~/composables/useSearch';
 
-    const { locale } = useI18n();
     const { query, includeEntries, includeDays, page, mounted, results, pageResults, totalPages, pageLink } = useSearch();
-
-    /** @param ts - Epoch ms to format as a localized date + time */
-    function formatTs(ts: number) {
-        return new Date(ts).toLocaleString(locale.value, {
-            year: 'numeric', month: 'short', day: 'numeric',
-            hour: '2-digit', minute: '2-digit',
-        });
-    }
-
-    /** @param dateStr - YYYY-MM-DD string to format as a localized date */
-    function formatDate(dateStr: string) {
-        const [y, m, d] = dateStr.split('-').map(Number);
-        return new Date(y!, (m ?? 1) - 1, d ?? 1).toLocaleDateString(locale.value, {
-            year: 'numeric', month: 'long', day: 'numeric',
-        });
-    }
 
     useHead({ title: computed(() => `${query.value || ''} | `) });
 </script>
 
 <style scoped>
+    .list-move,
+    .list-enter-active,
+    .list-leave-active {
+        --t-opacity: var(--animation-duration);
+        --t-transform: var(--animation-duration);
+        --t-scale: var(--animation-duration);
+        transition-timing-function: var(--animation-bounce);
+    }
+
+    .list-enter-from {
+        opacity: 0;
+        transform: translateY(30px);
+        z-index: 2;
+    }
+    .list-leave-to {
+        opacity: 0;
+        transform: translateY(0);
+        scale: 0.9;
+        z-index: 0;
+    }
+    .list-leave-active {
+        position: absolute;
+        left: 0;
+        right: 0;
+    }
+
     .search-results {
+        position: relative;
         padding: 1rem;
         max-width: var(--narrow-width);
         margin: auto;
     }
-
+    
     .page-search-form {
-        margin: auto;
+        margin: 1rem auto;
     }
 
-    .result-card {
-        display: grid;
-        grid-template-columns: 4rem 1fr;
-        gap: 1rem;
-        padding: 0;
+    li {
         margin-block: 1rem;
-        text-decoration: none;
-        color: inherit;
-    }
-
-    .icon {
-        display: grid;
-        place-items: center;
-        background-color: var(--categoryColor, var(--col-bg2));
-        font-size: 1.8rem;
-        border-radius: var(--border-radius) 0 0 var(--border-radius);
-    }
-
-    .day-icon {
-        color: var(--col-fg2);
-    }
-
-    .details {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-        padding: 0.75rem 1rem 0.75rem 0;
-        min-width: 0;
-    }
-
-    time {
-        color: var(--col-fg2);
-        font-size: 0.9rem;
-    }
-
-    .snippet {
-        margin: 0;
-        color: var(--col-fg2);
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
     }
 
     .pagination {
