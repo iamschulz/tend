@@ -20,24 +20,7 @@
 
         <details>
             <summary><h3>{{ $t('search') }}</h3></summary>
-            <label class="sr-only" for="search">{{ $t("search") }}</label>
-            <div data-group>
-                <input id="search" v-model="searchQuery" type="search" class="search-input">
-                <button type="submit">
-                    <nuxt-icon name="search" />
-                    <span class="sr-only">{{ $t('search') }}</span>
-                </button>
-            </div>
-            <div class="search-controls">
-                <label class="search-option">
-                    <input v-model="searchEvents" type="checkbox" data-toggle>
-                    {{ $t('searchEvents') }}
-                </label>
-                <label class="search-option">
-                    <input v-model="searchDays" type="checkbox" data-toggle>
-                    {{ $t('searchDays') }}
-                </label>
-            </div>
+            <SearchForm input-id="menu-search" />
         </details>
 
         <details>
@@ -95,10 +78,6 @@ import UserAvatar from './user-avatar.vue';
     const ui = useUiStore();
     const data = useDataStore();
     const { clear, user } = useUserSession();
-
-    const searchEvents = ref(true);
-    const searchDays = ref(true);
-    const searchQuery = ref('');
 
     /** Clears the session and local data, then redirects to the login page. */
     async function logout() {
@@ -190,20 +169,6 @@ import UserAvatar from './user-avatar.vue';
 
         .user-email {
             color: var(--col-fg2);
-        }
-
-        .search-option {
-            display: block;
-            margin-block: 0.5rem;
-        }
-
-        .search-input {
-            display: block;
-        }
-
-        .search-controls {
-            display: flex;
-            gap: 1rem;
         }
     }
 </style>
