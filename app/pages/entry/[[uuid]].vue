@@ -184,6 +184,7 @@
                 height: 4rem;
                 border-radius: var(--border-radius) 0 0;
                 background-color: var(--categoryColor);
+                text-decoration: none;
             }
 
             h2 {
