@@ -32,7 +32,7 @@
                 return
             }
 
-            data.importData(parsed.categories)
+            data.importData(parsed.categories, parsed.days ?? [])
             announce(t('imported'))
         } catch {
             ui.showError(t('importError'))

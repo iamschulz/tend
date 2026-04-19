@@ -200,10 +200,11 @@ export const useDataStore = defineStore('data', () => {
     }
 
     /**
-     * Replaces all data with imported categories and entries.
+     * Replaces all data with imported categories, entries and day notes.
      * @param importCategories - Categories (with nested entries) to import
+     * @param importDays - Day-note records to import; omitted or empty wipes existing days
      */
-    function importData(importCategories: CategoryWithEntries[]): void {
+    function importData(importCategories: CategoryWithEntries[], importDays: Day[] = []): void {
         const newCategories: Category[] = []
         const newEntries: Entry[] = []
 
@@ -213,9 +214,18 @@ export const useDataStore = defineStore('data', () => {
             newEntries.push(...catEntries)
         }
 
+        const newDays: Record<string, Day> = {}
+        for (const d of importDays) {
+            if (d.notes) newDays[d.date] = d
+        }
+
         categories.value = newCategories
         entries.value = newEntries
-        sync('/api/data/import', { method: 'POST', body: { categories: importCategories } })
+        days.value = newDays
+        sync('/api/data/import', {
+            method: 'POST',
+            body: { categories: importCategories, days: importDays },
+        })
     }
 
     /**

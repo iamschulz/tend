@@ -190,6 +190,7 @@
     "export": "Exportieren",
     "importConfirm": "Der Import löscht alle bisherigen Daten. Fortfahren?",
     "importError": "Ungültiges Dateiformat.",
+    "exportError": "Export fehlgeschlagen. Bitte erneut versuchen.",
 
     "info": "Informationen",
     "licence": "Lizenz",

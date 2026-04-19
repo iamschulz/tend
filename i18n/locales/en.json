@@ -190,6 +190,7 @@
     "export": "Export",
     "importConfirm": "Import will delete all existing data. Continue?",
     "importError": "Invalid import file format.",
+    "exportError": "Could not export data. Please try again.",
 
     "info": "About Tend",
     "licence": "Licence",

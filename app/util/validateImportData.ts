@@ -1,8 +1,10 @@
 import { importDataSchema } from '~~/shared/schemas/importData'
 import type { CategoryWithEntries } from '~/types/CategoryWithEntries'
+import type { Day } from '~/types/Day'
 
 export type ImportData = {
     categories: CategoryWithEntries[]
+    days?: Day[]
 }
 
 /**
