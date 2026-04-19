@@ -266,6 +266,28 @@ export const useDataStore = defineStore('data', () => {
     }
 
     /**
+     * Returns days whose notes contain `q` (case-insensitive).
+     * Server mode: delegates to `GET /api/days?q=…` (SQL LIKE + hard limit).
+     * Local mode: filters the in-memory `days` state.
+     * @param q - Search substring; empty strings return an empty array
+     */
+    async function searchDays(q: string): Promise<Day[]> {
+        const needle = q.toLocaleLowerCase()
+        if (!needle) return []
+        if (!isServerMode) {
+            return Object.values(days.value).filter(
+                d => d.notes && d.notes.toLocaleLowerCase().includes(needle),
+            )
+        }
+        try {
+            return await $fetch<Day[]>('/api/days', { query: { q } })
+        } catch (err) {
+            console.warn('[searchDays] GET /api/days failed:', err)
+            return []
+        }
+    }
+
+    /**
      * Optimistically updates the cached notes for a date and syncs the
      * change to the server.
      * @param date - Local YYYY-MM-DD date string
@@ -317,6 +339,7 @@ export const useDataStore = defineStore('data', () => {
         hydrateFromServer,
         getDayNotes,
         loadDay,
+        searchDays,
         updateDayNotes,
     }
 }, {
