@@ -11,6 +11,7 @@ If you have suggestions or want to contribute, please reach out or open an issue
 - **Habit tracking**: as events or tracked time
 - **Custom categories**: with notes, colors and emojis 🌱
 - **Goals**: like "run 3 times per week" or "meditate 30 minutes per day"
+- **Search**: Find old entries and notes easily
 - **PWA**: installable and offline-capable
 - **Localization**: English and German
 - **Maximum privacy**: All data stays on your device
@@ -117,9 +118,9 @@ The login page will show a "Sign in with SSO" button when configured.
 
 ### Security
 
-If you expose Tend to the Internet, you must use HTTPS, or else the password and session cookie are transmitted in plain text and can be intercepted. It is highly adviced to use a self-signed cert and HSTS even when not exposed to the Internet.
+If you expose Tend to the Internet, you must use HTTPS, or else the password and session cookie are transmitted in plain text and can be intercepted. It is highly advised to use a self-signed cert and HSTS even when not exposed to the Internet.
 
-Also run this comtainer root-less and check your database permissions:
+Also run this container root-less and check your database permissions:
 ```sh
 chmod 600 ./data/tend.db
 ```
@@ -146,7 +147,7 @@ You can also manually export your data from the app in the main menu. Re-importi
 
 ## API
 
-Selfhosted Tend provides a REST API for managing entries and categories programmatically. All data endpoints require authentication.
+Selfhosted Tend provides a REST API for managing entries, categories, daily notes, and bulk data import/export programmatically. All data endpoints require authentication. Admin-only endpoints under `/api/admin/*` (invite management and user listing) are used by the admin panel and are not part of this public API surface.
 
 ### API Authentication
 
@@ -284,6 +285,29 @@ curl -X DELETE -H 'Authorization: Bearer TOKEN' \
 | `POST` | `/api/categories` | Create a category |
 | `PUT` | `/api/categories/:id` | Update a category (partial) |
 | `DELETE` | `/api/categories/:id` | Delete a category (cascades to entries) |
+
+### Days
+
+Daily free-form notes, keyed by calendar date (`YYYY-MM-DD`).
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/days?q=...` | Search day notes (case-insensitive substring, capped at 1000 results) |
+| `GET` | `/api/days/:date` | Get the note for a date (returns `{ date, notes: "" }` if none exists) |
+| `PUT` | `/api/days/:date` | Upsert the note for a date |
+
+**Update body:**
+
+```json
+{ "notes": "Free-form text, up to 10000 characters" }
+```
+
+### Data Import & Export
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/data/export` | Export all categories, entries, and day notes for the user |
+| `POST` | `/api/data/import` | Replace all user data with the provided payload |
 
 ### Status Codes
 
