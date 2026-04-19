@@ -25,11 +25,11 @@
             <nav v-if="totalPages > 1" class="pagination" :aria-label="$t('pagination')">
                 <NuxtLink v-if="page > 1" :to="pageLink(page - 1)" data-button>
                     <nuxt-icon name="arrow_left" />
-                    <span>{{ $t('previous') }}</span>
+                    <span class="sr-only">{{ $t('previous') }}</span>
                 </NuxtLink>
                 <span>{{ $t('pageOf', { page, total: totalPages }) }}</span>
                 <NuxtLink v-if="page < totalPages" :to="pageLink(page + 1)" data-button>
-                    <span>{{ $t('next') }}</span>
+                    <span class="sr-only">{{ $t('next') }}</span>
                     <nuxt-icon name="arrow_right" />
                 </NuxtLink>
             </nav>
@@ -94,4 +94,5 @@
         gap: 1rem;
         margin-block-start: 2rem;
     }
+    
 </style>

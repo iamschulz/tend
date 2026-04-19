@@ -1,7 +1,7 @@
 import type { Day } from '~/types/Day'
 import type { EntryWithCategory } from '~/types/EntryWithCategory'
 
-export const SEARCH_PAGE_SIZE = 50
+export const SEARCH_PAGE_SIZE = 20
 
 export type EntryResult = {
     kind: 'entry'
