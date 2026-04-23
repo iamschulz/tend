@@ -68,6 +68,10 @@ main {
     fill: currentColor;
 }
 
+:where(textarea) {
+    field-sizing: content;
+}
+
 :disabled {
     opacity: 0.8;
 }

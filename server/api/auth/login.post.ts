@@ -4,7 +4,7 @@ import { createRateLimiter } from '~~/server/utils/rateLimiter'
 import { logAuthEvent } from '~~/server/utils/authLogger'
 import { safeCompare } from '~~/server/utils/safeCompare'
 import { getSessionVersion } from '~~/server/utils/sessionVersion'
-import { hashPassword, verifyPasswordHash, isBcryptHash } from '~~/server/utils/passwordHash'
+import { bcryptHash, verifyPasswordHash, isBcryptHash } from '~~/server/utils/passwordHash'
 import { users } from '~~/server/database/schema'
 
 const loginSchema = z.object({
@@ -30,14 +30,14 @@ export default defineEventHandler(async (event) => {
 
     if (limiter.isLimited(ip)) {
         logAuthEvent('rate-limited', ip, 'unknown', '/api/auth/login')
-        throw createError({ statusCode: 429, message: 'Too many login attempts. Try again later.' })
+        throw createError({ statusCode: 429, statusMessage: 'Too many login attempts. Try again later.' })
     }
 
     const { username, password } = await readValidatedBody(event, loginSchema.parse)
     const db = useDb()
 
     // Lazily initialize dummy hash for constant-time rejection
-    if (!dummyHash) dummyHash = await hashPassword('__dummy__')
+    if (!dummyHash) dummyHash = await bcryptHash('__dummy__')
 
     // Try database-backed auth first: look up by email or name
     const user = db
@@ -54,14 +54,14 @@ export default defineEventHandler(async (event) => {
     if (user?.passwordHash) {
         if (!isBcryptHash(user.passwordHash)) {
             console.error('[tend] User has non-bcrypt password hash:', user.id)
-            throw createError({ statusCode: 500, message: 'Internal server error' })
+            throw createError({ statusCode: 500, statusMessage: 'Internal server error' })
         }
 
         const validPassword = await verifyPasswordHash(password, user.passwordHash)
         if (!validPassword) {
             limiter.recordFailure(ip)
             logAuthEvent('authentication-failure', ip, username, '/api/auth/login')
-            throw createError({ statusCode: 401, message: 'Invalid credentials' })
+            throw createError({ statusCode: 401, statusMessage: 'Invalid credentials' })
         }
 
         limiter.clear(ip)
@@ -84,12 +84,12 @@ export default defineEventHandler(async (event) => {
         await verifyPasswordHash(password, dummyHash)
         limiter.recordFailure(ip)
         logAuthEvent('authentication-failure', ip, username, '/api/auth/login')
-        throw createError({ statusCode: 401, message: 'Invalid credentials' })
+        throw createError({ statusCode: 401, statusMessage: 'Invalid credentials' })
     }
 
     if (!isBcryptHash(config.adminPassword)) {
         console.error('[tend] NUXT_ADMIN_PASSWORD is not a bcrypt hash')
-        throw createError({ statusCode: 500, message: 'Internal server error' })
+        throw createError({ statusCode: 500, statusMessage: 'Internal server error' })
     }
 
     const validUsername = safeCompare(username, config.adminUsername)
@@ -97,7 +97,7 @@ export default defineEventHandler(async (event) => {
     if (!validUsername || !validPassword) {
         limiter.recordFailure(ip)
         logAuthEvent('authentication-failure', ip, username, '/api/auth/login')
-        throw createError({ statusCode: 401, message: 'Invalid credentials' })
+        throw createError({ statusCode: 401, statusMessage: 'Invalid credentials' })
     }
 
     limiter.clear(ip)
@@ -107,7 +107,7 @@ export default defineEventHandler(async (event) => {
     const adminUser = db.select().from(users).where(eq(users.role, 'admin')).get()
     if (!adminUser) {
         console.error('[tend] No admin user in database — migration may not have run')
-        throw createError({ statusCode: 500, message: 'Internal server error' })
+        throw createError({ statusCode: 500, statusMessage: 'Internal server error' })
     }
 
     db.update(users).set({ lastLoginAt: Date.now() }).where(eq(users.id, adminUser.id)).run()

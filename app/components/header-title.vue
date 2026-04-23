@@ -57,6 +57,16 @@
             return titleForYear(dateStr) ?? fallback;
         }
 
+        // /year/YYYY
+        if (path.startsWith('/search')) {
+            return {
+                short: t('search'),
+                long: t('search'),
+                prevLink: null,
+                nextLink: null,
+            };
+        }
+
         // /admin
         if (path.startsWith('/admin')) {
             return {

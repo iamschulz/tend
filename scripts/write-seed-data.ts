@@ -4,7 +4,7 @@ import { fileURLToPath } from "url";
 import { generateSeedData } from "./generate-seed-data";
 
 const data = generateSeedData();
-const { categories, entries } = data;
+const { categories, entries, days } = data;
 
 // ---------------------------------------------------------------------------
 // Output
@@ -15,12 +15,16 @@ const tmpDir = resolve(__dirname, "..", "tmp");
 mkdirSync(tmpDir, { recursive: true });
 const outPath = resolve(tmpDir, "seed-data.json");
 
-// Nest entries into categories for import-compatible format
+// Nest entries into categories for import-compatible format.
+// `days` is a top-level sibling; the current import schema doesn't consume it
+// (days would need to be wired through import/export separately), but keeping
+// it in the seed output lets tools pick it up and matches the store shape.
 const exportData = {
   categories: categories.map((cat) => ({
     ...cat,
     entries: entries.filter((e) => e.categoryId === cat.id),
   })),
+  days,
 };
 writeFileSync(outPath, JSON.stringify(exportData, null, 2));
 
@@ -42,6 +46,7 @@ console.log(
 );
 console.log(`Total entries: ${totalEntries}`);
 console.log(`Running entries: ${runningEntries}`);
+console.log(`Days with notes: ${days.length}`);
 console.log("");
 console.log("Per-category counts:");
 for (const cat of categories) {

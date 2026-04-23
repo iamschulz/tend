@@ -3,7 +3,7 @@ import { getRequestIP } from 'h3'
 import { users } from '~~/server/database/schema'
 import { createRateLimiter } from '~~/server/utils/rateLimiter'
 import { logAuthEvent } from '~~/server/utils/authLogger'
-import { hashPassword, verifyPasswordHash, isBcryptHash } from '~~/server/utils/passwordHash'
+import { bcryptHash, verifyPasswordHash, isBcryptHash } from '~~/server/utils/passwordHash'
 import { incrementSessionVersion } from '~~/server/utils/sessionVersion'
 
 const changePasswordSchema = z.object({
@@ -27,12 +27,12 @@ export default defineEventHandler(async (event) => {
 
     if (limiter.isLimited(ip)) {
         logAuthEvent('rate-limited', ip, 'unknown', '/api/auth/change-password')
-        throw createError({ statusCode: 429, message: 'Too many attempts. Try again later.' })
+        throw createError({ statusCode: 429, statusMessage: 'Too many attempts. Try again later.' })
     }
 
     const userId = event.context.userId
     if (!userId) {
-        throw createError({ statusCode: 401, message: 'Not authenticated' })
+        throw createError({ statusCode: 401, statusMessage: 'Not authenticated' })
     }
 
     const { currentPassword, newPassword } = await readValidatedBody(event, changePasswordSchema.parse)
@@ -40,24 +40,24 @@ export default defineEventHandler(async (event) => {
 
     const user = db.select().from(users).where(eq(users.id, userId)).get()
     if (!user) {
-        throw createError({ statusCode: 404, message: 'User not found' })
+        throw createError({ statusCode: 404, statusMessage: 'User not found' })
     }
 
     if (!user.passwordHash || !isBcryptHash(user.passwordHash)) {
-        throw createError({ statusCode: 400, message: 'No password set for this account' })
+        throw createError({ statusCode: 400, statusMessage: 'No password set for this account' })
     }
 
     const valid = await verifyPasswordHash(currentPassword, user.passwordHash)
     if (!valid) {
         limiter.recordFailure(ip)
         logAuthEvent('authentication-failure', ip, user.email, '/api/auth/change-password')
-        throw createError({ statusCode: 401, message: 'Invalid current password' })
+        throw createError({ statusCode: 401, statusMessage: 'Invalid current password' })
     }
 
     limiter.clear(ip)
     logAuthEvent('authentication-success', ip, user.email, '/api/auth/change-password')
 
-    const newHash = await hashPassword(newPassword)
+    const newHash = await bcryptHash(newPassword)
     db.update(users).set({ passwordHash: newHash }).where(eq(users.id, userId)).run()
 
     // Invalidate all sessions, then re-issue the current user's session

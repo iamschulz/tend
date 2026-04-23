@@ -19,6 +19,11 @@
         </details>
 
         <details>
+            <summary><h3>{{ $t('search') }}</h3></summary>
+            <SearchForm input-id="menu-search" />
+        </details>
+
+        <details>
             <summary><h3>{{ $t('settings') }}</h3></summary>
             <LanguageSelect />
             <DisplaySettings />

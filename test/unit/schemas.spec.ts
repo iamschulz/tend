@@ -3,6 +3,7 @@ import { categorySchema } from '~~/shared/schemas/category'
 import { entrySchema, entryUpdateSchema } from '~~/shared/schemas/entry'
 import { activitySchema } from '~~/shared/schemas/activity'
 import { importDataSchema } from '~~/shared/schemas/importData'
+import { daySchema, dayUpdateSchema, dayDateParamSchema } from '~~/shared/schemas/day'
 
 const UUID = '00000000-0000-4000-8000-000000000001'
 const UUID2 = '00000000-0000-4000-8000-000000000002'
@@ -282,5 +283,74 @@ describe('XSS payloads in free-text fields', () => {
         for (const payload of xssPayloads) {
             expect(() => categorySchema.parse({ ...validCategory, id: payload })).toThrow()
         }
+    })
+})
+
+// ---------------------------------------------------------------------------
+// Day schema
+// ---------------------------------------------------------------------------
+
+describe('daySchema', () => {
+    const validDay = { date: '2026-04-15', notes: 'feeling good' }
+
+    it('accepts a valid day', () => {
+        expect(() => daySchema.parse(validDay)).not.toThrow()
+    })
+
+    it('accepts empty notes', () => {
+        expect(() => daySchema.parse({ ...validDay, notes: '' })).not.toThrow()
+    })
+
+    it('rejects notes over 10000 characters', () => {
+        expect(() => daySchema.parse({ ...validDay, notes: 'x'.repeat(10001) })).toThrow()
+    })
+
+    it('accepts notes at exactly 10000 characters', () => {
+        expect(() => daySchema.parse({ ...validDay, notes: 'x'.repeat(10000) })).not.toThrow()
+    })
+
+    it('rejects malformed date strings', () => {
+        const bad = ['2026-4-1', '2026/04/15', '15-04-2026', 'not-a-date', '', '2026-13-01']
+        for (const d of bad) {
+            expect(() => daySchema.parse({ ...validDay, date: d })).toThrow()
+        }
+    })
+
+    it('rejects SQL injection in date', () => {
+        expect(() => daySchema.parse({ ...validDay, date: "'; DROP TABLE days;--" })).toThrow()
+    })
+
+    it('rejects number for notes', () => {
+        expect(() => daySchema.parse({ ...validDay, notes: 42 })).toThrow()
+    })
+
+    it('accepts free-text XSS payloads in notes (rendering must escape)', () => {
+        const xss = '<script>alert(1)</script>'
+        expect(() => daySchema.parse({ ...validDay, notes: xss })).not.toThrow()
+    })
+})
+
+describe('dayUpdateSchema', () => {
+    it('accepts a body with only notes', () => {
+        expect(() => dayUpdateSchema.parse({ notes: 'hi' })).not.toThrow()
+    })
+
+    it('rejects missing notes field', () => {
+        expect(() => dayUpdateSchema.parse({})).toThrow()
+    })
+
+    it('rejects oversized notes', () => {
+        expect(() => dayUpdateSchema.parse({ notes: 'x'.repeat(10001) })).toThrow()
+    })
+})
+
+describe('dayDateParamSchema', () => {
+    it('accepts a valid date', () => {
+        expect(() => dayDateParamSchema.parse({ date: '2026-04-15' })).not.toThrow()
+    })
+
+    it('rejects invalid formats', () => {
+        expect(() => dayDateParamSchema.parse({ date: 'today' })).toThrow()
+        expect(() => dayDateParamSchema.parse({ date: '2026/04/15' })).toThrow()
     })
 })

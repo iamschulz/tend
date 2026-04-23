@@ -1,5 +1,6 @@
+import { randomUUID } from 'node:crypto'
 import { importDataSchema } from '~~/shared/schemas/importData'
-import { categories, entries } from '~~/server/database/schema'
+import { categories, entries, days } from '~~/server/database/schema'
 
 /**
  * POST /api/data/import — Replaces the authenticated user's data. Wipes and re-inserts in a single transaction.
@@ -15,6 +16,7 @@ export default defineEventHandler(async (event) => {
     db.transaction((tx) => {
         tx.delete(entries).where(eq(entries.userId, userId)).run()
         tx.delete(categories).where(eq(categories.userId, userId)).run()
+        tx.delete(days).where(eq(days.userId, userId)).run()
 
         for (const cat of body.categories) {
             tx.insert(categories).values({
@@ -41,6 +43,16 @@ export default defineEventHandler(async (event) => {
                     comment: entry.comment,
                 }).run()
             }
+        }
+
+        for (const day of body.days ?? []) {
+            if (!day.notes) continue
+            tx.insert(days).values({
+                id: randomUUID(),
+                userId,
+                date: day.date,
+                notes: day.notes,
+            }).run()
         }
     })
 

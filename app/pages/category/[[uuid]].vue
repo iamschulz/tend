@@ -97,10 +97,7 @@
     import { formatDuration } from '~/util/formatDuration';
     import activities from '~/contants/activities.json';
     import { useSharedNow } from '~/composables/useSharedNow';
-    import { getDayRange } from '~/util/getDayRange';
-    import { getWeekRange } from '~/util/getWeekRange';
-    import { getMonthRange } from '~/util/getMonthRange';
-    import { getYearRange } from '~/util/getYearRange';
+    import { getDayRange, getWeekRange, getMonthRange, getYearRange } from '~~/shared/utils/dateRanges';
 
     const route = useRoute()
     const data = useDataStore()
@@ -359,7 +356,6 @@
             display: block;
             width: 100%;
             min-height: 5rem;
-            field-sizing: content;
             margin-top: 0;
         }
     }

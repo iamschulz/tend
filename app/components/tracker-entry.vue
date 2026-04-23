@@ -9,7 +9,7 @@
         </h2>
         <div class="details">
             <time>
-                {{ new Date(entry.start).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }}
+                {{ formattedStart }}
             </time>
             <span v-if="entry.running" class="running-icon">
                 <nuxt-icon name="play_arrow" />
@@ -25,12 +25,12 @@
                 <nuxt-icon name="notes" />
             </span>
         </div>
-        <div class="controls">
+        <div v-if="entry.running || deletable" class="controls">
             <button v-if="entry.running" @click="handleStop">
                 <nuxt-icon name="stop" />
                 <span class="sr-only">{{ $t('stop') }} {{ entry.category?.title }}</span>
             </button>
-            <button v-else @click="handleDelete">
+            <button v-else-if="deletable" @click="handleDelete">
                 <nuxt-icon name="delete" />
                 <span class="sr-only">{{ $t('delete') }} {{ entry.category?.title }}</span>
             </button>
@@ -48,13 +48,28 @@
     const data = useDataStore();
     const ui = useUiStore();
 
-    const props = defineProps<{
+    const props = withDefaults(defineProps<{
         entry: EntryWithCategory
-    }>()
+        deletable?: boolean
+        showDate?: boolean
+    }>(), {
+        deletable: true,
+        showDate: false,
+    })
 
     const now = useSharedNow()
 
     const duration = computed(() => formatDuration(props.entry.start, now.value, t))
+
+    const { locale } = useI18n()
+
+    const formattedStart = computed(() => {
+        const d = new Date(props.entry.start)
+        const time = d.toLocaleTimeString(locale.value, { hour: '2-digit', minute: '2-digit' })
+        if (!props.showDate) return time
+        const date = d.toLocaleDateString(locale.value, { year: 'numeric', month: 'short', day: 'numeric' })
+        return `${date}, ${time}`
+    })
 
     /** Stops the running entry. */
     const handleStop = () => {

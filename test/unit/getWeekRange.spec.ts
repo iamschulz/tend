@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getWeekRange } from '~/util/getWeekRange'
+import { getWeekRange } from '~~/shared/utils/dateRanges'
 
 describe('getWeekRange', () => {
   it('returns Monday–Sunday for a mid-week date (Wednesday)', () => {

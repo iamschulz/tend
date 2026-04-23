@@ -19,8 +19,12 @@ type Category = {
   hidden: boolean;
   comment: string;
 };
+type Day = {
+  date: string; // YYYY-MM-DD
+  notes: string;
+};
 
-export type SeedData = { categories: Category[]; entries: Entry[] };
+export type SeedData = { categories: Category[]; entries: Entry[]; days: Day[] };
 
 // ---------------------------------------------------------------------------
 // Seeded PRNG — mulberry32
@@ -165,6 +169,62 @@ export function generateSeedData(): SeedData {
     entryCounter++;
     const hex = entryCounter.toString(16).padStart(12, "0");
     return `00000000-0000-4000-8000-${hex}`;
+  }
+
+  const dayNotesPool: string[] = [
+    'Felt tired all day, need an early night.',
+    'Great mood, productive from the start.',
+    'Migraine in the afternoon, powered through.',
+    'Woke up super refreshed for once.',
+    'Lunch with Sarah at the new place, amazing ramen.',
+    'Sun was out, walked home the long way.',
+    'Nothing special — a quiet, good day.',
+    'Back pain flared up, ice in the evening.',
+    'Finished the book I\'ve been stuck on for weeks!',
+    'Called mom, catching up is always good.',
+    'Rainy day, didn\'t leave the house once.',
+    'Hit a new 5k PR — felt unstoppable.',
+    'Couldn\'t focus, too many meetings.',
+    'Tried cooking Thai curry from scratch, worth it.',
+    'Long phone call with an old friend — made my week.',
+    'Dentist appointment. Survived.',
+    'First snow of the season, excited.',
+    'Lost track of time on a coding rabbit hole.',
+    'Kids were sick, rearranged the whole day.',
+    'Gym after months — knees hate me.',
+    'Bought a new coffee grinder, worth every euro.',
+    'Skipped lunch, regretted it by 3pm.',
+    'Nice dinner out with the team, celebrating the launch.',
+    'Allergies were brutal today.',
+    'Finally booked flights for the trip.',
+    'Watched the sunset from the roof, worth the climb.',
+    'Deep cleaned the kitchen — felt weirdly satisfying.',
+    'Bumped into an old coworker at the market.',
+    'Insomnia again, gave up and read until 3am.',
+    'Slept in and it felt like a crime and a gift.',
+  ]
+
+  // Fixed notes tied to notable events in the seed timeline — these let
+  // testers verify the search/day-notes UX against known dates.
+  const fixedDayNotes: Record<string, string> = {
+    '2025-01-01': 'New Year\'s Day — a fresh start. Big plans for the year.',
+    '2025-06-15': 'Long night shipping the Q2 release. Slept four hours.',
+    '2025-08-01': 'Weekend getaway with friends — finally unplugging.',
+    '2025-10-10': 'First day of vacation! Landed late, exhausted but happy.',
+    '2025-10-17': 'Back from vacation. Inbox is a crime scene.',
+    '2025-12-24': 'Christmas Eve — cozy evening, too much food.',
+    '2025-12-31': 'End-of-year reflection: tough but good. On to 2026.',
+  }
+
+  /**
+   * Builds a YYYY-MM-DD string in UTC from a Date.
+   * @param d - The date to format (UTC components are used)
+   */
+  function toDateStr(d: Date): string {
+    const y = d.getUTCFullYear()
+    const m = String(d.getUTCMonth() + 1).padStart(2, '0')
+    const day = String(d.getUTCDate()).padStart(2, '0')
+    return `${y}-${m}-${day}`
   }
 
   const commentPool: Record<string, string[]> = {
@@ -488,6 +548,7 @@ export function generateSeedData(): SeedData {
 
   const categories: Category[] = [...CATEGORIES_DEF];
   const entries: Entry[] = [];
+  const days: Day[] = [];
 
   // Inject edge case entries first
   for (const ec of edgeCases) {
@@ -518,6 +579,9 @@ export function generateSeedData(): SeedData {
 
   const allDays = [...daySet].sort((a, b) => a - b);
 
+  const todayStr = toDateStr(todayUTC)
+  const yesterdayStr = toDateStr(yesterdayUTC)
+
   for (const dayMs of allDays) {
     const dt = new Date(dayMs);
     const y = dt.getUTCFullYear();
@@ -531,9 +595,20 @@ export function generateSeedData(): SeedData {
       ...generateExerciseEntries(y, m, d),
       ...generateCoffeeEntries(y, m, d),
     );
+
+    const dateStr = toDateStr(dt)
+    const fixed = fixedDayNotes[dateStr]
+    if (fixed) {
+      days.push({ date: dateStr, notes: fixed })
+    } else if (dateStr === todayStr || dateStr === yesterdayStr || chance(0.1)) {
+      // Today + yesterday always get a note so the search/daily-notes
+      // UX has something fresh to show; other days get a ~10% sprinkle.
+      days.push({ date: dateStr, notes: dayNotesPool[randInt(0, dayNotesPool.length - 1)]! })
+    }
   }
 
   entries.sort((a, b) => a.start - b.start);
+  days.sort((a, b) => a.date.localeCompare(b.date));
 
-  return { categories, entries };
+  return { categories, entries, days };
 }

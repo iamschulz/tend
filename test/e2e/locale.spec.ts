@@ -38,9 +38,9 @@ describe('Locale', () => {
   it('html lang attribute updates when switching locale', async () => {
     await openMenu(page)
 
-    // Open the Settings details section
+    // Open the Settings details section (index 3: Select Day, Categories, Search, Settings)
     const summaries = await page.$$('dialog.menu details summary')
-    await summaries[2].click()
+    await summaries[3].click()
     await page.waitForSelector('#language-select', { timeout: 3000 })
 
     await page.selectOption('#language-select', 'de')
@@ -53,16 +53,16 @@ describe('Locale', () => {
     expect(lang).toBe('de')
 
     // Verify translated text appears in the UI
-    const settingsText = await page.$eval('dialog.menu details:nth-of-type(3) summary h3', (el) => el.textContent?.trim())
+    const settingsText = await page.$eval('dialog.menu details:nth-of-type(4) summary h3', (el) => el.textContent?.trim())
     expect(settingsText).toBe('Einstellungen')
   })
 
   it('locale persists after page reload', async () => {
     await openMenu(page)
 
-    // Open the Settings details section and switch to German
+    // Open the Settings details section (index 3: Select Day, Categories, Search, Settings) and switch to German
     const summaries = await page.$$('dialog.menu details summary')
-    await summaries[2].click()
+    await summaries[3].click()
     await page.waitForSelector('#language-select', { timeout: 3000 })
     await page.selectOption('#language-select', 'de')
     await page.waitForFunction(
@@ -79,7 +79,7 @@ describe('Locale', () => {
 
     // Verify translated text is still rendered
     await openMenu(page)
-    const settingsText = await page.$eval('dialog.menu details:nth-of-type(3) summary h3', (el) => el.textContent?.trim())
+    const settingsText = await page.$eval('dialog.menu details:nth-of-type(4) summary h3', (el) => el.textContent?.trim())
     expect(settingsText).toBe('Einstellungen')
   })
 })

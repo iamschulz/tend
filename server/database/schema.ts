@@ -69,9 +69,34 @@ export const entries = sqliteTable('entries', {
     comment: text('comment').notNull().default(''),
 })
 
+export const apiTokens = sqliteTable('api_tokens', {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+        .notNull()
+        .references(() => users.id, { onDelete: 'cascade' }),
+    tokenHash: text('token_hash').notNull().unique(),
+    label: text('label').notNull(),
+    expiresAt: integer('expires_at'),
+    createdAt: integer('created_at').notNull(),
+    lastUsedAt: integer('last_used_at'),
+})
+
+export const days = sqliteTable('days', {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+        .notNull()
+        .references(() => users.id, { onDelete: 'cascade' }),
+    date: text('date').notNull(),
+    notes: text('notes').notNull().default(''),
+}, (table) => [
+    uniqueIndex('idx_days_user_date').on(table.userId, table.date),
+])
+
 export type DbTable = typeof categories | typeof entries
 export type UserRow = typeof users.$inferSelect
 export type FederatedCredentialRow = typeof federatedCredentials.$inferSelect
 export type AllowedEmailRow = typeof allowedEmails.$inferSelect
 export type CategoryRow = typeof categories.$inferSelect
 export type EntryRow = typeof entries.$inferSelect
+export type ApiTokenRow = typeof apiTokens.$inferSelect
+export type DayRow = typeof days.$inferSelect

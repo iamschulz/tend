@@ -40,6 +40,7 @@ export default defineEventHandler((event) => {
 
     setResponseHeaders(event, {
         'Content-Security-Policy': CSP,
+        'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
         'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
         'X-Content-Type-Options': 'nosniff',
         'X-Frame-Options': 'DENY',

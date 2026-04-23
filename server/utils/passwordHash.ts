@@ -2,10 +2,12 @@ import bcrypt from 'bcryptjs'
 
 /**
  * Hashes a plaintext password using bcrypt.
+ * Named `bcryptHash` instead of `hashPassword` to avoid auto-import collision
+ * with nuxt-auth-utils' scrypt-based `hashPassword`.
  * @param password - The plaintext password to hash
  * @returns The bcrypt hash
  */
-export function hashPassword(password: string): Promise<string> {
+export function bcryptHash(password: string): Promise<string> {
     return bcrypt.hash(password, 10)
 }
 

@@ -1,9 +1,9 @@
-import { eq, and } from 'drizzle-orm'
+import { eq, and, gte, lte, or, isNull } from 'drizzle-orm'
 import { getDatabase } from '../database'
 import type { DbTable } from '../database/schema'
 
 /** Re-exported Drizzle helpers, auto-imported in all server routes by Nitro. */
-export { eq, and }
+export { eq, and, gte, lte, or, isNull }
 
 /** Returns the Drizzle database instance. Auto-imported in all server routes by Nitro. */
 export function useDb() {
@@ -15,12 +15,14 @@ export function useDb() {
  * @param table - The Drizzle table to query
  * @param id - The row ID
  * @param label - Human-readable name for the error message (e.g. "Category")
+ * @returns The matching row
+ * @throws 404 if no row with the given ID exists
  */
 export function findByIdOrThrow(table: DbTable, id: string, label: string) {
     const db = useDb()
     const row = db.select().from(table).where(eq(table.id, id)).get()
     if (!row) {
-        throw createError({ statusCode: 404, message: `${label} not found` })
+        throw createError({ statusCode: 404, statusMessage: `${label} not found` })
     }
     return row
 }
@@ -32,6 +34,8 @@ export function findByIdOrThrow(table: DbTable, id: string, label: string) {
  * @param id - The row ID
  * @param userId - The authenticated user's ID
  * @param label - Human-readable name for the error message (e.g. "Category")
+ * @returns The matching row
+ * @throws 404 if no row with the given ID and userId exists
  */
 export function findByIdAndUserOrThrow(table: DbTable, id: string, userId: string, label: string) {
     const db = useDb()
@@ -41,7 +45,7 @@ export function findByIdAndUserOrThrow(table: DbTable, id: string, userId: strin
         .where(and(eq(table.id, id), eq(table.userId, userId)))
         .get()
     if (!row) {
-        throw createError({ statusCode: 404, message: `${label} not found` })
+        throw createError({ statusCode: 404, statusMessage: `${label} not found` })
     }
     return row
 }

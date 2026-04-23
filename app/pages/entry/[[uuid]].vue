@@ -184,6 +184,7 @@
                 height: 4rem;
                 border-radius: var(--border-radius) 0 0;
                 background-color: var(--categoryColor);
+                text-decoration: none;
             }
 
             h2 {
@@ -219,7 +220,6 @@
             display: block;
             width: 100%;
             min-height: 5rem;
-            field-sizing: content;
             margin-top: 0;
         }
     }

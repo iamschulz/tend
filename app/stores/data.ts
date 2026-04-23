@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, shallowRef, computed } from 'vue'
 import type { Category } from '~/types/Category'
 import type { CategoryData } from '~/types/CategoryData'
+import type { Day } from '~/types/Day'
 import type { Entry } from '~/types/Entry'
 import type { EntryWithCategory } from '~/types/EntryWithCategory'
 import type { CategoryWithEntries } from '~/types/CategoryWithEntries'
@@ -10,6 +11,8 @@ import { idbStorage } from '~/util/idbStorage';
 export const useDataStore = defineStore('data', () => {
     const categories = shallowRef<Category[]>([])
     const entries = shallowRef<Entry[]>([])
+    /** Per-day notes keyed by YYYY-MM-DD local date string. */
+    const days = shallowRef<Record<string, Day>>({})
 
     // --- Server sync ---
 
@@ -197,10 +200,11 @@ export const useDataStore = defineStore('data', () => {
     }
 
     /**
-     * Replaces all data with imported categories and entries.
+     * Replaces all data with imported categories, entries and day notes.
      * @param importCategories - Categories (with nested entries) to import
+     * @param importDays - Day-note records to import; omitted or empty wipes existing days
      */
-    function importData(importCategories: CategoryWithEntries[]): void {
+    function importData(importCategories: CategoryWithEntries[], importDays: Day[] = []): void {
         const newCategories: Category[] = []
         const newEntries: Entry[] = []
 
@@ -210,9 +214,18 @@ export const useDataStore = defineStore('data', () => {
             newEntries.push(...catEntries)
         }
 
+        const newDays: Record<string, Day> = {}
+        for (const d of importDays) {
+            if (d.notes) newDays[d.date] = d
+        }
+
         categories.value = newCategories
         entries.value = newEntries
-        sync('/api/data/import', { method: 'POST', body: { categories: importCategories } })
+        days.value = newDays
+        sync('/api/data/import', {
+            method: 'POST',
+            body: { categories: importCategories, days: importDays },
+        })
     }
 
     /**
@@ -227,6 +240,62 @@ export const useDataStore = defineStore('data', () => {
                 : entry
         )
         sync(`/api/entries/${id}`, { method: 'PUT', body: { id, ...fields } })
+    }
+
+    /**
+     * Returns the stored notes for a given local date, or '' if none are cached.
+     * @param date - Local YYYY-MM-DD date string
+     */
+    function getDayNotes(date: string): string {
+        return days.value[date]?.notes ?? ''
+    }
+
+    /**
+     * Fetches a day's notes from the server (server mode only) and caches
+     * the result in the local store. Safe to call multiple times.
+     * @param date - Local YYYY-MM-DD date string
+     */
+    async function loadDay(date: string): Promise<void> {
+        if (!isServerMode) return
+        try {
+            const day = await $fetch<Day>(`/api/days/${date}`)
+            days.value = { ...days.value, [date]: day }
+        } catch (err) {
+            console.warn(`[loadDay] GET /api/days/${date} failed:`, err)
+        }
+    }
+
+    /**
+     * Returns days whose notes contain `q` (case-insensitive).
+     * Server mode: delegates to `GET /api/days?q=…` (SQL LIKE + hard limit).
+     * Local mode: filters the in-memory `days` state.
+     * @param q - Search substring; empty strings return an empty array
+     */
+    async function searchDays(q: string): Promise<Day[]> {
+        const needle = q.toLocaleLowerCase()
+        if (!needle) return []
+        if (!isServerMode) {
+            return Object.values(days.value).filter(
+                d => d.notes && d.notes.toLocaleLowerCase().includes(needle),
+            )
+        }
+        try {
+            return await $fetch<Day[]>('/api/days', { query: { q } })
+        } catch (err) {
+            console.warn('[searchDays] GET /api/days failed:', err)
+            return []
+        }
+    }
+
+    /**
+     * Optimistically updates the cached notes for a date and syncs the
+     * change to the server.
+     * @param date - Local YYYY-MM-DD date string
+     * @param notes - The new notes text
+     */
+    function updateDayNotes(date: string, notes: string): void {
+        days.value = { ...days.value, [date]: { date, notes } }
+        sync(`/api/days/${date}`, { method: 'PUT', body: { notes } })
     }
 
     /**
@@ -248,6 +317,7 @@ export const useDataStore = defineStore('data', () => {
     return {
         categories,
         entries,
+        days,
         isServerMode,
         serverHydrated,
         getAllCategories,
@@ -267,10 +337,15 @@ export const useDataStore = defineStore('data', () => {
         updateEntry,
         closeAllEntries,
         hydrateFromServer,
+        getDayNotes,
+        loadDay,
+        searchDays,
+        updateDayNotes,
     }
 }, {
     persist: [
         { key: 'tend-categories', pick: ['categories'], storage: idbStorage },
         { key: 'tend-entries', pick: ['entries'], storage: idbStorage },
+        { key: 'tend-days', pick: ['days'], storage: idbStorage },
     ],
 })

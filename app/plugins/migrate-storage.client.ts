@@ -6,5 +6,5 @@ import { preloadIdbCache } from '~/util/idbStorage'
  * to avoid SSR hydration mismatches.
  */
 export default defineNuxtPlugin(async () => {
-    await preloadIdbCache(['tend-categories', 'tend-entries'])
+    await preloadIdbCache(['tend-categories', 'tend-entries', 'tend-days'])
 })

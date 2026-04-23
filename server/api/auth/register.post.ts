@@ -3,7 +3,7 @@ import { getRequestIP } from 'h3'
 import crypto from 'node:crypto'
 import { createRateLimiter } from '~~/server/utils/rateLimiter'
 import { logAuthEvent } from '~~/server/utils/authLogger'
-import { hashPassword } from '~~/server/utils/passwordHash'
+import { bcryptHash } from '~~/server/utils/passwordHash'
 import { getSessionVersion } from '~~/server/utils/sessionVersion'
 import { users, allowedEmails } from '~~/server/database/schema'
 
@@ -25,12 +25,12 @@ export default defineEventHandler(async (event) => {
 
     if (limiter.isLimited(ip)) {
         logAuthEvent('rate-limited', ip, 'unknown', '/api/auth/register')
-        throw createError({ statusCode: 429, message: 'Too many attempts. Try again later.' })
+        throw createError({ statusCode: 429, statusMessage: 'Too many attempts. Try again later.' })
     }
 
     const { email, name, password } = await readValidatedBody(event, registerSchema.parse)
     const db = useDb()
-    const passwordHash = await hashPassword(password)
+    const passwordHash = await bcryptHash(password)
 
     // Transaction prevents race conditions (e.g. two concurrent requests
     // both seeing zero users and both becoming admin)
@@ -77,7 +77,7 @@ export default defineEventHandler(async (event) => {
         if ((e as Error).message === '__rejected__') {
             limiter.recordFailure(ip)
             logAuthEvent('registration-rejected', ip, email, '/api/auth/register')
-            throw createError({ statusCode: 403, message: 'Registration not allowed' })
+            throw createError({ statusCode: 403, statusMessage: 'Registration not allowed' })
         }
         throw e
     }

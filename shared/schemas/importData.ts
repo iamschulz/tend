@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { categorySchema } from './category'
 import { entrySchema } from './entry'
+import { daySchema } from './day'
 
 export const categoryWithEntriesSchema = categorySchema.extend({
     entries: z.array(entrySchema).max(100_000),
@@ -11,4 +12,5 @@ export const categoryWithEntriesSchema = categorySchema.extend({
 
 export const importDataSchema = z.object({
     categories: z.array(categoryWithEntriesSchema).max(500),
+    days: z.array(daySchema).max(100_000).optional(),
 })

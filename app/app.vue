@@ -26,6 +26,8 @@
 </template>
 
 <script setup lang="ts">
+    import { renderTendAscii } from '~/util/renderTendAscii'
+
     const { locale, t } = useI18n()
     useHead({
         htmlAttrs: { lang: locale },
@@ -72,6 +74,7 @@
     onNuxtReady(() => {
         ready.value = true
         scope!.run(() => useGoalCompletionWatcher(t))
+        renderTendAscii()
     })
 
     const router = useRouter()

@@ -2,7 +2,11 @@ import { entries } from '~~/server/database/schema'
 
 /**
  * DELETE /api/entries/:id — Deletes an entry owned by the authenticated user.
- * @param event.params.id - The entry UUID
+ * @param event - The H3 event (must be authenticated)
+ * @param event.params.id - The entry UUID to delete
+ * @returns `{ ok: true }`
+ * @throws 401 if not authenticated
+ * @throws 404 if the entry does not belong to the user
  */
 export default defineEventHandler(async (event) => {
     const userId = requireUserId(event)

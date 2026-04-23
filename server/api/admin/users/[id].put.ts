@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { getRequestIP } from 'h3'
 import { users } from '~~/server/database/schema'
-import { hashPassword } from '~~/server/utils/passwordHash'
+import { bcryptHash } from '~~/server/utils/passwordHash'
 import { createRateLimiter } from '~~/server/utils/rateLimiter'
 import { incrementSessionVersion } from '~~/server/utils/sessionVersion'
 
@@ -33,27 +33,27 @@ export default defineEventHandler(async (event) => {
 
     const user = db.select().from(users).where(eq(users.id, id)).get()
     if (!user) {
-        throw createError({ statusCode: 404, message: 'User not found' })
+        throw createError({ statusCode: 404, statusMessage: 'User not found' })
     }
 
     // Prevent removing the last admin
     if (role && user.role === 'admin' && role === 'user') {
         const adminCount = db.select().from(users).where(eq(users.role, 'admin')).all().length
         if (adminCount <= 1) {
-            throw createError({ statusCode: 400, message: 'Cannot remove the last admin' })
+            throw createError({ statusCode: 400, statusMessage: 'Cannot remove the last admin' })
         }
     }
 
     if (password) {
         if (limiter.isLimited(ip)) {
-            throw createError({ statusCode: 429, message: 'Too many attempts. Try again later.' })
+            throw createError({ statusCode: 429, statusMessage: 'Too many attempts. Try again later.' })
         }
         limiter.recordFailure(ip)
     }
 
     const updates: Record<string, string> = {}
     if (role) updates.role = role
-    if (password) updates.passwordHash = await hashPassword(password)
+    if (password) updates.passwordHash = await bcryptHash(password)
 
     db.update(users).set(updates).where(eq(users.id, id)).run()
 

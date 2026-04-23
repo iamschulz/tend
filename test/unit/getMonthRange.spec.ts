@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getMonthRange } from '~/util/getMonthRange'
+import { getMonthRange } from '~~/shared/utils/dateRanges'
 
 describe('getMonthRange', () => {
   it('returns full month range for a regular month', () => {

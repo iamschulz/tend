@@ -1,8 +1,6 @@
 import type { Goal } from '~/types/Goal'
 import type { Entry } from '~/types/Entry'
-import { getDayRange } from '~/util/getDayRange'
-import { getWeekRange } from '~/util/getWeekRange'
-import { getMonthRange } from '~/util/getMonthRange'
+import { getDayRange, getWeekRange, getMonthRange } from '~~/shared/utils/dateRanges'
 
 const rangeFns = { day: getDayRange, week: getWeekRange, month: getMonthRange } as const
 const msPerUnit = { minutes: 60_000, hours: 3_600_000, days: 86_400_000 } as const
