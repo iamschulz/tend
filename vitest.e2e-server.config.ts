@@ -9,7 +9,7 @@ export default defineConfig({
     },
   },
   test: {
-    include: ['test/e2e/login.spec.ts', 'test/e2e/logout.spec.ts', 'test/e2e/body-limit.spec.ts', 'test/e2e/server-api.spec.ts', 'test/e2e/multi-user.spec.ts', 'test/e2e/serverless-password.spec.ts'],
+    include: ['test/e2e/login.spec.ts', 'test/e2e/logout.spec.ts', 'test/e2e/body-limit.spec.ts', 'test/e2e/server-api.spec.ts', 'test/e2e/multi-user.spec.ts', 'test/e2e/multi-user-navigation.spec.ts', 'test/e2e/multi-user-api-attack.spec.ts', 'test/e2e/serverless-password.spec.ts'],
     testTimeout: 30_000,
     hookTimeout: 30_000,
   },
