@@ -267,5 +267,10 @@
         "deleteConfirm": "Benutzer {name} und alle Daten löschen?"
     },
 
-    "logout": "Abmelden"
+    "logout": "Abmelden",
+
+    "connectivity": {
+        "offline": "Du bist offline. Änderungen werden erst gespeichert, wenn du wieder verbunden bist.",
+        "serverUnreachable": "Server nicht erreichbar. Dein Gerät ist online, aber der Tend-Server antwortet nicht."
+    }
 }
