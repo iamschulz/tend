@@ -108,6 +108,8 @@
 
     /** @param running - Whether the new entry should be a running timer */
     const addEvent = (running: boolean) => {
+        navigator.vibrate?.(20);
+
         const now = Date.now();
         const newEntry: Entry = {
             id: crypto.randomUUID(),
