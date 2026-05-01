@@ -26,6 +26,11 @@ self.addEventListener('activate', (event: ExtendableEvent) => {
 self.addEventListener('fetch', (event: FetchEvent) => {
   const { request } = event
 
+  // The connectivity probe must hit the network directly. If the SW wraps it,
+  // the page-side fetch is shielded from real network failures and Playwright's
+  // page.route() can't intercept the SW-originated request.
+  if (new URL(request.url).pathname === '/api/health') return
+
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request).catch(() =>
