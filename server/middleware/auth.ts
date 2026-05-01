@@ -5,6 +5,7 @@ import { timingSafeEqual } from 'node:crypto'
 import type { H3Event } from 'h3'
 
 const publicRoutes = [
+    '/api/health',
     '/api/auth/login',
     '/api/auth/session',
     '/api/_auth/session',
