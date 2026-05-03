@@ -27,6 +27,7 @@
     }>()
     const data = useDataStore();
     let disableTriggers = false;
+    let thresholdVibrate: ReturnType<typeof setTimeout> | null = null;
 
     const isRunning = computed(() => data.hasRunningEntries(props.category));
     const pressing = ref(false);
@@ -78,7 +79,10 @@
         pressing.value = true;
         loading.value = true;
 
+        thresholdVibrate = setTimeout(() => navigator.vibrate?.(20), clickThreshold);
+
         event.target?.addEventListener(upEvent, (event) => {
+            if (thresholdVibrate) { clearTimeout(thresholdVibrate); thresholdVibrate = null; }
             pressing.value = false;
             releasing.value = true;
             loading.value = false;
@@ -92,6 +96,7 @@
 
     /** Cancels a trigger in progress (e.g. on mouse leave). */
     const abortTrigger = () => {
+        if (thresholdVibrate) { clearTimeout(thresholdVibrate); thresholdVibrate = null; }
         loading.value = false;
         pressing.value = false;
         window.setTimeout(() => {
@@ -108,7 +113,7 @@
 
     /** @param running - Whether the new entry should be a running timer */
     const addEvent = (running: boolean) => {
-        navigator.vibrate?.(20);
+        if (!running) navigator.vibrate?.(20);
 
         const now = Date.now();
         const newEntry: Entry = {
