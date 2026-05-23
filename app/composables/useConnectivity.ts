@@ -21,12 +21,17 @@ export function useConnectivity() {
     // from a global route middleware. Reach for the i18n instance via the Nuxt
     // app, which is available anywhere Nuxt composables run.
     const { $i18n } = useNuxtApp();
+    /**
+     * translates a string.
+     * 
+     * @param key - The message.
+     * @returns 
+     */
     const t = (key: string) => $i18n.t(key);
     const config = useRuntimeConfig();
 
     /** Run a single probe and reconcile the toast with the result. */
     async function probe(): Promise<void> {
-        console.log('foo')
         let nextType: 'offline' | 'serverUnreachable' | null = null;
 
         if (!navigator.onLine) {
