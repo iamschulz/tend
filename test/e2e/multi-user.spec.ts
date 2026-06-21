@@ -114,6 +114,28 @@ describe('Multi-User', () => {
             const res = await fetch(`${getBaseUrl()}/api/auth/providers`)
             expect(res.status).toBe(200)
         })
+
+        it('reports canRegister=false when a user exists and there are no open invitations', async () => {
+            const res = await fetch(`${getBaseUrl()}/api/auth/providers`)
+            const body = await res.json()
+            expect(body.canRegister).toBe(false)
+        })
+
+        it('reports canRegister=true once an open invitation exists', async () => {
+            await apiFetch(adminCookie, '/api/admin/invites', {
+                method: 'POST',
+                body: JSON.stringify({ email: 'invitee@example.com' }),
+            })
+
+            const res = await fetch(`${getBaseUrl()}/api/auth/providers`)
+            const body = await res.json()
+            expect(body.canRegister).toBe(true)
+
+            // Clean up so later assertions about a closed installation hold
+            const invites = await (await apiFetch(adminCookie, '/api/admin/invites')).json()
+            const invite = invites.find((i: { email: string }) => i.email === 'invitee@example.com')
+            await apiFetch(adminCookie, `/api/admin/invites/${invite.id}`, { method: 'DELETE' })
+        })
     })
 
     // -- Timing attack prevention ------------------------------------------
