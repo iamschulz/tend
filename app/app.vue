@@ -18,7 +18,7 @@
     </ToastNotification>
     <main>
       <NuxtPage />
-      <LazyTriggerGroup v-if="ready" />
+      <LazyTriggerGroup v-if="ready && route.path !== '/login'" />
     </main>
   </template>
   <ClientOnly><NuxtRouteAnnouncer /></ClientOnly>

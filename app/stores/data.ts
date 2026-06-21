@@ -47,6 +47,19 @@ export const useDataStore = defineStore('data', () => {
         serverHydrated.value = true
     }
 
+    /**
+     * Clears all in-memory data and resets the hydration flag so the next
+     * login starts from a clean slate. Prevents one user's categories/entries
+     * leaking into the next session (the persisted state plugin keeps the
+     * store live in memory even after IndexedDB is cleared).
+     */
+    function reset(): void {
+        categories.value = []
+        entries.value = []
+        days.value = {}
+        serverHydrated.value = !isServerMode
+    }
+
     // --- Getters ---
 
     const getAllCategories = computed((): Category[] => categories.value)
@@ -341,6 +354,7 @@ export const useDataStore = defineStore('data', () => {
         loadDay,
         searchDays,
         updateDayNotes,
+        reset,
     }
 }, {
     persist: [

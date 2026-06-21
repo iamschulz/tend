@@ -59,7 +59,7 @@
             <summary><h3>{{ $t('info') }}</h3></summary>
             <p><span class="appname"><TendIcon /> Tend</span> | made with ♥ | 2026</p>
             <p>Code: <a target="_blank" href="https://github.com/iamschulz/tend">GitHub</a></p>
-            <p>Developer: <a target="_blank" href="https://iamschulz.com">Daniel Schulz</a>, <a href="mailto:tend@iamschulz.com">tend@iamschulz.com</a></p>
+            <p>Developer: <a target="_blank" href="https://iamschulz.com">Daniel Schulz</a>, <a href="mailto:tend@iamschulz.de">tend@iamschulz.de</a></p>
             <p>{{ $t('licence') }}: <a target="_blank" href="https://github.com/iamschulz/tend/blob/main/LICENSE">GPL v3</a></p>
             <p v-if="!data.isServerMode"><NuxtLink to="/privacy" @click="ui.menuOpen = false">{{ $t('privacy1.title') }}</NuxtLink></p>
             <p>Version {{ runtimeConfig.public.version }}</p>
@@ -81,6 +81,7 @@ import UserAvatar from './user-avatar.vue';
 
     /** Clears the session and local data, then redirects to the login page. */
     async function logout() {
+        data.reset();
         idbStorage.clear();
         await clear();
         await navigateTo('/login');
