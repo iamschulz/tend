@@ -508,4 +508,36 @@ describe('useDataStore', () => {
       }
     })
   })
+
+  // --- reset ---
+  describe('reset', () => {
+    it('clears categories, entries, and day notes', () => {
+      const store = useDataStore()
+      store.addCategory({ title: 'Work', color: '#f00', activity: sampleActivity })
+      store.addEntry(makeEntry({ categoryId: store.categories[0]!.id }))
+      store.updateDayNotes('2026-06-21', 'secret notes')
+
+      expect(store.categories.length).toBeGreaterThan(0)
+      expect(store.entries.length).toBeGreaterThan(0)
+      expect(store.getDayNotes('2026-06-21')).toBe('secret notes')
+
+      store.reset()
+
+      expect(store.categories).toEqual([])
+      expect(store.entries).toEqual([])
+      expect(store.getDayNotes('2026-06-21')).toBe('')
+    })
+
+    it('leaves derived getters empty after reset', () => {
+      const store = useDataStore()
+      store.addCategory({ title: 'Work', color: '#f00', activity: sampleActivity })
+      store.addEntry(makeEntry({ categoryId: store.categories[0]!.id }))
+
+      store.reset()
+
+      expect(store.visibleCategories).toEqual([])
+      expect(store.getAllEntries).toEqual([])
+      expect(store.hasNoEntries).toBe(true)
+    })
+  })
 })

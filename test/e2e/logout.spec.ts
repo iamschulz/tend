@@ -11,7 +11,7 @@ import {
     closeBrowser,
     getPage,
 } from './_setup'
-import { openMenu } from './_helpers'
+import { openMenu, addCategory, waitForIdbKeyContains, waitForIdbKeyCleared } from './_helpers'
 
 const dbPath = path.join(os.tmpdir(), `tend-logout-test-${Date.now()}.db`)
 
@@ -92,5 +92,25 @@ describe('Logout', () => {
             fetch('/api/categories').then(r => r.status),
         )
         expect(status).toBe(401)
+    })
+
+    it('clears persisted data and trigger icons on logout', async () => {
+        await addCategory(page, 'LeakTest')
+
+        // The trigger icon is rendered and the category is persisted to IndexedDB
+        await page.waitForSelector('[data-avatar] button', { timeout: 5000 })
+        await waitForIdbKeyContains(page, 'tend-categories', 'LeakTest')
+
+        await clickLogout(page)
+        await page.waitForFunction(
+            () => window.location.pathname === '/login',
+            undefined,
+            { timeout: 5000 },
+        )
+
+        // The trigger group is no longer rendered on the login page...
+        expect(await page.$$('[data-avatar] button')).toHaveLength(0)
+        // ...and the previous user's data has been wiped from IndexedDB.
+        await waitForIdbKeyCleared(page, 'tend-categories')
     })
 })

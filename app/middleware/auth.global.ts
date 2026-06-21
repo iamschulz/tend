@@ -1,3 +1,5 @@
+import { idbStorage } from '~/util/idbStorage'
+
 /**
  * Global client-side auth middleware.
  * Redirects unauthenticated users to /login, logged-in users away from /login,
@@ -17,6 +19,18 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
     if (!loggedIn.value) {
         await fetchSession()
+    }
+
+    // No active session (never logged in, or the session expired server-side):
+    // make sure no stale user data lingers in memory or IndexedDB. logout()
+    // handles the explicit case, but expiry redirects here without running it.
+    // Guarded so fresh visits and SSR (empty store) stay no-ops.
+    if (!loggedIn.value) {
+        const data = useDataStore()
+        if (data.categories.length || data.entries.length) {
+            data.reset()
+            idbStorage.clear()
+        }
     }
 
     if (!loggedIn.value && to.path !== '/login') {

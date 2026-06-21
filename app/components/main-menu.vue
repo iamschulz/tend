@@ -81,6 +81,7 @@ import UserAvatar from './user-avatar.vue';
 
     /** Clears the session and local data, then redirects to the login page. */
     async function logout() {
+        data.reset();
         idbStorage.clear();
         await clear();
         await navigateTo('/login');
