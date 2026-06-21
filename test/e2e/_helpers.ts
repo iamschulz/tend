@@ -178,6 +178,50 @@ export async function waitForNoToasts(page: Page, timeout = 8000): Promise<void>
   )
 }
 
+/**
+ * Waits until the given idb-keyval key's stored value contains `substring`.
+ * Persisted writes are debounced, so this polls until the flush lands.
+ * @param page - Playwright page instance
+ * @param key - The storage key to read
+ * @param substring - The text that should appear in the stored value
+ */
+export async function waitForIdbKeyContains(page: Page, key: string, substring: string): Promise<void> {
+  await page.waitForFunction((args: { k: string, s: string }) => new Promise<boolean>((resolve) => {
+    const open = indexedDB.open('keyval-store')
+    open.addEventListener('error', () => resolve(false))
+    open.addEventListener('success', () => {
+      try {
+        const req = open.result.transaction('keyval', 'readonly').objectStore('keyval').get(args.k)
+        req.addEventListener('success', () => resolve(typeof req.result === 'string' && req.result.includes(args.s)))
+        req.addEventListener('error', () => resolve(false))
+      } catch {
+        resolve(false)
+      }
+    })
+  }), { k: key, s: substring }, { timeout: 5000 })
+}
+
+/**
+ * Waits until the given idb-keyval key has been cleared (resolves to null).
+ * @param page - Playwright page instance
+ * @param key - The storage key that should disappear
+ */
+export async function waitForIdbKeyCleared(page: Page, key: string): Promise<void> {
+  await page.waitForFunction((k: string) => new Promise<boolean>((resolve) => {
+    const open = indexedDB.open('keyval-store')
+    open.addEventListener('error', () => resolve(true))
+    open.addEventListener('success', () => {
+      try {
+        const req = open.result.transaction('keyval', 'readonly').objectStore('keyval').get(k)
+        req.addEventListener('success', () => resolve(req.result == null))
+        req.addEventListener('error', () => resolve(true))
+      } catch {
+        resolve(true)
+      }
+    })
+  }), key, { timeout: 5000 })
+}
+
 /** Get current ISO week string (YYYY-Www). */
 export function getCurrentWeekStr(): string {
   const d = new Date()
