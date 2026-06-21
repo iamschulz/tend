@@ -74,7 +74,7 @@
             <button type="submit" :disabled="loading">
                 {{ isRegistering ? $t('login.createAccount') : $t('login.submit') }}
             </button>
-            <button type="button" class="toggle-button" @click="toggleMode">
+            <button v-if="canRegister" type="button" class="toggle-button" @click="toggleMode">
                 {{ isRegistering ? $t('login.hasAccount') : $t('login.noAccount') }}
             </button>
         </form>
@@ -97,6 +97,10 @@ const { data: providers } = await useFetch('/api/auth/providers')
 const hasOAuthProvider = computed(() =>
     providers.value?.google || providers.value?.apple || providers.value?.github || providers.value?.oidc,
 )
+
+// Only offer registration when the installation can actually accept new accounts
+// (unconfigured, or at least one open invitation). See /api/auth/providers.
+const canRegister = computed(() => providers.value?.canRegister ?? false)
 
 const isRegistering = ref(false)
 const username = ref('')
