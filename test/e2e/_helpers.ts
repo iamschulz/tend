@@ -222,6 +222,49 @@ export async function waitForIdbKeyCleared(page: Page, key: string): Promise<voi
   }), key, { timeout: 5000 })
 }
 
+/**
+ * Change the hour and minute of a `datetime-local` input using the native
+ * spinner selector (keyboard arrows on the individual segments) rather than
+ * writing the whole value at once. This mirrors how a user actually edits the
+ * time and exercises the per-segment `input` events the app listens to.
+ *
+ * Assumes the `en` locale segment order: Month, Day, Year, Hour, Minute, AM/PM.
+ * @param page - Playwright page instance
+ * @param selector - CSS selector for the datetime-local input
+ * @param opts - How many steps to spin each segment (positive = up/later)
+ * @param opts.hour - Steps to spin the hour segment
+ * @param opts.minute - Steps to spin the minute segment
+ */
+export async function nudgeTimeViaSelector(
+  page: Page,
+  selector: string,
+  { hour = 0, minute = 0 }: { hour?: number; minute?: number },
+): Promise<void> {
+  const input = page.locator(selector)
+  await input.focus()
+  // Focus lands on the first (Month) segment; step right to Hour (index 3).
+  for (let i = 0; i < 3; i++) await page.keyboard.press('ArrowRight')
+  for (let i = 0; i < Math.abs(hour); i++) await page.keyboard.press(hour > 0 ? 'ArrowUp' : 'ArrowDown')
+  // Move right to the Minute segment (index 4).
+  await page.keyboard.press('ArrowRight')
+  for (let i = 0; i < Math.abs(minute); i++) await page.keyboard.press(minute > 0 ? 'ArrowUp' : 'ArrowDown')
+  // Let the reactive @input handler flush to the store.
+  await new Promise((r) => setTimeout(r, 200))
+}
+
+/**
+ * Shift a `datetime-local` value string (YYYY-MM-DDTHH:mm, local time) by a
+ * number of minutes and return it in the same format.
+ * @param value - The datetime-local string to shift
+ * @param deltaMinutes - Minutes to add (negative to subtract)
+ */
+export function shiftIsoLocalMinutes(value: string, deltaMinutes: number): string {
+  const d = new Date(value)
+  d.setMinutes(d.getMinutes() + deltaMinutes)
+  const p = (n: number) => String(n).padStart(2, '0') // eslint-disable-line jsdoc/require-jsdoc
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`
+}
+
 /** Get current ISO week string (YYYY-Www). */
 export function getCurrentWeekStr(): string {
   const d = new Date()

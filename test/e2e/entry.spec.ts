@@ -8,7 +8,7 @@ import {
     getPage,
     navigateTo,
 } from './_setup'
-import { addCategory, quickClickTrigger, holdTrigger } from './_helpers'
+import { addCategory, quickClickTrigger, holdTrigger, nudgeTimeViaSelector, shiftIsoLocalMinutes } from './_helpers'
 
 describe('Entry detail page', () => {
     let page: Page
@@ -206,5 +206,103 @@ describe('Entry detail page', () => {
             el => (el as HTMLInputElement).value,
         )
         expect(value).toBe('2025-06-15T10:30')
+    })
+
+    it('changing start hour and minute via the selector persists', async () => {
+        await createAndOpenEntry('StartTimeEdit')
+
+        // A quick-click entry has start === end, so both inputs render; target the first.
+        const startSel = '[data-card] .controls input[type="datetime-local"] >> nth=0'
+        // Establish a known past baseline, then edit the time via the native spinner.
+        await page.fill(startSel, '2025-06-15T10:30')
+        await new Promise(r => setTimeout(r, 200))
+
+        await nudgeTimeViaSelector(page, startSel, { hour: 1, minute: 1 })
+
+        // The DOM reflects the spinner edits immediately.
+        expect(await page.locator(startSel).inputValue()).toBe('2025-06-15T11:31')
+
+        // …and the change survives navigating away and back.
+        const entryPath = new URL(page.url()).pathname
+        await navigateTo(page, '/')
+        await navigateTo(page, entryPath)
+        await page.waitForSelector('[data-card] .controls input[type="datetime-local"]', { timeout: 5000 })
+
+        expect(await page.locator(startSel).inputValue()).toBe('2025-06-15T11:31')
+    })
+
+    it('changing stopped hour and minute via the selector persists', async () => {
+        await createAndOpenEntry('EndTimeEdit')
+
+        const inputs = '[data-card] .controls input[type="datetime-local"]'
+        const startSel = `${inputs} >> nth=0`
+        const endSel = `${inputs} >> nth=1`
+
+        // Move the entry into the past and give it a real duration so the end
+        // input is editable (end must stay >= start).
+        await page.fill(startSel, '2025-06-15T10:00')
+        await new Promise(r => setTimeout(r, 200))
+        await page.fill(endSel, '2025-06-15T11:00')
+        await new Promise(r => setTimeout(r, 200))
+
+        await nudgeTimeViaSelector(page, endSel, { hour: 1, minute: 1 })
+
+        expect(await page.locator(endSel).inputValue()).toBe('2025-06-15T12:01')
+
+        const entryPath = new URL(page.url()).pathname
+        await navigateTo(page, '/')
+        await navigateTo(page, entryPath)
+        await page.waitForSelector(inputs, { timeout: 5000 })
+
+        const values = await page.$$eval(inputs, els => els.map(e => (e as HTMLInputElement).value))
+        expect(values).toEqual(['2025-06-15T10:00', '2025-06-15T12:01'])
+    })
+
+    // Regression for the reported "selector doesn't save the changed time" bug.
+    // The start input's `max` tracks the live clock, so spinning the time
+    // *forward* toward "now" is accepted and saved. (Before the fix the ceiling
+    // was frozen at page-load time and silently rejected such edits.)
+    it('nudging the start time forward toward now is saved', async () => {
+        await createAndOpenEntry('ForwardEdit')
+
+        const startSel = '[data-card] .controls input[type="datetime-local"] >> nth=0'
+        // Baseline a few minutes before the current ceiling, then spin forward
+        // by a minute — the target stays in the past yet the edit moves later.
+        const max = await page.locator(startSel).getAttribute('max')
+        expect(max).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/)
+        const baseline = shiftIsoLocalMinutes(max!, -3)
+        const expected = shiftIsoLocalMinutes(baseline, 1)
+
+        await page.fill(startSel, baseline)
+        await new Promise(r => setTimeout(r, 200))
+
+        await nudgeTimeViaSelector(page, startSel, { minute: 1 })
+        expect(await page.locator(startSel).inputValue()).toBe(expected)
+
+        const entryPath = new URL(page.url()).pathname
+        await navigateTo(page, '/')
+        await navigateTo(page, entryPath)
+        await page.waitForSelector('[data-card] .controls input[type="datetime-local"]', { timeout: 5000 })
+
+        expect(await page.locator(startSel).inputValue()).toBe(expected)
+    })
+
+    // The future guard still holds: a start time cannot be spun past the current
+    // moment. Asserted against the input's live `max` to avoid clock-boundary flake.
+    it('does not allow the start time to be set into the future', async () => {
+        await createAndOpenEntry('FutureGuard')
+
+        const startSel = '[data-card] .controls input[type="datetime-local"] >> nth=0'
+        const max = await page.locator(startSel).getAttribute('max')
+        await page.fill(startSel, max!)
+        await new Promise(r => setTimeout(r, 200))
+
+        // Spinning forward past the ceiling is rejected by the control.
+        await nudgeTimeViaSelector(page, startSel, { hour: 1, minute: 1 })
+
+        const after = await page.locator(startSel).inputValue()
+        const ceiling = await page.locator(startSel).getAttribute('max')
+        // ISO local strings sort chronologically, so this proves no future value stuck.
+        expect(after <= ceiling!).toBe(true)
     })
 })

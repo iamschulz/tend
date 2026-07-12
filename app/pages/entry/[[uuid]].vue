@@ -90,7 +90,7 @@
         return toDatetimeLocalStr(new Date(entry.value.start))
     })
 
-    const maxDate = computed(() => toDatetimeLocalStr(new Date()))
+    const maxDate = computed(() => toDatetimeLocalStr(new Date(now.value)))
 
     /** @param e - The input event from the start date picker */
     function onStartDateChange(e: Event) {
