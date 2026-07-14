@@ -1,16 +1,27 @@
 <template>
     <h1 class="title">
-        <NuxtLink v-if="title.prevLink" :to="title.prevLink" class="nav-link">
-            <nuxt-icon name="arrow_left" size="48" />
-            <span class="sr-only">{{ $t('previous') }}</span>
-        </NuxtLink>
-
         <span class="long">{{ title.long }}</span>
         <span class="short">{{ title.short }}</span>
-
-        <NuxtLink v-if="title.nextLink" :to="title.nextLink" class="nav-link">
+        
+        <NuxtLink
+            :to="title.prevLink || route.path"
+            class="nav-link"
+            :class="{ 'nav-link--disabled': !title.prevLink }"
+            :tabindex="title.prevLink ? undefined : -1"
+            :aria-hidden="title.prevLink ? undefined : 'true'"
+        >
+            <nuxt-icon name="arrow_left" size="48" />
+            <span v-if="title.prevLink" class="sr-only">{{ $t('previous') }}</span>
+        </NuxtLink>
+        <NuxtLink
+            :to="title.nextLink || route.path"
+            class="nav-link"
+            :class="{ 'nav-link--disabled': !title.nextLink }"
+            :tabindex="title.nextLink ? undefined : -1"
+            :aria-hidden="title.nextLink ? undefined : 'true'"
+        >
             <nuxt-icon name="arrow_right" size="48" />
-            <span class="sr-only">{{ $t('next') }}</span>
+            <span v-if="title.nextLink" class="sr-only">{{ $t('next') }}</span>
         </NuxtLink>
     </h1>
 </template>
@@ -103,6 +114,11 @@
         &:hover {
             color: var(--col-accent2);
         }
+    }
+
+    .nav-link--disabled {
+        opacity: 0.3;
+        pointer-events: none;
     }
 
     .short {
