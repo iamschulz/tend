@@ -28,14 +28,18 @@ const handleMenuButtonClick = (): void => {
 const route = useRoute();
 const router = useRouter();
 
-const isDayView = computed(() => route.path === '/' || route.path.startsWith('/day/'));
+const canGoBack = computed(
+    () => route.path === '/' || // day view
+    route.path.startsWith('/day/') || // also day view
+    route.path.startsWith('/entry/'), // entry view
+);
 
 const hasInAppHistory = ref(false);
 watch(() => route.fullPath, () => {
     hasInAppHistory.value = import.meta.client && !!window.history.state?.back;
 }, { immediate: true });
 
-const showBack = computed(() => isDayView.value && hasInAppHistory.value);
+const showBack = computed(() => canGoBack.value && hasInAppHistory.value);
 
 /** Return to the previous in-app view. */
 const goBack = (): void => {
