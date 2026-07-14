@@ -28,9 +28,10 @@ const handleMenuButtonClick = (): void => {
 const route = useRoute();
 const router = useRouter();
 
-const canGoBack = computed(
-    () => route.path === '/' || // day view
-    route.path.startsWith('/day/') || // also day view
+const canGoBack = computed(() => 
+    // day view feels awkward, commented out.
+    // route.path === '/' || // day view
+    // route.path.startsWith('/day/') || // also day view
     route.path.startsWith('/entry/'), // entry view
 );
 
