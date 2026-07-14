@@ -1,10 +1,16 @@
 <template>
     <header data-shadow="2">
         <div class="header-inner">
-            <button class="nobutton" :aria-pressed="ui.menuOpen" @click="handleMenuButtonClick">
-                <nuxt-icon name="menu" size="48" />
-                <span class="sr-only">{{ $t('menu') }}</span>
-            </button>
+            <div class="header-controls">
+                <button class="nobutton" :aria-pressed="ui.menuOpen" @click="handleMenuButtonClick">
+                    <nuxt-icon name="menu" size="48" />
+                    <span class="sr-only">{{ $t('menu') }}</span>
+                </button>
+                <button v-if="showBack" class="nobutton back-button" @click="goBack">
+                    <nuxt-icon name="arrow_left" size="48" />
+                    <span class="back-label">{{ $t('back') }}</span>
+                </button>
+            </div>
             <HeaderTitle />
         </div>
     </header>
@@ -17,6 +23,23 @@ const ui = useUiStore();
 /** Opens the main menu. */
 const handleMenuButtonClick = (): void => {
     ui.toggleMenu(true);
+}
+
+const route = useRoute();
+const router = useRouter();
+
+const isDayView = computed(() => route.path === '/' || route.path.startsWith('/day/'));
+
+const hasInAppHistory = ref(false);
+watch(() => route.fullPath, () => {
+    hasInAppHistory.value = import.meta.client && !!window.history.state?.back;
+}, { immediate: true });
+
+const showBack = computed(() => isDayView.value && hasInAppHistory.value);
+
+/** Return to the previous in-app view. */
+const goBack = (): void => {
+    router.back();
 }
 
 const headerEl = ref<HTMLElement | null>(null)
@@ -70,6 +93,36 @@ watch(scrolled, (amount) => {
     svg {
         width: 2em;
         height: 2em;
+    }
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.back-button {
+    display: none;
+}
+
+
+.back-label {
+    font-family: var(--font-accent, var(--font));
+    font-size: 1.5em;
+    font-weight: 700;
+}
+
+@media (min-width: 38rem) {
+    .back-button {
+        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25ch;
+
+        &:hover {
+            color: var(--col-accent2);
+        }
     }
 }
 </style>
