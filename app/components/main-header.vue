@@ -115,10 +115,13 @@ watch(scrolled, (amount) => {
 
 @media (min-width: 38rem) {
     .back-button {
-        display: inline-block;
         display: inline-flex;
         align-items: center;
         gap: 0.25ch;
+
+        .nuxt-icon {
+            transform: translateY(0.125rem);
+        }
 
         &:hover {
             color: var(--col-accent2);
