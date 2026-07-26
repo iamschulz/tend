@@ -271,7 +271,8 @@
     "logout": "Abmelden",
 
     "connectivity": {
-        "offline": "Du bist offline. Änderungen werden erst gespeichert, wenn du wieder verbunden bist.",
-        "serverUnreachable": "Server nicht erreichbar. Dein Gerät ist online, aber der Tend-Server antwortet nicht."
+        "offline": "Du bist offline. Änderungen werden lokal gespeichert und synchronisiert, sobald du wieder verbunden bist.",
+        "serverUnreachable": "Server nicht erreichbar. Dein Gerät ist online, aber der Tend-Server antwortet nicht.",
+        "pending": "{count} ausstehende Änderung(en) werden synchronisiert…"
     }
 }

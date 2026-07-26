@@ -6,8 +6,20 @@ let inFlight: Promise<void> | null = null;
 let lastShownType: 'offline' | 'serverUnreachable' | null = null;
 let activeToastId: string | null = null;
 
+/** Handler fired when connectivity is restored (offline/unreachable → online). */
+let restoredHandler: (() => void) | null = null;
+
 const HEALTH_PATH = '/api/health';
 const HEALTH_TIMEOUT_MS = 10000;
+
+/**
+ * Registers a callback invoked when connectivity is restored. Used to drain the
+ * offline rejected queue and re-hydrate once the device is back online.
+ * @param cb - Handler to run on recovery (pass null to clear)
+ */
+export function onConnectivityRestored(cb: (() => void) | null): void {
+    restoredHandler = cb;
+}
 
 /**
  * Connectivity-toast helper.
@@ -50,11 +62,16 @@ export function useConnectivity() {
 
         if (nextType === lastShownType) return;
 
+        // Recovery: we were showing an offline/unreachable state and are now fine.
+        const restored = lastShownType !== null && nextType === null;
+
         if (activeToastId) {
             removeToast(activeToastId);
             activeToastId = null;
         }
         lastShownType = nextType
+
+        if (restored) restoredHandler?.();
 
         if (nextType === 'offline') {
             // duration: 0 keeps the toast visible until dismissed or the status recovers

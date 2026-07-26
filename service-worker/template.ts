@@ -1,3 +1,5 @@
+import { drainRejectedQueue } from './rejectedQueue'
+
 declare const self: ServiceWorkerGlobalScope
 
 const VERSION: string = '__VERSION__'
@@ -21,6 +23,17 @@ self.addEventListener('activate', (event: ExtendableEvent) => {
       )
     ).then(() => self.clients.claim())
   )
+})
+
+// Progressive enhancement: when the OS fires a `sync` event we drain the
+// rejected-mutation queue the page persists, so queued writes replay even
+// without the app open. `sync` isn't in the standard SW type map, so it's
+// handled via the generic addEventListener overload.
+self.addEventListener('sync', (event: Event) => {
+  const syncEvent = event as Event & { tag?: string, waitUntil?: (p: Promise<unknown>) => void }
+  if (syncEvent.tag === 'tend-rejected-queue') {
+    syncEvent.waitUntil?.(drainRejectedQueue().catch(() => undefined))
+  }
 })
 
 self.addEventListener('fetch', (event: FetchEvent) => {
