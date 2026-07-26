@@ -65,13 +65,38 @@ export default defineNuxtModule({
         join(nuxt.options.rootDir, 'service-worker/template.ts'),
         'utf-8',
       )
+      // Extract the `search` shortcut label from each locale file so the SW can
+      // localize the manifest shortcuts without importing i18n at runtime.
+      const localesDir = join(nuxt.options.rootDir, 'i18n/locales')
+      const shortcutLabels: Record<string, { search: string }> = {}
+      for (const file of readdirSync(localesDir)) {
+        if (!file.endsWith('.json')) continue
+        const messages = JSON.parse(readFileSync(join(localesDir, file), 'utf-8'))
+        shortcutLabels[file.replace(/\.json$/, '')] = {
+          search: messages.search ?? 'Search',
+        }
+      }
+
       const injected = template
         .replace("'__VERSION__'", `'${version}'`)
         .replace('__ASSETS__', JSON.stringify(assets, null, 2))
+        .replace('__SHORTCUT_LABELS__', JSON.stringify(shortcutLabels, null, 2))
       const { code } = await transform(injected, { loader: 'ts' })
 
       writeFileSync(join(publicDir, 'sw.js'), code)
       console.log(`[pwa] wrote sw.js (version: ${version}, ${assets.length} assets)`)
+
+      // Localize the static manifest's shortcut to the default locale. This is
+      // only the pre-service-worker fallback — installed users get fully per-user
+      // localized shortcuts (plus per-category ones) from the SW's dynamic manifest.
+      const defaultLocale =
+        (nuxt.options as { i18n?: { defaultLocale?: string } }).i18n?.defaultLocale ?? 'en'
+      const searchLabel = shortcutLabels[defaultLocale]?.search ?? 'Search'
+      const manifestPath = join(publicDir, 'manifest.webmanifest')
+      const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'))
+      manifest.shortcuts = [{ name: searchLabel, short_name: searchLabel, url: '/search' }]
+      writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n')
+      console.log(`[pwa] localized manifest shortcuts (default locale: ${defaultLocale})`)
 
       // Inject font preload hints into HTML files.
       // @nuxt/fonts embeds @font-face rules in the CSS entry but doesn't add
