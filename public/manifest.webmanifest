@@ -12,5 +12,13 @@
       "sizes": "any",
       "type": "image/svg+xml"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "Search",
+      "short_name": "Search",
+      "description": "Search your entries",
+      "url": "/search"
+    }
   ]
 }
