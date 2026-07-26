@@ -11,7 +11,7 @@ import { defineEventHandler } from 'h3'
 import { readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { createHash } from 'node:crypto'
-import { transform } from 'esbuild'
+import { build } from 'esbuild'
 
 export default defineNuxtModule({
   meta: { name: 'pwa' },
@@ -60,17 +60,22 @@ export default defineNuxtModule({
         .slice(0, 8)
       const version = `${pkgVersion}-${hash}`
 
-      // Read the TS template, inject computed values, transpile to JS
-      const template = readFileSync(
-        join(nuxt.options.rootDir, 'service-worker/template.ts'),
-        'utf-8',
-      )
+      // Read the TS template, inject computed values, then bundle it (with its
+      // local imports, e.g. the rejected-queue drain) into a single classic SW.
+      const swDir = join(nuxt.options.rootDir, 'service-worker')
+      const template = readFileSync(join(swDir, 'template.ts'), 'utf-8')
       const injected = template
         .replace("'__VERSION__'", `'${version}'`)
         .replace('__ASSETS__', JSON.stringify(assets, null, 2))
-      const { code } = await transform(injected, { loader: 'ts' })
+      const { outputFiles } = await build({
+        stdin: { contents: injected, resolveDir: swDir, sourcefile: 'template.ts', loader: 'ts' },
+        bundle: true,
+        format: 'iife',
+        platform: 'browser',
+        write: false,
+      })
 
-      writeFileSync(join(publicDir, 'sw.js'), code)
+      writeFileSync(join(publicDir, 'sw.js'), outputFiles[0]!.text)
       console.log(`[pwa] wrote sw.js (version: ${version}, ${assets.length} assets)`)
 
       // Inject font preload hints into HTML files.
