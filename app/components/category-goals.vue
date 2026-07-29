@@ -4,6 +4,10 @@
             <li v-for="(goal, i) in goals" :key="i" data-card data-shadow="1" class="goal-item">
                 <span>{{ goal.count }}{{ unitSuffix[goal.unit] }} / {{ $t(`per${goal.interval.charAt(0).toUpperCase()}${goal.interval.slice(1)}`) }}</span>
                 <AnimatedProgress :goal="goal" :category-id="categoryId" />
+                <span v-if="streaks[i]!.best > 0" class="goal-streak">
+                    <span class="goal-streak-current" :title="$t('streakCurrent')">🔥 {{ streaks[i]!.current }}</span>
+                    <span class="goal-streak-best">{{ $t('streakBest') }}: {{ streaks[i]!.best }}</span>
+                </span>
                 <!--<span class="goal-days">
                     <span v-for="(key, di) in weekdayKeys" :key="key" :class="{ active: goal.days & (1 << di) }">{{ $t(key) }}</span>
                 </span>-->
@@ -57,6 +61,8 @@
 <script setup lang="ts">
     import type { Goal } from '~/types/Goal';
     import { useDataStore } from '~/stores/data';
+    import { getGoalStreak } from '~/util/getGoalStreak';
+    import { useSharedNow } from '~/composables/useSharedNow';
 
     const props = defineProps<{
         categoryId: string
@@ -66,6 +72,11 @@
     const data = useDataStore()
     const { t } = useI18n()
     const { announce } = useAnnounce()
+    const now = useSharedNow()
+
+    const streaks = computed(() =>
+        props.goals.map(goal => getGoalStreak(goal, data.entries, props.categoryId, now.value)),
+    )
 
     const unitSuffix = { event: 'x', minutes: 'm', hours: 'h', days: 'd' } as const
 
@@ -134,6 +145,23 @@
     .goal-leave-active {
         position: absolute;
         left: 0;
+    }
+
+    .goal-streak {
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+        margin-left: auto;
+        white-space: nowrap;
+    }
+
+    .goal-streak-current {
+        font-weight: 700;
+    }
+
+    .goal-streak-best {
+        font-size: 0.75rem;
+        color: var(--col-fg3);
     }
 
     .goal-days {

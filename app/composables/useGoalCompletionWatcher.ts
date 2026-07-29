@@ -2,14 +2,23 @@ import { watch, computed, onScopeDispose } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useDataStore } from '~/stores/data'
 import { getGoalProgress, getGoalPeriodKey } from '~/util/getGoalProgress'
+import { getGoalStreak } from '~/util/getGoalStreak'
 import type { Goal } from '~/types/Goal'
 import type { Category } from '~/types/Category'
+
+/** Streak lengths worth celebrating; beyond the last, every 100 periods. */
+const STREAK_MILESTONES = new Set([3, 7, 14, 21, 30, 50, 75, 100, 150, 200, 250, 300, 365])
+
+/** @param streak - A current streak length */
+function isStreakMilestone(streak: number): boolean {
+    return streak > 0 && (STREAK_MILESTONES.has(streak) || (streak > 365 && streak % 100 === 0))
+}
 
 /**
  * Watches for goal completions and triggers toast notifications.
  * @param t - Translation function
  */
-export function useGoalCompletionWatcher(t: (key: string) => string) {
+export function useGoalCompletionWatcher(t: (key: string, params?: Record<string, unknown>) => string) {
     const data = useDataStore()
     const { entries, categories } = storeToRefs(data)
     const { addToast } = useToast()
@@ -56,6 +65,23 @@ export function useGoalCompletionWatcher(t: (key: string) => string) {
     }
 
     /**
+     * Fires a toast when a goal's current streak reaches a milestone.
+     * @param category - The category that owns the goal
+     * @param goal - The completed goal
+     * @param now - Current timestamp for streak calculation
+     */
+    function notifyStreakMilestone(category: Category, goal: Goal, now: number) {
+        const { current } = getGoalStreak(goal, entries.value, category.id, now)
+        if (!isStreakMilestone(current)) return
+        const interval = goal.interval.charAt(0).toUpperCase() + goal.interval.slice(1)
+        const message = t(`streakMilestone${interval}`, { count: current })
+        addToast(`${category.activity.emoji} ${category.title} — ${message}`, {
+            duration: 6000,
+            categoryId: category.id,
+        })
+    }
+
+    /**
      * Announces the current progress toward a goal.
      * @param category - The category that owns the goal
      * @param goal - The goal definition
@@ -88,7 +114,10 @@ export function useGoalCompletionWatcher(t: (key: string) => string) {
                 if (progress >= goal.count) {
                     if (notifiedSet.has(key)) continue
                     notifiedSet.add(key)
-                    if (notify) notifyCompletion(category, goal)
+                    if (notify) {
+                        notifyCompletion(category, goal)
+                        notifyStreakMilestone(category, goal, now)
+                    }
                 } else {
                     notifiedSet.delete(key)
                     if (notifyProgress && progress > (progressMap.get(key) ?? 0)) {
