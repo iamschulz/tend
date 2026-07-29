@@ -3,6 +3,7 @@ import { storeToRefs } from 'pinia'
 import { useDataStore } from '~/stores/data'
 import { getGoalProgress, getGoalPeriodKey } from '~/util/getGoalProgress'
 import { getGoalStreak } from '~/util/getGoalStreak'
+import { getStreakIcon } from '~/util/getStreakStage'
 import type { Goal } from '~/types/Goal'
 import type { Category } from '~/types/Category'
 
@@ -78,6 +79,8 @@ export function useGoalCompletionWatcher(t: (key: string, params?: Record<string
         addToast(`${category.activity.emoji} ${category.title} — ${message}`, {
             duration: 6000,
             categoryId: category.id,
+            // Same growth stage the activity graph shows for a streak this long.
+            icon: getStreakIcon(current),
         })
     }
 

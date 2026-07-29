@@ -5,7 +5,19 @@
                 <span>{{ goal.count }}{{ unitSuffix[goal.unit] }} / {{ $t(`per${goal.interval.charAt(0).toUpperCase()}${goal.interval.slice(1)}`) }}</span>
                 <AnimatedProgress :goal="goal" :category-id="categoryId" />
                 <span v-if="streaks[i]!.best > 0" class="goal-streak">
-                    <span class="goal-streak-current" :title="$t('streakCurrent')">🔥 {{ streaks[i]!.current }}</span>
+                    <span class="goal-streak-current" :title="$t('streakCurrent')">
+                        <!-- Decorative: the number beside it already states the streak. -->
+                        <img
+                            v-if="streakIcons[i]"
+                            :src="streakIcons[i]!"
+                            class="goal-streak-icon"
+                            alt=""
+                            aria-hidden="true"
+                            width="24"
+                            height="24"
+                        >
+                        {{ streaks[i]!.current }}
+                    </span>
                     <span class="goal-streak-best">{{ $t('streakBest') }}: {{ streaks[i]!.best }}</span>
                 </span>
                 <!--<span class="goal-days">
@@ -62,6 +74,7 @@
     import type { Goal } from '~/types/Goal';
     import { useDataStore } from '~/stores/data';
     import { getGoalStreak } from '~/util/getGoalStreak';
+    import { getStreakIcon, minStreakLength } from '~/util/getStreakStage';
     import { useSharedNow } from '~/composables/useSharedNow';
 
     const props = defineProps<{
@@ -76,6 +89,16 @@
 
     const streaks = computed(() =>
         props.goals.map(goal => getGoalStreak(goal, data.entries, props.categoryId, now.value)),
+    )
+
+    /**
+     * Growth stage of each goal's *current* streak — the same icon the activity graph puts
+     * on those days. Null when there is no running streak, so a zero shows the bare number
+     * rather than a grass blade: getStreakIcon always resolves to a stage, so the decision
+     * of whether a streak exists belongs here.
+     */
+    const streakIcons = computed(() =>
+        streaks.value.map(streak => (streak.current >= minStreakLength ? getStreakIcon(streak.current) : null)),
     )
 
     const unitSuffix = { event: 'x', minutes: 'm', hours: 'h', days: 'd' } as const
@@ -149,14 +172,22 @@
 
     .goal-streak {
         display: flex;
-        align-items: baseline;
+        align-items: center;
         gap: 0.5rem;
         margin-left: auto;
         white-space: nowrap;
     }
 
     .goal-streak-current {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
         font-weight: 700;
+    }
+
+    .goal-streak-icon {
+        width: 1.5rem;
+        height: 1.5rem;
     }
 
     .goal-streak-best {

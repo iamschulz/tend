@@ -68,15 +68,18 @@
                 </template>
             </g>
 
-            <!-- Streak marker: a flame on every day that belongs to a streak -->
-            <text
-                v-for="flame in streakFlames"
-                :key="flame.key"
-                :x="flame.x"
-                :y="flame.y"
-                class="streak-flame"
+            <!-- Streak marker: a growth stage on every day that belongs to a streak -->
+            <image
+                v-for="icon in streakIcons"
+                :key="icon.key"
+                :href="icon.href"
+                :x="icon.x"
+                :y="icon.y"
+                :width="streakIconSize"
+                :height="streakIconSize"
+                class="streak-icon"
                 role="presentation"
-            >🔥</text>
+            />
         </svg>
         </div>
 
@@ -92,6 +95,7 @@
     import type { Entry } from '~/types/Entry';
     import type { Goal } from '~/types/Goal';
     import { getGoalProgress } from '~/util/getGoalProgress';
+    import { getStreakIcon } from '~/util/getStreakStage';
 
     const { t, locale } = useI18n();
 
@@ -120,6 +124,7 @@
     const cellSize = 12;
     const cellGap = 3;
     const cellRadius = 2;
+    const streakIconSize = 10; // fits inside a cell with a hair of padding
     const labelWidth = 28;
     const monthLabelHeight = 16;
 
@@ -263,6 +268,7 @@
         tooltip: string;
         future: boolean;
         run: number; // streak index
+        streakLength: number; // days in that streak, 0 when the day is in none
     };
 
     // Produce a 2D grid: gridRows[row][colIndex] = Cell
@@ -297,7 +303,10 @@
                     let tooltip: string;
                     if (isGoals) {
                         const base = count > 0 ? `${count} ${goalWord} – ${dateStr}` : dateStr;
-                        tooltip = streak ? `${base} · 🔥 ${t('streakDays', { count: streak.length })}` : base;
+                        // No icon here: this string is only ever an aria-label, so the
+                        // stage image on the cell is what sighted users get, and a
+                        // screen reader would just read a decorative emoji out loud.
+                        tooltip = streak ? `${base} · ${t('streakDays', { count: streak.length })}` : base;
                     } else {
                         const entryWord = count === 1 ? t('entry') : t('entries');
                         tooltip = count > 0
@@ -315,6 +324,7 @@
                         tooltip,
                         future: d.getTime() > todayTs,
                         run: streak?.run ?? -1,
+                        streakLength: streak?.length ?? 0,
                     });
                 }
                 d.setDate(d.getDate() + 1);
@@ -324,17 +334,22 @@
     });
 
     /**
-     * A flame per streak day, centred on its cell. Marking days individually rather than
-     * drawing a connected bar is what makes gapped goals work: a Mon/Wed/Fri goal has
-     * streak days that are never neighbours in the grid, so there is nothing to connect.
+     * One growth-stage icon per streak day, centred on its cell — a grass blade on short
+     * streaks up to a tree on the longest, picked by {@link getStreakIcon}.
+     *
+     * Marking days individually rather than drawing a connected bar is what makes gapped
+     * goals work: a Mon/Wed/Fri goal has streak days that are never neighbours in the
+     * grid, so there is nothing to connect. Every day of a run shows the same stage, so
+     * the whole streak reads as one plant no matter how it is scattered across the grid.
      */
-    const streakFlames = computed(() =>
+    const streakIcons = computed(() =>
         gridRows.value.flat()
             .filter(cell => cell.run >= 0)
             .map(cell => ({
                 key: cell.date,
-                x: cell.x + cellSize / 2,
-                y: cell.y + cellSize / 2,
+                href: getStreakIcon(cell.streakLength),
+                x: cell.x + (cellSize - streakIconSize) / 2,
+                y: cell.y + (cellSize - streakIconSize) / 2,
             }))
     );
 
@@ -392,10 +407,7 @@
         &.level-4 { fill: v-bind(color); }
     }
 
-    .streak-flame {
-        font-size: 9px;
-        text-anchor: middle;
-        dominant-baseline: central;
+    .streak-icon {
         pointer-events: none;
     }
 

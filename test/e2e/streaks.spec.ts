@@ -10,15 +10,17 @@ import {
     launchBrowser,
     closeBrowser,
     getPage,
+    getBaseUrl,
 } from './_setup'
 import { openMenu, openCategoryPage, waitForIdbKeyContains } from './_helpers'
+import { getStreakStage } from '../../app/util/getStreakStage'
 
 /**
  * Streak markers in the activity graph.
  *
  * The goal deliberately runs on Mon/Wed/Fri only: its streak days are never neighbours
  * in the week-column grid, which is exactly the case a connected-bar visual could not
- * represent. Flames are per day, so they must still appear on all three.
+ * represent. Markers are per day, so they must still appear on all three.
  */
 
 const MON_WED_FRI = (1 << 0) | (1 << 2) | (1 << 4)
@@ -205,21 +207,35 @@ describe('Streaks', () => {
         await page.locator('.activity-graph').scrollIntoViewIfNeeded()
     }
 
-    /** Maps every rendered flame back to the date of the cell it sits on. */
-    async function flameDates(): Promise<string[]> {
+    /**
+     * Maps every rendered streak icon back to the date of the cell it sits on, by
+     * matching centre points — so it stays correct if the icon size changes.
+     */
+    async function iconsByDate(): Promise<Record<string, string>> {
         return page.evaluate(() => {
-            const cellCentres = new Map<string, string>()
+            const centreToDate = new Map<string, string>()
             for (const link of document.querySelectorAll('[data-date]')) {
                 const rect = link.querySelector('rect')
                 if (!rect) continue
-                const cx = Number(rect.getAttribute('x')) + 6
-                const cy = Number(rect.getAttribute('y')) + 6
-                cellCentres.set(`${cx},${cy}`, link.getAttribute('data-date') ?? '')
+                const cx = Number(rect.getAttribute('x')) + Number(rect.getAttribute('width')) / 2
+                const cy = Number(rect.getAttribute('y')) + Number(rect.getAttribute('height')) / 2
+                centreToDate.set(`${cx},${cy}`, link.getAttribute('data-date') ?? '')
             }
-            return [...document.querySelectorAll('text.streak-flame')]
-                .map(t => cellCentres.get(`${Number(t.getAttribute('x'))},${Number(t.getAttribute('y'))}`) ?? 'unmapped')
-                .sort()
+
+            const out: Record<string, string> = {}
+            for (const icon of document.querySelectorAll('image.streak-icon')) {
+                const cx = Number(icon.getAttribute('x')) + Number(icon.getAttribute('width')) / 2
+                const cy = Number(icon.getAttribute('y')) + Number(icon.getAttribute('height')) / 2
+                const date = centreToDate.get(`${cx},${cy}`) ?? 'unmapped'
+                out[date] = icon.getAttribute('href') ?? ''
+            }
+            return out
         })
+    }
+
+    /** Dates that carry a streak icon. */
+    async function iconDates(): Promise<string[]> {
+        return Object.keys(await iconsByDate()).sort()
     }
 
     /** Dates of every cell currently drawn with an outline. */
@@ -232,16 +248,41 @@ describe('Streaks', () => {
         )
     }
 
-    it('marks every day of a gapped streak with a flame, and no other day', async () => {
+    it('marks every day of a gapped streak, and no other day', async () => {
         const { monday, year } = pickStreakWeek()
         const { payload, streakA, streakB, loneDate } = buildImport(monday)
 
         await importData(payload)
         await openGraph(year)
 
-        const flames = await flameDates()
-        expect(flames).toEqual([...streakA, ...streakB].sort())
-        expect(flames).not.toContain(loneDate)
+        const marked = await iconDates()
+        expect(marked).toEqual([...streakA, ...streakB].sort())
+        expect(marked).not.toContain(loneDate)
+    })
+
+    it('grows the icon with the streak, using one stage for the whole run', async () => {
+        const { monday, year } = pickStreakWeek()
+        const { payload, streakA, streakB } = buildImport(monday)
+
+        await importData(payload)
+        await openGraph(year)
+
+        const icons = await iconsByDate()
+
+        // Every day of a run shows that run's stage.
+        expect(new Set(streakA.map(d => icons[d])).size).toBe(1)
+        expect(new Set(streakB.map(d => icons[d])).size).toBe(1)
+
+        // The 3-day run outranks the 2-day one: getStreakStage(3) = 2, getStreakStage(2) = 1.
+        expect(icons[streakA[0]!]).toBe(`/streak-${getStreakStage(streakA.length)}.svg`)
+        expect(icons[streakB[0]!]).toBe(`/streak-${getStreakStage(streakB.length)}.svg`)
+        expect(getStreakStage(streakA.length)).toBeGreaterThan(getStreakStage(streakB.length))
+
+        // And the files they point at actually exist.
+        for (const href of new Set(Object.values(icons))) {
+            const response = await page.request.get(`${getBaseUrl()}${href}`)
+            expect(response.status(), `${href} should be served`).toBe(200)
+        }
     })
 
     it('reports the streak length in the cell label, but not on a lone met day', async () => {
@@ -285,7 +326,7 @@ describe('Streaks', () => {
 
         await importData(payload)
         await openGraph(year)
-        expect((await flameDates()).length).toBe(streakA.length + streakB.length)
+        expect((await iconDates()).length).toBe(streakA.length + streakB.length)
 
         // Toggle back to entries.
         await page.click('.mode-toggle input[data-toggle]')
@@ -295,7 +336,7 @@ describe('Streaks', () => {
             { timeout: 5000 },
         )
 
-        expect(await flameDates()).toEqual([])
+        expect(await iconDates()).toEqual([])
         await page.locator('[data-date] rect').first().hover()
         expect(await outlinedDates()).toEqual([])
     })
@@ -310,6 +351,44 @@ describe('Streaks', () => {
 
         const streak = await page.textContent('.goal-item .goal-streak')
         expect(streak).toContain('Best streak: 3')
-        expect(streak).toContain('🔥 0')
+        expect(streak).toContain('0')
+
+        // A broken streak has no stage to show.
+        expect(await page.locator('.goal-item .goal-streak-icon').count()).toBe(0)
+    })
+
+    it('shows the growth stage of a running streak on the goal', async () => {
+        // A goal met yesterday and today: a live streak of 2, so stage 1.
+        const categoryId = randomUUID()
+        const entryOn = (daysAgo: number) => {
+            const d = new Date()
+            d.setDate(d.getDate() - daysAgo)
+            const start = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 10, 0, 0).getTime()
+            return { id: randomUUID(), start, end: start + 3_600_000, running: false, categoryId, comment: '' }
+        }
+
+        await importData({
+            categories: [{
+                id: categoryId,
+                title: 'StreakCat',
+                activity: { title: 'work', icon: 'factory', emoji: '🏭' },
+                color: '#3a7bd5',
+                goals: [{ count: 1, interval: 'day', unit: 'event', days: 127, reminder: false }],
+                hidden: false,
+                comment: '',
+                entries: [entryOn(0), entryOn(1)],
+            }],
+        })
+        await openCategoryPage(page)
+        await page.waitForSelector('.goal-item', { timeout: 10_000 })
+
+        expect(await page.textContent('.goal-item .goal-streak')).toContain('2')
+
+        const icon = page.locator('.goal-item .goal-streak-icon')
+        await expect.poll(() => icon.count()).toBe(1)
+        expect(await icon.getAttribute('src')).toBe(`/streak-${getStreakStage(2)}.svg`)
+
+        // The image really loads, rather than sitting there broken.
+        expect(await icon.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true)
     })
 })
