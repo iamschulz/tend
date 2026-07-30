@@ -2,31 +2,34 @@
     <div>
         <TransitionGroup v-if="goals.length" tag="ul" name="goal" class="nolist goals-list">
             <li v-for="(goal, i) in goals" :key="i" data-card data-shadow="1" class="goal-item">
-                <span>{{ goal.count }}{{ unitSuffix[goal.unit] }} / {{ $t(`per${goal.interval.charAt(0).toUpperCase()}${goal.interval.slice(1)}`) }}</span>
+                <span class="goal-label">{{ goal.count }}{{ unitSuffix[goal.unit] }} / {{ $t(`per${goal.interval.charAt(0).toUpperCase()}${goal.interval.slice(1)}`) }}</span>
                 <AnimatedProgress :goal="goal" :category-id="categoryId" />
-                <span v-if="streaks[i]!.best > 0" class="goal-streak">
-                    <span class="goal-streak-current" :title="$t('streakCurrent')">
-                        <!-- Decorative: the number beside it already states the streak. -->
-                        <img
-                            v-if="streakIcons[i]"
-                            :src="streakIcons[i]!"
-                            class="goal-streak-icon"
-                            alt=""
-                            aria-hidden="true"
-                            width="24"
-                            height="24"
-                        >
-                        {{ streaks[i]!.current }}
+                <!-- One wrap unit, so the row can only break after the progress bar -->
+                <span class="goal-meta">
+                    <span v-if="streaks[i]!.best > 0" class="goal-streak">
+                        <span class="goal-streak-current" :title="$t('streakCurrent')">
+                            <!-- Decorative: the number beside it already states the streak. -->
+                            <img
+                                v-if="streakIcons[i]"
+                                :src="streakIcons[i]!"
+                                class="goal-streak-icon"
+                                alt=""
+                                aria-hidden="true"
+                                width="24"
+                                height="24"
+                            >
+                            {{ streaks[i]!.current }}
+                        </span>
+                        <span class="goal-streak-best">{{ $t('streakBest') }}: {{ streaks[i]!.best }}</span>
                     </span>
-                    <span class="goal-streak-best">{{ $t('streakBest') }}: {{ streaks[i]!.best }}</span>
+                    <!--<span class="goal-days">
+                        <span v-for="(key, di) in weekdayKeys" :key="key" :class="{ active: goal.days & (1 << di) }">{{ $t(key) }}</span>
+                    </span>-->
+                    <button class="delete-goal" @click="removeGoal(i)">
+                        <nuxt-icon name="delete" />
+                        <span class="sr-only">{{ $t("delete") }}</span>
+                    </button>
                 </span>
-                <!--<span class="goal-days">
-                    <span v-for="(key, di) in weekdayKeys" :key="key" :class="{ active: goal.days & (1 << di) }">{{ $t(key) }}</span>
-                </span>-->
-                <button class="delete-goal" @click="removeGoal(i)">
-                    <nuxt-icon name="delete" />
-                    <span class="sr-only">{{ $t("delete") }}</span>
-                </button>
             </li>
         </TransitionGroup>
 
@@ -148,11 +151,28 @@
 
     .goal-item {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
-        gap: 1rem;
+        gap: 0.5rem 1rem;
         padding: 0.5rem 0.75rem;
         transition: all calc(0.3s * var(--enable-animtion, 1)) ease;
         width: 100%;
+    }
+
+    .goal-label {
+        white-space: nowrap;
+    }
+
+    .goal-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 0;
+        margin-left: auto;
+    }
+
+    .goal-item progress {
+        min-width: 4rem;
     }
 
     .goal-enter-from {
@@ -172,9 +192,9 @@
 
     .goal-streak {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
-        gap: 0.5rem;
-        margin-left: auto;
+        gap: 0.25rem 0.5rem;
         white-space: nowrap;
     }
 
