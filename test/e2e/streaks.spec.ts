@@ -260,7 +260,7 @@ describe('Streaks', () => {
         expect(marked).not.toContain(loneDate)
     })
 
-    it('grows the icon with the streak, using one stage for the whole run', async () => {
+    it('grows the icon day by day along a run, not once for the whole run', async () => {
         const { monday, year } = pickStreakWeek()
         const { payload, streakA, streakB } = buildImport(monday)
 
@@ -269,14 +269,21 @@ describe('Streaks', () => {
 
         const icons = await iconsByDate()
 
-        // Every day of a run shows that run's stage.
-        expect(new Set(streakA.map(d => icons[d])).size).toBe(1)
-        expect(new Set(streakB.map(d => icons[d])).size).toBe(1)
+        // Each day carries the stage of the streak as it stood on that day, so the run
+        // reads as a growing plant: day 3 of streak A has outgrown days 1 and 2.
+        expect(streakA.map(d => icons[d]))
+            .toEqual(streakA.map((_, i) => `/streak-${getStreakStage(i + 1)}.svg`))
+        expect(streakB.map(d => icons[d]))
+            .toEqual(streakB.map((_, i) => `/streak-${getStreakStage(i + 1)}.svg`))
 
-        // The 3-day run outranks the 2-day one: getStreakStage(3) = 2, getStreakStage(2) = 1.
-        expect(icons[streakA[0]!]).toBe(`/streak-${getStreakStage(streakA.length)}.svg`)
-        expect(icons[streakB[0]!]).toBe(`/streak-${getStreakStage(streakB.length)}.svg`)
-        expect(getStreakStage(streakA.length)).toBeGreaterThan(getStreakStage(streakB.length))
+        // The stage never shrinks along a run, and streak A really does advance.
+        const stagesA = streakA.map(d => Number(icons[d]!.match(/streak-(\d)/)![1]))
+        expect([...stagesA].sort((a, b) => a - b)).toEqual(stagesA)
+        expect(stagesA.at(-1)).toBeGreaterThan(stagesA[0]!)
+
+        // Both runs start at the first stage, however long they end up.
+        expect(icons[streakA[0]!]).toBe('/streak-1.svg')
+        expect(icons[streakB[0]!]).toBe('/streak-1.svg')
 
         // And the files they point at actually exist.
         for (const href of new Set(Object.values(icons))) {

@@ -226,11 +226,20 @@
         return runs.filter(r => r.length > 1);
     });
 
-    /** date -> the streak it belongs to: its length, and which run it is. */
+    /**
+     * date -> the streak it belongs to: the run's full length, which run it is, and how
+     * far into the run this day sits.
+     *
+     * `day` is what the growth stage is drawn from, so the plant grows along the run
+     * instead of every day showing the run's final size. `length` stays the whole run,
+     * because that is what the cell label reports.
+     */
     const streakByDate = computed(() => {
-        const map = new Map<string, { length: number; run: number }>();
+        const map = new Map<string, { length: number; run: number; day: number }>();
         streakRuns.value.forEach((run, index) => {
-            for (const key of run) map.set(key, { length: run.length, run: index });
+            run.forEach((key, dayIndex) => {
+                map.set(key, { length: run.length, run: index, day: dayIndex + 1 });
+            });
         });
         return map;
     });
@@ -269,6 +278,7 @@
         future: boolean;
         run: number; // streak index
         streakLength: number; // days in that streak, 0 when the day is in none
+        streakDay: number; // 1-based position within that streak, 0 when the day is in none
     };
 
     // Produce a 2D grid: gridRows[row][colIndex] = Cell
@@ -325,6 +335,7 @@
                         future: d.getTime() > todayTs,
                         run: streak?.run ?? -1,
                         streakLength: streak?.length ?? 0,
+                        streakDay: streak?.day ?? 0,
                     });
                 }
                 d.setDate(d.getDate() + 1);
@@ -334,20 +345,24 @@
     });
 
     /**
-     * One growth-stage icon per streak day, centred on its cell — a grass blade on short
-     * streaks up to a tree on the longest, picked by {@link getStreakIcon}.
+     * One growth-stage icon per streak day, centred on its cell — a grass blade on the
+     * first days of a run up to a tree once it is long enough, picked by
+     * {@link getStreakIcon} from how far into the run the day sits.
      *
-     * Marking days individually rather than drawing a connected bar is what makes gapped
-     * goals work: a Mon/Wed/Fri goal has streak days that are never neighbours in the
-     * grid, so there is nothing to connect. Every day of a run shows the same stage, so
-     * the whole streak reads as one plant no matter how it is scattered across the grid.
+     * Staging per day rather than per run is what makes the graph readable as history:
+     * reading along a streak shows the plant growing, and a day keeps the stage it had
+     * at the time even after the run has grown past it.
+     *
+     * Marking days individually rather than drawing a connected bar is also what makes
+     * gapped goals work: a Mon/Wed/Fri goal has streak days that are never neighbours in
+     * the grid, so there is nothing to connect.
      */
     const streakIcons = computed(() =>
         gridRows.value.flat()
             .filter(cell => cell.run >= 0)
             .map(cell => ({
                 key: cell.date,
-                href: getStreakIcon(cell.streakLength),
+                href: getStreakIcon(cell.streakDay),
                 x: cell.x + (cellSize - streakIconSize) / 2,
                 y: cell.y + (cellSize - streakIconSize) / 2,
             }))
