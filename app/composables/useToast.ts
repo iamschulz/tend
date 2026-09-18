@@ -7,6 +7,7 @@ export interface Toast {
     duration: number
     categoryId?: string
     goals?: readonly Goal[]
+    icon?: string
 }
 
 const toasts = ref<Toast[]>([])
@@ -23,8 +24,9 @@ export function useToast() {
      * @param options.categoryId - Associated category ID
      * @param options.goals - Goals to display in the toast
      * @param options.announceText - The announcer label
+     * @param options.icon - Decorative emoji to show beside the message
      */
-    const addToast = (message: string, options: { duration?: number, categoryId?: string, goals?: readonly Goal[], announceText?: string } = {}): string => {
+    const addToast = (message: string, options: { duration?: number, categoryId?: string, goals?: readonly Goal[], announceText?: string, icon?: string } = {}): string => {
         const id = String(nextId++)
         const { duration = 3000, announceText, ...rest } = options
         toasts.value.push({ id, message, duration, ...rest })

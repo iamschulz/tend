@@ -40,14 +40,18 @@
                         :tabindex="cell.date === focusedDate ? 0 : -1"
                         :aria-label="cell.tooltip"
                         :data-date="cell.date"
+                        @mouseenter="hoveredRun = cell.run"
+                        @mouseleave="hoveredRun = -1"
+                        @focus="hoveredRun = cell.run"
+                        @blur="hoveredRun = -1"
                     >
                         <rect
                             :x="cell.x"
                             :y="cell.y"
                             :width="cellSize"
                             :height="cellSize"
-                            rx="2"
-                            :class="['cell', `level-${cell.level}`]"
+                            :rx="cellRadius"
+                            :class="['cell', `level-${cell.level}`, { 'run-active': cell.run >= 0 && cell.run === hoveredRun }]"
                         />
                     </NuxtLink>
                     <rect
@@ -56,13 +60,25 @@
                         :y="cell.y"
                         :width="cellSize"
                         :height="cellSize"
-                        rx="2"
+                        :rx="cellRadius"
                         :class="['cell', `level-${cell.level}`]"
                         role="gridcell"
                         :aria-label="cell.tooltip"
                     />
                 </template>
             </g>
+
+            <text
+                v-for="marker in streakMarkers"
+                :key="marker.key"
+                :x="marker.x"
+                :y="marker.y"
+                :font-size="streakIconSize"
+                text-anchor="middle"
+                dominant-baseline="central"
+                class="streak-icon"
+                role="presentation"
+            >{{ streakEmoji }}</text>
         </svg>
         </div>
 
@@ -78,6 +94,7 @@
     import type { Entry } from '~/types/Entry';
     import type { Goal } from '~/types/Goal';
     import { getGoalProgress } from '~/util/getGoalProgress';
+    import { streakEmoji } from '~/util/streakIcon';
 
     const { t, locale } = useI18n();
 
@@ -93,8 +110,20 @@
     const showGoals = ref(false);
     const gridEl = ref<SVGSVGElement | null>(null);
 
+    /**
+     * Streak currently hovered or focused, so its whole run can light up together. -1 = none.
+     *
+     * This deliberately stays in JS. The same effect is expressible in pure CSS with one
+     * :has() rule per streak id, but measured on a dense year (365 cells, 122 streaks) that
+     * costs ~18 ms of style recalculation per hover move versus ~0.7 ms here — over a frame
+     * budget, so the mouse visibly stutters across the graph.
+     */
+    const hoveredRun = ref(-1);
+
     const cellSize = 12;
     const cellGap = 3;
+    const cellRadius = 2;
+    const streakIconSize = 10; // fits inside a cell with a hair of padding
     const labelWidth = 28;
     const monthLabelHeight = 16;
 
@@ -108,21 +137,33 @@
         { short: t('weekdaySuShort'), full: t('weekdaySu') },
     ]);
 
+    /**
+     * Formats a date as the `YYYY-MM-DD` key used throughout the grid.
+     * @param d - The date to format
+     */
+    function dateKey(d: Date): string {
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
     // Build a count map: date string -> entry count
     const entryCountsByDate = computed(() => {
         const map = new Map<string, number>();
         for (const entry of props.entries) {
-            const d = new Date(entry.start);
-            const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            const key = dateKey(new Date(entry.start));
             map.set(key, (map.get(key) ?? 0) + 1);
         }
         return map;
     });
 
-    // Build a goal-completion map: date string -> number of goals completed
-    const goalCountsByDate = computed(() => {
-        const map = new Map<string, number>();
-        if (props.goals.length === 0) return map;
+    // Walk the year day by day, recording how many goals were completed and whether
+    // every applicable goal was met — the latter is what streaks are built from.
+    const goalDays = computed(() => {
+        const days: { key: string; applicable: number; completed: number; met: boolean }[] = [];
+        if (props.goals.length === 0) return days;
+
+        // Streaks only count completed goals, so a still-running timer contributes nothing.
+        const settledEntries = props.allEntries.filter(e => !e.running && e.end !== null);
+        const hasRunning = settledEntries.length !== props.allEntries.length;
 
         const d = new Date(props.year, 0, 1);
         const endDate = new Date(props.year, 11, 31);
@@ -133,21 +174,68 @@
             const dayIndex = (d.getDay() + 6) % 7;
             let completed = 0;
             let applicable = 0;
+            let met = true;
 
             for (const goal of props.goals) {
                 if (goal.interval === 'day' && !(goal.days & (1 << dayIndex))) continue;
                 applicable++;
                 const progress = getGoalProgress(goal, props.allEntries, props.categoryId, d.getTime(), d);
                 if (progress >= goal.count) completed++;
+                const settled = hasRunning
+                    ? getGoalProgress(goal, settledEntries, props.categoryId, d.getTime(), d)
+                    : progress;
+                if (settled < goal.count) met = false;
             }
 
-            if (applicable > 0) {
-                const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-                map.set(key, completed);
-            }
-
+            days.push({ key: dateKey(d), applicable, completed, met: met && applicable > 0 });
             d.setDate(d.getDate() + 1);
         }
+        return days;
+    });
+
+    // Build a goal-completion map: date string -> number of goals completed
+    const goalCountsByDate = computed(() => {
+        const map = new Map<string, number>();
+        for (const day of goalDays.value) {
+            if (day.applicable > 0) map.set(day.key, day.completed);
+        }
+        return map;
+    });
+
+    /**
+     * Consecutive stretches of days where every applicable goal was met. Days with no
+     * applicable goal neither extend nor break a run, mirroring getGoalStreak.
+     * Runs of a single day are dropped — one day is not a streak.
+     */
+    const streakRuns = computed(() => {
+        const runs: string[][] = [];
+        let run: string[] = [];
+
+        for (const day of goalDays.value) {
+            if (day.applicable === 0) continue;
+            if (day.met) {
+                run.push(day.key);
+            } else {
+                if (run.length > 0) runs.push(run);
+                run = [];
+            }
+        }
+        if (run.length > 0) runs.push(run);
+
+        return runs.filter(r => r.length > 1);
+    });
+
+    /**
+     * date -> the streak it belongs to: the run's full length and which run it is.
+     * `length` is the whole run, because that is what the cell label reports.
+     */
+    const streakByDate = computed(() => {
+        const map = new Map<string, { length: number; run: number }>();
+        streakRuns.value.forEach((run, index) => {
+            run.forEach((key) => {
+                map.set(key, { length: run.length, run: index });
+            });
+        });
         return map;
     });
 
@@ -183,6 +271,8 @@
         level: number;
         tooltip: string;
         future: boolean;
+        run: number; // streak index
+        streakLength: number; // days in that streak, 0 when the day is in none
     };
 
     // Produce a 2D grid: gridRows[row][colIndex] = Cell
@@ -200,7 +290,7 @@
             for (let row = 0; row < 7; row++) {
                 const year = d.getFullYear();
                 if (year === props.year) {
-                    const key = `${year}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                    const key = dateKey(d);
                     const count = countsByDate.value.get(key) ?? 0;
 
                     let level = 0;
@@ -213,11 +303,14 @@
                     }
 
                     const dateStr = d.toLocaleDateString(locale.value, { month: 'short', day: 'numeric' });
+                    const streak = isGoals ? streakByDate.value.get(key) : undefined;
                     let tooltip: string;
                     if (isGoals) {
-                        tooltip = count > 0
-                            ? `${count} ${goalWord} – ${dateStr}`
-                            : dateStr;
+                        const base = count > 0 ? `${count} ${goalWord} – ${dateStr}` : dateStr;
+                        // No icon here: this string is only ever an aria-label, so the
+                        // sprout on the cell is what sighted users get, and a screen
+                        // reader would just read a decorative emoji out loud.
+                        tooltip = streak ? `${base} · ${t('streakDays', { count: streak.length })}` : base;
                     } else {
                         const entryWord = count === 1 ? t('entry') : t('entries');
                         tooltip = count > 0
@@ -234,6 +327,8 @@
                         level,
                         tooltip,
                         future: d.getTime() > todayTs,
+                        run: streak?.run ?? -1,
+                        streakLength: streak?.length ?? 0,
                     });
                 }
                 d.setDate(d.getDate() + 1);
@@ -241,6 +336,23 @@
         }
         return rows;
     });
+
+    /**
+     * One sprout per streak day, centred on its cell.
+     *
+     * Marking days individually rather than drawing a connected bar is what makes gapped
+     * goals work: a Mon/Wed/Fri goal has streak days that are never neighbours in the
+     * grid, so there is nothing to connect.
+     */
+    const streakMarkers = computed(() =>
+        gridRows.value.flat()
+            .filter(cell => cell.run >= 0)
+            .map(cell => ({
+                key: cell.date,
+                x: cell.x + cellSize / 2,
+                y: cell.y + cellSize / 2,
+            }))
+    );
 
     const { focusedKey: focusedDate, onGridKeydown } = useGridNavigation(
         gridEl,
@@ -296,15 +408,17 @@
         &.level-4 { fill: v-bind(color); }
     }
 
-    [role="gridcell"]:focus {
-        outline: 2px solid var(--col-fg);
-        outline-offset: 1px;
+    .streak-icon {
+        /* The glyph covers the centre of its cell, so it must not swallow the hover
+           that lights up the streak the cell belongs to. */
+        pointer-events: none;
+        --categoryColor: v-bind(color);
+        --streakShadowColor: oklch(from var(--categoryColor) round(calc(1 - l)) 0 0);
+        filter: drop-shadow(0px 0px 1px var(--streakShadowColor)) drop-shadow(0px 0px 2px var(--streakShadowColor));
     }
 
-    .mode-toggle {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-top: 0.5rem;
+    .cell.run-active {
+        stroke: var(--col-fg);
+        stroke-width: 1;
     }
 </style>

@@ -2,15 +2,30 @@
     <div>
         <TransitionGroup v-if="goals.length" tag="ul" name="goal" class="nolist goals-list">
             <li v-for="(goal, i) in goals" :key="i" data-card data-shadow="1" class="goal-item">
-                <span>{{ goal.count }}{{ unitSuffix[goal.unit] }} / {{ $t(`per${goal.interval.charAt(0).toUpperCase()}${goal.interval.slice(1)}`) }}</span>
+                <span class="goal-label">{{ goal.count }}{{ unitSuffix[goal.unit] }} / {{ $t(`per${goal.interval.charAt(0).toUpperCase()}${goal.interval.slice(1)}`) }}</span>
                 <AnimatedProgress :goal="goal" :category-id="categoryId" />
-                <!--<span class="goal-days">
-                    <span v-for="(key, di) in weekdayKeys" :key="key" :class="{ active: goal.days & (1 << di) }">{{ $t(key) }}</span>
-                </span>-->
-                <button class="delete-goal" @click="removeGoal(i)">
-                    <nuxt-icon name="delete" />
-                    <span class="sr-only">{{ $t("delete") }}</span>
-                </button>
+                <!-- One wrap unit, so the row can only break after the progress bar -->
+                <span class="goal-meta">
+                    <span v-if="streaks[i]!.best > 0" class="goal-streak">
+                        <span class="goal-streak-current" :title="$t('streakCurrent')">
+                            <!-- Decorative: the number beside it already states the streak. -->
+                            <span
+                                v-if="streaks[i]!.current >= minStreakLength"
+                                class="goal-streak-icon"
+                                aria-hidden="true"
+                            >{{ streakEmoji }}</span>
+                            {{ streaks[i]!.current }}
+                        </span>
+                        <span class="goal-streak-best">{{ $t('streakBest') }}: {{ streaks[i]!.best }}</span>
+                    </span>
+                    <!--<span class="goal-days">
+                        <span v-for="(key, di) in weekdayKeys" :key="key" :class="{ active: goal.days & (1 << di) }">{{ $t(key) }}</span>
+                    </span>-->
+                    <button class="delete-goal" @click="removeGoal(i)">
+                        <nuxt-icon name="delete" />
+                        <span class="sr-only">{{ $t("delete") }}</span>
+                    </button>
+                </span>
             </li>
         </TransitionGroup>
 
@@ -57,6 +72,9 @@
 <script setup lang="ts">
     import type { Goal } from '~/types/Goal';
     import { useDataStore } from '~/stores/data';
+    import { getGoalStreak } from '~/util/getGoalStreak';
+    import { streakEmoji, minStreakLength } from '~/util/streakIcon';
+    import { useSharedNow } from '~/composables/useSharedNow';
 
     const props = defineProps<{
         categoryId: string
@@ -66,6 +84,11 @@
     const data = useDataStore()
     const { t } = useI18n()
     const { announce } = useAnnounce()
+    const now = useSharedNow()
+
+    const streaks = computed(() =>
+        props.goals.map(goal => getGoalStreak(goal, data.entries, props.categoryId, now.value)),
+    )
 
     const unitSuffix = { event: 'x', minutes: 'm', hours: 'h', days: 'd' } as const
 
@@ -114,11 +137,28 @@
 
     .goal-item {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
-        gap: 1rem;
+        gap: 0.5rem 1rem;
         padding: 0.5rem 0.75rem;
         transition: all calc(0.3s * var(--enable-animtion, 1)) ease;
         width: 100%;
+    }
+
+    .goal-label {
+        white-space: nowrap;
+    }
+
+    .goal-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 0;
+        margin-left: auto;
+    }
+
+    .goal-item progress {
+        min-width: 4rem;
     }
 
     .goal-enter-from {
@@ -134,6 +174,31 @@
     .goal-leave-active {
         position: absolute;
         left: 0;
+    }
+
+    .goal-streak {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.25rem 0.5rem;
+        white-space: nowrap;
+    }
+
+    .goal-streak-current {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-weight: 700;
+    }
+
+    .goal-streak-icon {
+        font-size: 1.25rem;
+        line-height: 1;
+    }
+
+    .goal-streak-best {
+        font-size: 0.75rem;
+        color: var(--col-fg3);
     }
 
     .goal-days {

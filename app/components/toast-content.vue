@@ -6,6 +6,11 @@
             <AnimatedProgress :goal="goal" :category-id="toast.categoryId!" />
         </div>
     </div>
+    <span v-else-if="toast.icon" class="toast-icon-row">
+        <!-- Decorative: the message already states the streak, so it is hidden from readers. -->
+        <span class="toast-icon" aria-hidden="true">{{ toast.icon }}</span>
+        <span>{{ toast.message }}</span>
+    </span>
     <span v-else>{{ toast.message }}</span>
 </template>
 
@@ -34,5 +39,17 @@
         flex-shrink: 0;
         font-size: 0.85rem;
         white-space: nowrap;
+    }
+
+    .toast-icon-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .toast-icon {
+        flex-shrink: 0;
+        font-size: 1.5rem;
+        line-height: 1;
     }
 </style>
