@@ -24,7 +24,7 @@ export function useToast() {
      * @param options.categoryId - Associated category ID
      * @param options.goals - Goals to display in the toast
      * @param options.announceText - The announcer label
-     * @param options.icon - Public path of a decorative image to show beside the message
+     * @param options.icon - Decorative emoji to show beside the message
      */
     const addToast = (message: string, options: { duration?: number, categoryId?: string, goals?: readonly Goal[], announceText?: string, icon?: string } = {}): string => {
         const id = String(nextId++)

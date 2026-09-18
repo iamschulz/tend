@@ -68,18 +68,17 @@
                 </template>
             </g>
 
-            <!-- Streak marker: a growth stage on every day that belongs to a streak -->
-            <image
-                v-for="icon in streakIcons"
-                :key="icon.key"
-                :href="icon.href"
-                :x="icon.x"
-                :y="icon.y"
-                :width="streakIconSize"
-                :height="streakIconSize"
+            <text
+                v-for="marker in streakMarkers"
+                :key="marker.key"
+                :x="marker.x"
+                :y="marker.y"
+                :font-size="streakIconSize"
+                text-anchor="middle"
+                dominant-baseline="central"
                 class="streak-icon"
                 role="presentation"
-            />
+            >{{ streakEmoji }}</text>
         </svg>
         </div>
 
@@ -95,7 +94,7 @@
     import type { Entry } from '~/types/Entry';
     import type { Goal } from '~/types/Goal';
     import { getGoalProgress } from '~/util/getGoalProgress';
-    import { getStreakIcon } from '~/util/getStreakStage';
+    import { streakEmoji } from '~/util/streakIcon';
 
     const { t, locale } = useI18n();
 
@@ -227,18 +226,14 @@
     });
 
     /**
-     * date -> the streak it belongs to: the run's full length, which run it is, and how
-     * far into the run this day sits.
-     *
-     * `day` is what the growth stage is drawn from, so the plant grows along the run
-     * instead of every day showing the run's final size. `length` stays the whole run,
-     * because that is what the cell label reports.
+     * date -> the streak it belongs to: the run's full length and which run it is.
+     * `length` is the whole run, because that is what the cell label reports.
      */
     const streakByDate = computed(() => {
-        const map = new Map<string, { length: number; run: number; day: number }>();
+        const map = new Map<string, { length: number; run: number }>();
         streakRuns.value.forEach((run, index) => {
-            run.forEach((key, dayIndex) => {
-                map.set(key, { length: run.length, run: index, day: dayIndex + 1 });
+            run.forEach((key) => {
+                map.set(key, { length: run.length, run: index });
             });
         });
         return map;
@@ -278,7 +273,6 @@
         future: boolean;
         run: number; // streak index
         streakLength: number; // days in that streak, 0 when the day is in none
-        streakDay: number; // 1-based position within that streak, 0 when the day is in none
     };
 
     // Produce a 2D grid: gridRows[row][colIndex] = Cell
@@ -314,8 +308,8 @@
                     if (isGoals) {
                         const base = count > 0 ? `${count} ${goalWord} – ${dateStr}` : dateStr;
                         // No icon here: this string is only ever an aria-label, so the
-                        // stage image on the cell is what sighted users get, and a
-                        // screen reader would just read a decorative emoji out loud.
+                        // sprout on the cell is what sighted users get, and a screen
+                        // reader would just read a decorative emoji out loud.
                         tooltip = streak ? `${base} · ${t('streakDays', { count: streak.length })}` : base;
                     } else {
                         const entryWord = count === 1 ? t('entry') : t('entries');
@@ -335,7 +329,6 @@
                         future: d.getTime() > todayTs,
                         run: streak?.run ?? -1,
                         streakLength: streak?.length ?? 0,
-                        streakDay: streak?.day ?? 0,
                     });
                 }
                 d.setDate(d.getDate() + 1);
@@ -345,26 +338,19 @@
     });
 
     /**
-     * One growth-stage icon per streak day, centred on its cell — a grass blade on the
-     * first days of a run up to a tree once it is long enough, picked by
-     * {@link getStreakIcon} from how far into the run the day sits.
+     * One sprout per streak day, centred on its cell.
      *
-     * Staging per day rather than per run is what makes the graph readable as history:
-     * reading along a streak shows the plant growing, and a day keeps the stage it had
-     * at the time even after the run has grown past it.
-     *
-     * Marking days individually rather than drawing a connected bar is also what makes
-     * gapped goals work: a Mon/Wed/Fri goal has streak days that are never neighbours in
-     * the grid, so there is nothing to connect.
+     * Marking days individually rather than drawing a connected bar is what makes gapped
+     * goals work: a Mon/Wed/Fri goal has streak days that are never neighbours in the
+     * grid, so there is nothing to connect.
      */
-    const streakIcons = computed(() =>
+    const streakMarkers = computed(() =>
         gridRows.value.flat()
             .filter(cell => cell.run >= 0)
             .map(cell => ({
                 key: cell.date,
-                href: getStreakIcon(cell.streakDay),
-                x: cell.x + (cellSize - streakIconSize) / 2,
-                y: cell.y + (cellSize - streakIconSize) / 2,
+                x: cell.x + cellSize / 2,
+                y: cell.y + cellSize / 2,
             }))
     );
 
@@ -423,7 +409,12 @@
     }
 
     .streak-icon {
+        /* The glyph covers the centre of its cell, so it must not swallow the hover
+           that lights up the streak the cell belongs to. */
         pointer-events: none;
+        --categoryColor: v-bind(color);
+        --streakShadowColor: oklch(from var(--categoryColor) round(calc(1 - l)) 0 0);
+        filter: drop-shadow(0px 0px 1px var(--streakShadowColor)) drop-shadow(0px 0px 2px var(--streakShadowColor));
     }
 
     .cell.run-active {

@@ -10,10 +10,9 @@ import {
     launchBrowser,
     closeBrowser,
     getPage,
-    getBaseUrl,
 } from './_setup'
 import { openMenu, openCategoryPage, waitForIdbKeyContains } from './_helpers'
-import { getStreakStage } from '../../app/util/getStreakStage'
+import { streakEmoji } from '../../app/util/streakIcon'
 
 /**
  * Streak markers in the activity graph.
@@ -208,8 +207,8 @@ describe('Streaks', () => {
     }
 
     /**
-     * Maps every rendered streak icon back to the date of the cell it sits on, by
-     * matching centre points — so it stays correct if the icon size changes.
+     * Maps every rendered streak marker back to the date of the cell it sits on, by
+     * matching centre points — so it stays correct if the marker size changes.
      */
     async function iconsByDate(): Promise<Record<string, string>> {
         return page.evaluate(() => {
@@ -223,11 +222,11 @@ describe('Streaks', () => {
             }
 
             const out: Record<string, string> = {}
-            for (const icon of document.querySelectorAll('image.streak-icon')) {
-                const cx = Number(icon.getAttribute('x')) + Number(icon.getAttribute('width')) / 2
-                const cy = Number(icon.getAttribute('y')) + Number(icon.getAttribute('height')) / 2
+            for (const marker of document.querySelectorAll('text.streak-icon')) {
+                const cx = Number(marker.getAttribute('x'))
+                const cy = Number(marker.getAttribute('y'))
                 const date = centreToDate.get(`${cx},${cy}`) ?? 'unmapped'
-                out[date] = icon.getAttribute('href') ?? ''
+                out[date] = marker.textContent ?? ''
             }
             return out
         })
@@ -260,7 +259,7 @@ describe('Streaks', () => {
         expect(marked).not.toContain(loneDate)
     })
 
-    it('grows the icon day by day along a run, not once for the whole run', async () => {
+    it('marks every streak day with the same sprout, however long the run', async () => {
         const { monday, year } = pickStreakWeek()
         const { payload, streakA, streakB } = buildImport(monday)
 
@@ -269,27 +268,8 @@ describe('Streaks', () => {
 
         const icons = await iconsByDate()
 
-        // Each day carries the stage of the streak as it stood on that day, so the run
-        // reads as a growing plant: day 3 of streak A has outgrown days 1 and 2.
-        expect(streakA.map(d => icons[d]))
-            .toEqual(streakA.map((_, i) => `/streak-${getStreakStage(i + 1)}.svg`))
-        expect(streakB.map(d => icons[d]))
-            .toEqual(streakB.map((_, i) => `/streak-${getStreakStage(i + 1)}.svg`))
-
-        // The stage never shrinks along a run, and streak A really does advance.
-        const stagesA = streakA.map(d => Number(icons[d]!.match(/streak-(\d)/)![1]))
-        expect([...stagesA].sort((a, b) => a - b)).toEqual(stagesA)
-        expect(stagesA.at(-1)).toBeGreaterThan(stagesA[0]!)
-
-        // Both runs start at the first stage, however long they end up.
-        expect(icons[streakA[0]!]).toBe('/streak-1.svg')
-        expect(icons[streakB[0]!]).toBe('/streak-1.svg')
-
-        // And the files they point at actually exist.
-        for (const href of new Set(Object.values(icons))) {
-            const response = await page.request.get(`${getBaseUrl()}${href}`)
-            expect(response.status(), `${href} should be served`).toBe(200)
-        }
+        expect(streakA.map(d => icons[d])).toEqual(streakA.map(() => streakEmoji))
+        expect(streakB.map(d => icons[d])).toEqual(streakB.map(() => streakEmoji))
     })
 
     it('reports the streak length in the cell label, but not on a lone met day', async () => {
@@ -360,12 +340,12 @@ describe('Streaks', () => {
         expect(streak).toContain('Best streak: 3')
         expect(streak).toContain('0')
 
-        // A broken streak has no stage to show.
+        // A broken streak has no marker to show.
         expect(await page.locator('.goal-item .goal-streak-icon').count()).toBe(0)
     })
 
-    it('shows the growth stage of a running streak on the goal', async () => {
-        // A goal met yesterday and today: a live streak of 2, so stage 1.
+    it('shows the sprout of a running streak on the goal', async () => {
+        // A goal met yesterday and today: a live streak of 2, long enough to mark.
         const categoryId = randomUUID()
         const entryOn = (daysAgo: number) => {
             const d = new Date()
@@ -393,9 +373,6 @@ describe('Streaks', () => {
 
         const icon = page.locator('.goal-item .goal-streak-icon')
         await expect.poll(() => icon.count()).toBe(1)
-        expect(await icon.getAttribute('src')).toBe(`/streak-${getStreakStage(2)}.svg`)
-
-        // The image really loads, rather than sitting there broken.
-        expect(await icon.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true)
+        expect(await icon.textContent()).toBe(streakEmoji)
     })
 })

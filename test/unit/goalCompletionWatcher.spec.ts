@@ -228,7 +228,7 @@ describe('useGoalCompletionWatcher', () => {
       }
     }
 
-    it('fires a milestone toast carrying the growth stage for that streak length', async () => {
+    it('fires a milestone toast carrying the streak sprout', async () => {
       const goal = makeGoal({ count: 1 })
       const catId = setupCategory([goal])
       seedStreak(catId, 3) // yesterday and the day before
@@ -242,8 +242,7 @@ describe('useGoalCompletionWatcher', () => {
 
       const milestone = mockAddToast.mock.calls.find(([message]) => String(message).includes('streakMilestoneDay'))
       expect(milestone, 'a streak milestone toast should fire').toBeDefined()
-      // getStreakStage(3) === 2
-      expect(milestone![1]).toEqual(expect.objectContaining({ icon: '/streak-2.svg', categoryId: catId }))
+      expect(milestone![1]).toEqual(expect.objectContaining({ icon: '🌱', categoryId: catId }))
     })
 
     it('does not fire a milestone toast for a streak length between milestones', async () => {

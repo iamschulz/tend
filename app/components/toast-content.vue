@@ -7,8 +7,8 @@
         </div>
     </div>
     <span v-else-if="toast.icon" class="toast-icon-row">
-        <!-- Decorative: the message already states the streak, so it carries no alt text. -->
-        <img :src="toast.icon" class="toast-icon" alt="" aria-hidden="true" width="32" height="32">
+        <!-- Decorative: the message already states the streak, so it is hidden from readers. -->
+        <span class="toast-icon" aria-hidden="true">{{ toast.icon }}</span>
         <span>{{ toast.message }}</span>
     </span>
     <span v-else>{{ toast.message }}</span>
@@ -49,7 +49,7 @@
 
     .toast-icon {
         flex-shrink: 0;
-        width: 2rem;
-        height: 2rem;
+        font-size: 1.5rem;
+        line-height: 1;
     }
 </style>
