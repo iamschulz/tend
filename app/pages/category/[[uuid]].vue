@@ -208,10 +208,12 @@
         if (category.value) data.updateCategory({ id: category.value.id, comment: val })
     })
 
+    // An entry that runs over New Year belongs to both years, so both get a graph.
     const entryYears = computed(() => {
         const years = new Set<number>()
         for (const e of categoryEntries.value) {
             years.add(new Date(e.start).getFullYear())
+            years.add(new Date(e.end ?? Date.now()).getFullYear())
         }
         return [...years].sort((a, b) => b - a)
     })
@@ -235,11 +237,16 @@
     }
 
     /**
-     * Returns all category entries whose start timestamp falls within the given year.
+     * Returns all category entries that touch the given year — an entry running over New
+     * Year covers days in both, and the graph counts it on every day it covers.
      * @param year - The year to filter entries by
      */
     const entriesForYear = (year: number) =>
-        categoryEntries.value.filter(e => new Date(e.start).getFullYear() === year)
+        categoryEntries.value.filter((e) => {
+            const start = new Date(e.start).getFullYear()
+            const end = new Date(e.end ?? Date.now()).getFullYear()
+            return start <= year && Math.max(end, start) >= year
+        })
 
     useHead({ title: computed(() => `${category.value?.title} | `) })
 

@@ -118,6 +118,184 @@ function buildImport(monday: Date) {
     }
 }
 
+/**
+ * A weekly goal met in two consecutive weeks by a single entry each.
+ *
+ * A week goal is met by the period, so every day of both weeks counts as met and the
+ * streak covers all fourteen — including the twelve nothing was logged on.
+ * @param monday - Reference Monday, the start of the first met week
+ */
+function buildWeeklyImport(monday: Date) {
+    const categoryId = randomUUID()
+
+    /**
+     * Resolves an offset to its date.
+     * @param offsetDays - Days after `monday`
+     */
+    const dayAt = (offsetDays: number) => {
+        const d = new Date(monday)
+        d.setDate(d.getDate() + offsetDays)
+        return d
+    }
+
+    /**
+     * Builds one completed hour-long entry on the given day.
+     * @param offsetDays - Days after `monday`
+     */
+    const entryOn = (offsetDays: number) => {
+        const d = dayAt(offsetDays)
+        const start = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 10, 0, 0).getTime()
+        return { id: randomUUID(), start, end: start + 3_600_000, running: false, categoryId, comment: '' }
+    }
+
+    const worked = [2, 10] // Wednesday of the first week, Thursday of the second
+
+    return {
+        payload: {
+            categories: [{
+                id: categoryId,
+                title: 'StreakCat',
+                activity: { title: 'work', icon: 'factory', emoji: '\u{1F3ED}' },
+                color: '#3a7bd5',
+                goals: [{ count: 1, interval: 'week', unit: 'event', days: 127, reminder: false }],
+                hidden: false,
+                comment: '',
+                entries: worked.map(entryOn),
+            }],
+        },
+        worked: worked.map(o => dateKey(dayAt(o))).sort(),
+        bothWeeks: Array.from({ length: 14 }, (_, i) => dateKey(dayAt(i))).sort(),
+    }
+}
+
+/**
+ * A goal that applies to every day, met on Mon/Wed/Fri/Sun only. The missed days in
+ * between apply just as much, so nothing here is a streak.
+ * @param monday - Reference Monday of the week the entries land in
+ */
+function buildEveryDayImport(monday: Date) {
+    const categoryId = randomUUID()
+
+    /**
+     * Builds one completed hour-long entry on the given day.
+     * @param offsetDays - Days after `monday`
+     */
+    const entryOn = (offsetDays: number) => {
+        const d = new Date(monday)
+        d.setDate(d.getDate() + offsetDays)
+        const start = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 10, 0, 0).getTime()
+        return { id: randomUUID(), start, end: start + 3_600_000, running: false, categoryId, comment: '' }
+    }
+
+    const worked = [0, 2, 4, 6] // Mon, Wed, Fri, Sun
+
+    return {
+        payload: {
+            categories: [{
+                id: categoryId,
+                title: 'StreakCat',
+                activity: { title: 'work', icon: 'factory', emoji: '\u{1F3ED}' },
+                color: '#3a7bd5',
+                goals: [{ count: 1, interval: 'day', unit: 'event', days: 127, reminder: false }],
+                hidden: false,
+                comment: '',
+                entries: worked.map(entryOn),
+            }],
+        },
+    }
+}
+
+/**
+ * A daily goal met by a single entry that runs from Monday night into Tuesday morning.
+ * @param monday - Reference Monday the entry starts on
+ */
+function buildOvernightImport(monday: Date) {
+    const categoryId = randomUUID()
+    const start = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate(), 22, 0, 0).getTime()
+
+    const tuesday = new Date(monday)
+    tuesday.setDate(tuesday.getDate() + 1)
+
+    return {
+        payload: {
+            categories: [{
+                id: categoryId,
+                title: 'StreakCat',
+                activity: { title: 'work', icon: 'factory', emoji: '\u{1F3ED}' },
+                color: '#3a7bd5',
+                goals: [{ count: 1, interval: 'day', unit: 'event', days: 127, reminder: false }],
+                hidden: false,
+                comment: '',
+                entries: [{
+                    id: randomUUID(),
+                    start,
+                    end: start + 4 * 3_600_000, // 22:00 to 02:00, over midnight
+                    running: false,
+                    categoryId,
+                    comment: '',
+                }],
+            }],
+        },
+        days: [dateKey(monday), dateKey(tuesday)],
+    }
+}
+
+/**
+ * Picks two consecutive months that are wholly in the past and share a calendar year, so
+ * both land in the same graph however late in the year the suite runs.
+ */
+function pickMonthPair(): { year: number; months: [number, number] } {
+    const now = new Date()
+    const month = now.getMonth()
+    return month >= 2
+        ? { year: now.getFullYear(), months: [month - 2, month - 1] }
+        : { year: now.getFullYear() - 1, months: [0, 1] }
+}
+
+/**
+ * A monthly goal met in two consecutive months by a single entry each.
+ * @param year - Year both months fall in
+ * @param months - The two month indices
+ */
+function buildMonthlyImport(year: number, months: [number, number]) {
+    const categoryId = randomUUID()
+
+    /**
+     * Builds one completed hour-long entry in the middle of the given month.
+     * @param month - Month index
+     */
+    const entryIn = (month: number) => {
+        const start = new Date(year, month, 15, 10, 0, 0).getTime()
+        return { id: randomUUID(), start, end: start + 3_600_000, running: false, categoryId, comment: '' }
+    }
+
+    /**
+     * Every date key in the given month.
+     * @param month - Month index
+     */
+    const datesIn = (month: number) =>
+        Array.from({ length: new Date(year, month + 1, 0).getDate() }, (_, i) =>
+            dateKey(new Date(year, month, i + 1)),
+        ).sort()
+
+    return {
+        payload: {
+            categories: [{
+                id: categoryId,
+                title: 'StreakCat',
+                activity: { title: 'work', icon: 'factory', emoji: '\u{1F3ED}' },
+                color: '#3a7bd5',
+                goals: [{ count: 1, interval: 'month', unit: 'event', days: 127, reminder: false }],
+                hidden: false,
+                comment: '',
+                entries: months.map(entryIn),
+            }],
+        },
+        worked: months.map(m => dateKey(new Date(year, m, 15))),
+        datesIn,
+    }
+}
+
 describe('Streaks', () => {
     let page: Page
     let tmpDir: string
@@ -237,14 +415,65 @@ describe('Streaks', () => {
         return Object.keys(await iconsByDate()).sort()
     }
 
-    /** Dates of every cell currently drawn with an outline. */
-    async function outlinedDates(): Promise<string[]> {
+    /**
+     * Dates enclosed by a streak outline. The outline is one shape per week column, so
+     * membership is geometric: a cell counts when its centre sits inside one of them.
+     * @param activeOnly - Only count the emphasised outline of the hovered streak
+     */
+    async function outlinedDates(activeOnly = false): Promise<string[]> {
+        return page.evaluate((onlyActive) => {
+            const selector = onlyActive ? 'rect.run-outline.run-active' : 'rect.run-outline'
+            const boxes = [...document.querySelectorAll(selector)].map(o => ({
+                x: Number(o.getAttribute('x')),
+                y: Number(o.getAttribute('y')),
+                w: Number(o.getAttribute('width')),
+                h: Number(o.getAttribute('height')),
+            }))
+
+            return [...document.querySelectorAll('[data-date] rect.cell')]
+                .filter((r) => {
+                    const cx = Number(r.getAttribute('x')) + Number(r.getAttribute('width')) / 2
+                    const cy = Number(r.getAttribute('y')) + Number(r.getAttribute('height')) / 2
+                    return boxes.some(b => cx > b.x && cx < b.x + b.w && cy > b.y && cy < b.y + b.h)
+                })
+                .map(r => r.closest('[data-date]')?.getAttribute('data-date') ?? '')
+                .sort()
+        }, activeOnly)
+    }
+
+    /** Dates whose cell is painted in the category colour, rather than left empty. */
+    async function colouredDates(): Promise<string[]> {
         return page.evaluate(() =>
             [...document.querySelectorAll('[data-date] rect.cell')]
-                .filter(r => getComputedStyle(r).stroke !== 'none')
+                .filter(r => !r.classList.contains('level-0'))
                 .map(r => r.closest('[data-date]')?.getAttribute('data-date') ?? '')
                 .sort(),
         )
+    }
+
+    /**
+     * Number of separate outline shapes currently drawn.
+     * @param activeOnly - Only count the emphasised outline of the hovered streak
+     */
+    async function outlineCount(activeOnly = false): Promise<number> {
+        return page.locator(activeOnly ? 'rect.run-outline.run-active' : 'rect.run-outline').count()
+    }
+
+    /**
+     * Every date from the first to the last day of a run, inclusive — what a continuous
+     * outline covers, as opposed to only the days that carry a marker.
+     */
+    function spanOf(run: string[]): string[] {
+        const out: string[] = []
+        const d = new Date(`${run[0]}T12:00:00`)
+        const last = new Date(`${run.at(-1)}T12:00:00`)
+        while (d <= last) {
+            out.push(
+                `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`,
+            )
+            d.setDate(d.getDate() + 1)
+        }
+        return out.sort()
     }
 
     it('marks every day of a gapped streak, and no other day', async () => {
@@ -272,6 +501,128 @@ describe('Streaks', () => {
         expect(streakB.map(d => icons[d])).toEqual(streakB.map(() => streakEmoji))
     })
 
+    it('colours and sprouts only the days worked on, not every day a streak covers', async () => {
+        const { monday, year } = pickStreakWeek()
+        const { payload, worked, bothWeeks } = buildWeeklyImport(monday)
+
+        await importData(payload)
+        await openGraph(year)
+
+        // The weekly goal is met on all fourteen days, but a day with nothing logged on it
+        // gets neither the category colour nor a sprout.
+        expect(await colouredDates()).toEqual(worked)
+        expect(await iconDates()).toEqual(worked)
+
+        // The streak still runs across both weeks — the outline is what shows it, one
+        // shape per week column, drawn without anything having to be hovered.
+        expect(await outlineCount()).toBe(2)
+        expect(await outlinedDates()).toEqual(bothWeeks)
+    })
+
+    it('emphasises only the hovered week of a streak that spans several', async () => {
+        const { monday, year } = pickStreakWeek()
+        const { payload, worked, bothWeeks } = buildWeeklyImport(monday)
+        const [firstWeek, secondWeek] = [bothWeeks.slice(0, 7), bothWeeks.slice(7)]
+
+        await importData(payload)
+        await openGraph(year)
+
+        // One streak, two weeks: hovering a day emphasises the week it sits in, not the
+        // whole run — for a weekly goal that week is the period the day belongs to.
+        await page.locator(`[data-date="${worked[0]}"] rect`).hover()
+        expect(await outlineCount(true)).toBe(1)
+        expect(await outlinedDates(true)).toEqual(firstWeek)
+
+        await page.locator(`[data-date="${worked[1]}"] rect`).hover()
+        expect(await outlineCount(true)).toBe(1)
+        expect(await outlinedDates(true)).toEqual(secondWeek)
+    })
+
+    it('draws no outline for days a goal applies to but that never ran together', async () => {
+        const { monday, year } = pickStreakWeek()
+        const { payload } = buildEveryDayImport(monday)
+
+        await importData(payload)
+        await openGraph(year)
+
+        // Mon/Wed/Fri/Sun with a goal that applies every day: Tue, Thu and Sat are missed
+        // days, so each met day stands alone and none of them is a streak.
+        expect(await outlineCount()).toBe(0)
+        expect(await iconDates()).toEqual([])
+    })
+
+    it('draws no outline for a weekly goal met in a single week', async () => {
+        const { monday, year } = pickStreakWeek()
+        const { payload } = buildEveryDayImport(monday)
+        payload.categories[0]!.goals[0]!.interval = 'week'
+
+        await importData(payload)
+        await openGraph(year)
+
+        // The week is met, so all seven of its days are marked — but a weekly goal's
+        // streak advances by the week, and one week is a single period. The streak count
+        // next to the goal says 1 for the same reason, and shows no sprout either.
+        expect(await outlineCount()).toBe(0)
+        expect(await iconDates()).toEqual([])
+    })
+
+    it('shows an entry that runs past midnight on both days it covers', async () => {
+        const { monday, year } = pickStreakWeek()
+        const { payload, days } = buildOvernightImport(monday)
+
+        await importData(payload)
+        await openGraph(year)
+
+        // One entry, two days: the daily goal counts it in both days' periods, so both are
+        // coloured, both carry a sprout, and together they are a two-day streak.
+        expect(await colouredDates()).toEqual(days)
+        expect(await iconDates()).toEqual(days)
+        expect(await outlineCount()).toBe(1)
+        expect(await outlinedDates()).toEqual(days)
+    })
+
+    it('keeps the emphasis lit while the pointer crosses the gap between two days', async () => {
+        const { monday, year } = pickStreakWeek()
+        const { payload, worked, bothWeeks } = buildWeeklyImport(monday)
+        const firstWeek = bothWeeks.slice(0, 7)
+
+        await importData(payload)
+        await openGraph(year)
+
+        await page.locator(`[data-date="${worked[0]}"] rect`).hover()
+        expect(await outlinedDates(true)).toEqual(firstWeek)
+
+        // The cells are three pixels apart in the grid's own units. Land the pointer in
+        // that gap: it is inside the streak but on no cell, and used to blank the emphasis.
+        const from = (await page.locator(`[data-date="${firstWeek[2]}"] rect`).boundingBox())!
+        const to = (await page.locator(`[data-date="${firstWeek[3]}"] rect`).boundingBox())!
+        await page.mouse.move(from.x + from.width / 2, (from.y + from.height + to.y) / 2)
+
+        expect(await outlinedDates(true)).toEqual(firstWeek)
+
+        // Landing on a day of no streak still puts it out.
+        await page.locator(`[data-date="${bothWeeks[0]}"] rect`).hover()
+        await page.locator('[data-date] rect').first().hover()
+        expect(await outlineCount(true)).toBe(0)
+    })
+
+    it('emphasises the whole hovered month of a monthly goal, across its weeks', async () => {
+        const { year, months } = pickMonthPair()
+        const { payload, worked, datesIn } = buildMonthlyImport(year, months)
+
+        await importData(payload)
+        await openGraph(year)
+
+        // A month is four to six week columns, so it is drawn as that many outlines — but
+        // the period is the month, so hovering any of its days emphasises all of them.
+        await page.locator(`[data-date="${worked[0]}"] rect`).hover()
+        expect(await outlineCount(true)).toBeGreaterThan(3)
+        expect(await outlinedDates(true)).toEqual(datesIn(months[0]))
+
+        await page.locator(`[data-date="${worked[1]}"] rect`).hover()
+        expect(await outlinedDates(true)).toEqual(datesIn(months[1]))
+    })
+
     it('reports the streak length in the cell label, but not on a lone met day', async () => {
         const { monday, year } = pickStreakWeek()
         const { payload, streakA, streakB, loneDate } = buildImport(monday)
@@ -284,27 +635,61 @@ describe('Streaks', () => {
         expect(await page.getAttribute(`[data-date="${loneDate}"]`, 'aria-label')).not.toContain('streak')
     })
 
-    it('outlines only the hovered streak, leaving other streaks untouched', async () => {
+    it('outlines every streak without hovering, and no day outside one', async () => {
         const { monday, year } = pickStreakWeek()
         const { payload, streakA, streakB, loneDate } = buildImport(monday)
 
         await importData(payload)
         await openGraph(year)
 
-        expect(await outlinedDates()).toEqual([])
+        // Both streaks sit inside one week each, so both are one shape, drawn straight away.
+        expect(await outlineCount()).toBe(2)
 
+        const outlined = await outlinedDates()
+        expect(outlined).toEqual([...spanOf(streakA), ...spanOf(streakB)].sort())
+        expect(outlined).not.toContain(loneDate)
+
+        // Drawn is not the same as visible: an outline whose stroke resolves to `none` —
+        // what an undefined custom property leaves behind — still counts as an element.
+        const strokes = await page.$$eval('rect.run-outline', els =>
+            els.map(el => getComputedStyle(el).stroke),
+        )
+        expect(strokes).toHaveLength(2)
+        for (const stroke of strokes) {
+            // Any colour function will do — color-mix resolves to oklab here — as long as
+            // it is a colour at all and not see-through.
+            expect(stroke).toMatch(/^(rgba?|oklab|oklch|color)\(/)
+            expect(stroke).not.toMatch(/(,\s*0|\/\s*0)\)$/)
+        }
+    })
+
+    it('emphasises only the hovered day of a daily goal', async () => {
+        const { monday, year } = pickStreakWeek()
+        const { payload, streakA, streakB, loneDate } = buildImport(monday)
+
+        await importData(payload)
+        await openGraph(year)
+
+        expect(await outlineCount(true)).toBe(0)
+
+        // A daily goal's period is the day, so the emphasis is that one cell — even though
+        // the outline it sits in runs from Monday to Friday.
         // Hover the rect, not the wrapping link: an SVG anchor's box is not its child's box.
         await page.locator(`[data-date="${streakA[1]}"] rect`).hover()
-        expect(await outlinedDates()).toEqual(streakA)
+        expect(await outlinedDates(true)).toEqual([streakA[1]])
 
         await page.locator(`[data-date="${streakB[0]}"] rect`).hover()
-        expect(await outlinedDates()).toEqual(streakB)
+        expect(await outlinedDates(true)).toEqual([streakB[0]])
 
         await page.locator(`[data-date="${loneDate}"] rect`).hover()
-        expect(await outlinedDates()).toEqual([])
+        expect(await outlineCount(true)).toBe(0)
 
         await page.mouse.move(0, 0)
-        expect(await outlinedDates()).toEqual([])
+        expect(await outlineCount(true)).toBe(0)
+
+        // Emphasis comes and goes; the outlines themselves stay put throughout.
+        expect(await outlineCount()).toBe(2)
+        expect(await outlinedDates()).toEqual([...spanOf(streakA), ...spanOf(streakB)].sort())
     })
 
     it('shows no streak markers in entries mode', async () => {
@@ -325,7 +710,7 @@ describe('Streaks', () => {
 
         expect(await iconDates()).toEqual([])
         await page.locator('[data-date] rect').first().hover()
-        expect(await outlinedDates()).toEqual([])
+        expect(await outlineCount()).toBe(0)
     })
 
     it('shows the best streak on the goal, and no current streak once it is broken', async () => {
