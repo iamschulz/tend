@@ -153,9 +153,37 @@
     const additionalEl = ref<HTMLDivElement | null>(null)
 
     const route = useRoute()
+    const router = useRouter()
     const ui = useUiStore()
 
+    /**
+     * Handles the PWA "start timer" shortcut (`/?start=<categoryId>`): starts a
+     * running timer for that category, then strips the query so a refresh won't
+     * restart it. No-op if the category is unknown/hidden or already running.
+     */
+    const handleStartShortcut = () => {
+        const startId = route.query.start
+        if (typeof startId !== 'string') return
+        router.replace({ query: {} })
+
+        const category = data.visibleCategories.find((c) => c.id === startId)
+        if (!category || data.hasRunningEntries(category)) return
+
+        const now = Date.now()
+        data.closeAllEntries(category.id)
+        data.addEntry({
+            id: crypto.randomUUID(),
+            start: now,
+            end: null,
+            running: true,
+            categoryId: category.id,
+            comment: '',
+        })
+    }
+
     onMounted(() => {
+        handleStartShortcut()
+
         if (ui.skipListFadeIn) {
             // Skip the list fade-in but preserve entry add animation
             const ul = loaderEl.value?.parentElement
