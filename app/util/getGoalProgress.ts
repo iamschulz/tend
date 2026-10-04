@@ -39,10 +39,13 @@ export function getGoalProgress(
 }
 
 /**
- * Returns a deduplication key for a goal's current period (e.g. "day:1720656000000").
+ * Returns a key identifying the goal period a date falls in (e.g. "day:1720656000000").
+ * Two dates in the same period share a key, which is what makes it usable both for
+ * deduplicating notifications and for counting how many periods a streak covers.
  * @param interval - The goal interval (day, week, or month)
+ * @param date - The date to locate (defaults to today)
  */
-export function getGoalPeriodKey(interval: Goal['interval']): string {
-    const [start] = rangeFns[interval](new Date())
+export function getGoalPeriodKey(interval: Goal['interval'], date: Date = new Date()): string {
+    const [start] = rangeFns[interval](date)
     return `${interval}:${start.getTime()}`
 }

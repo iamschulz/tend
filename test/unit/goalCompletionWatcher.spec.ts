@@ -214,6 +214,68 @@ describe('useGoalCompletionWatcher', () => {
     })
   })
 
+  describe('streak milestones', () => {
+    /**
+     * Adds one completed entry per day for the given past days, so today's completion
+     * lands on the end of a streak of `days` length.
+     * @param catId - Category to add the entries to
+     * @param days - Streak length in days, today included
+     */
+    function seedStreak(catId: string, days: number) {
+      for (let back = 1; back < days; back++) {
+        const start = PINNED_NOW - back * 86_400_000 - 3_600_000
+        store.addEntry(makeEntry({ categoryId: catId, start, end: start + 3_600_000 }))
+      }
+    }
+
+    it('fires a milestone toast carrying the streak sprout', async () => {
+      const goal = makeGoal({ count: 1 })
+      const catId = setupCategory([goal])
+      seedStreak(catId, 3) // yesterday and the day before
+
+      initWatcher()
+      await nextTick()
+
+      // Today's entry completes the goal, making the current streak 3 — a milestone.
+      store.addEntry(makeEntry({ categoryId: catId }))
+      await nextTick()
+
+      const milestone = mockAddToast.mock.calls.find(([message]) => String(message).includes('streakMilestoneDay'))
+      expect(milestone, 'a streak milestone toast should fire').toBeDefined()
+      expect(milestone![1]).toEqual(expect.objectContaining({ icon: '🌱', categoryId: catId }))
+    })
+
+    it('does not fire a milestone toast for a streak length between milestones', async () => {
+      const goal = makeGoal({ count: 1 })
+      const catId = setupCategory([goal])
+      seedStreak(catId, 4) // streak of 4 today: past 3, not yet 7
+
+      initWatcher()
+      await nextTick()
+
+      store.addEntry(makeEntry({ categoryId: catId }))
+      await nextTick()
+
+      const milestone = mockAddToast.mock.calls.find(([message]) => String(message).includes('streakMilestoneDay'))
+      expect(milestone).toBeUndefined()
+    })
+
+    it('leaves the completion toast without an icon', async () => {
+      const goal = makeGoal({ count: 1 })
+      const catId = setupCategory([goal])
+
+      initWatcher()
+      await nextTick()
+
+      store.addEntry(makeEntry({ categoryId: catId }))
+      await nextTick()
+
+      const completion = mockAddToast.mock.calls.find(([message]) => String(message).includes('goalReached'))
+      expect(completion).toBeDefined()
+      expect(completion![1]).not.toHaveProperty('icon')
+    })
+  })
+
   describe('day filtering', () => {
     it('skips goals not scheduled for the current day of week', async () => {
       const goal = makeGoal({ count: 1, days: MONDAY_ONLY })
