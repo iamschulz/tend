@@ -110,6 +110,12 @@
     "goalAdded": "Goal added",
     "goalRemoved": "Goal removed",
     "goalReached": "goal reached!",
+    "streakCurrent": "Current streak",
+    "streakBest": "Best streak",
+    "streakMilestoneDay": "{count}-day streak!",
+    "streakMilestoneWeek": "{count}-week streak!",
+    "streakMilestoneMonth": "{count}-month streak!",
+    "streakDays": "{count}-day streak",
     "of": "of",
     "per": "per",
     "perDay": "day",
@@ -271,7 +277,8 @@
     "logout": "Log out",
 
     "connectivity": {
-        "offline": "You are offline. Changes won't be saved until you reconnect.",
-        "serverUnreachable": "Server unreachable. Your device is online but the Tend server isn't responding."
+        "offline": "You are offline. Changes are saved locally and will sync when you reconnect.",
+        "serverUnreachable": "Server unreachable. Your device is online but the Tend server isn't responding.",
+        "pending": "Syncing {count} pending change(s)…"
     }
 }
