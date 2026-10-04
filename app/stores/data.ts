@@ -7,6 +7,7 @@ import type { Entry } from '~/types/Entry'
 import type { EntryWithCategory } from '~/types/EntryWithCategory'
 import type { CategoryWithEntries } from '~/types/CategoryWithEntries'
 import { idbStorage } from '~/util/idbStorage';
+import { enqueue, drain, hasPending } from '~/util/rejectedQueue';
 
 export const useDataStore = defineStore('data', () => {
     const categories = shallowRef<Category[]>([])
@@ -21,23 +22,66 @@ export const useDataStore = defineStore('data', () => {
     const serverHydrated = ref(!isServerMode)
 
     /**
-     * Fire-and-forget API call. Swallows errors so the optimistic
-     * local update stays in place even when offline (PWA).
+     * Fire-and-forget mutating API call with a durable fallback. The optimistic
+     * local update stays in place; if the request can't reach the server the op
+     * is appended to the offline rejected queue and replayed on reconnect (PWA).
+     *
+     * Ordering matters: create → update → delete for the same resource must
+     * replay in order. So when the queue already holds pending ops, a new op is
+     * appended directly rather than sent — otherwise it could overtake the
+     * queued earlier ops and corrupt the sequence.
      * @param url - The API endpoint path
      * @param opts - $fetch options (method, body, etc.)
      */
     function sync(url: string, opts?: Parameters<typeof $fetch>[1]) {
         if (!isServerMode) return
+        const method = (opts?.method ?? 'GET') as string
+        const mutating = method === 'POST' || method === 'PUT' || method === 'DELETE'
+
+        // Route straight to the queue when ops are already queued (preserve FIFO
+        // so create→update→delete for one resource stays ordered) or when we know
+        // we're offline. The offline check is synchronous, so a burst of writes in
+        // one tick queues in call order instead of racing on each $fetch's .catch.
+        const knownOffline = typeof navigator !== 'undefined' && navigator.onLine === false
+        if (mutating && (hasPending() || knownOffline)) {
+            void enqueue({ method: method as 'POST' | 'PUT' | 'DELETE', url, body: opts?.body })
+            return
+        }
+
         $fetch(url, opts).catch((err) => {
-            console.warn(`[sync] ${opts?.method ?? 'GET'} ${url} failed:`, err)
+            const status = (err as { response?: { status?: number }, statusCode?: number })?.response?.status
+                ?? (err as { statusCode?: number })?.statusCode
+            if (status === 409) return // duplicate id — already stored, treat as success
+            if (mutating && (status == null || status >= 500)) {
+                // Offline or transient server error — don't lose the write.
+                void enqueue({ method: method as 'POST' | 'PUT' | 'DELETE', url, body: opts?.body })
+                return
+            }
+            console.warn(`[sync] ${method} ${url} failed:`, err)
         })
     }
 
     /**
-     * Fetches all categories and entries from the server and replaces
-     * the local store state. Used on initial load and reconnect.
+     * Drains any pending offline mutations, then fetches all categories and
+     * entries from the server and replaces the local store state. Used on
+     * initial load and reconnect.
+     *
+     * The queue is drained *first*: pulling server data before replaying local
+     * mutations would overwrite un-synced local changes. If the queue can't be
+     * fully drained (still offline / server down), local state is kept as-is and
+     * we only clear the loading flag — the fresh server copy is fetched on a
+     * later reconnect once the queue is empty.
      */
     async function hydrateFromServer(): Promise<void> {
+        if (isServerMode) {
+            await drain()
+            if (hasPending()) {
+                // Un-synced changes remain — don't clobber local state with a
+                // stale server copy. Show what we have and retry on reconnect.
+                serverHydrated.value = true
+                return
+            }
+        }
         const [serverCategories, serverEntries] = await Promise.all([
             $fetch<Category[]>('/api/categories'),
             $fetch<Entry[]>('/api/entries'),
