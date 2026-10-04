@@ -107,6 +107,12 @@ export default defineNuxtConfig({
     viewTransition: true,
   },
 
+  vite: {
+    build: { 
+      cssMinify: 'esbuild', //Drop this once ssstyles adds initial-value to its @property rules.
+    },
+  },
+
   i18n: {
     defaultLocale: 'en',
     detectBrowserLanguage: {},

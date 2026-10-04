@@ -25,7 +25,7 @@
     "@nuxt/fonts": "^0.13.0",
     "@nuxt/hints": "^1.0.0-alpha.6",
     "@nuxt/test-utils": "^4.0.0",
-    "@nuxtjs/i18n": "^10.2.3",
+    "@nuxtjs/i18n": "^10.6.0",
     "@pinia/nuxt": "^0.11.3",
     "@types/bcryptjs": "^2.4.6",
     "bcryptjs": "^3.0.3",
@@ -33,7 +33,7 @@
     "drizzle-orm": "^0.45.1",
     "eslint": "^9.39.2",
     "idb-keyval": "^6.2.2",
-    "nuxt": "^4.3.0",
+    "nuxt": "^4.5.2",
     "nuxt-auth-utils": "^0.5.29",
     "nuxt-icons": "^4.0.0",
     "pinia": "^3.0.4",
@@ -46,17 +46,22 @@
     "serialize-javascript": "^7.0.3",
     "h3-next": "npm:h3@2.0.1-rc.18",
     "flatted": ">=3.4.2",
-    "esbuild": "^0.28.1"
+    "esbuild": "^0.28.1",
+    "vite": "^8.3.2",
+    "h3": "^1.15.11",
+    "@eslint/config-inspector": {
+      "h3": "^2.0.1-rc.32"
+    }
   },
   "devDependencies": {
     "@pinia/testing": "^1.0.3",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^25.2.1",
-    "@vitest/browser-playwright": "^4.1.9",
+    "@vitest/browser-playwright": "^4.1.11",
     "drizzle-kit": "^0.31.10",
     "tsx": "^4.21.0",
     "typescript": "~5.9.0",
-    "vitest": "^4.1.9",
+    "vitest": "^4.1.11",
     "vue-tsc": "~2.2.10"
   }
 }
