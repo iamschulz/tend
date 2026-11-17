@@ -293,6 +293,15 @@
         }
     }
 
+    /* Sideways timeframe view transition takes priority over the slide-up. */
+    :root[data-timeframe-nav] .entries,
+    :root[data-timeframe-nav] .additional-fade {
+        opacity: 1;
+        transform: none;
+        --t-opacity: 0s;
+        --t-transform: 0s;
+    }
+
     .day-notes {
         width: 100%;
         max-width: var(--narrow-width);

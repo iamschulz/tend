@@ -153,4 +153,44 @@
   ::view-transition-new(trigger-group) {
     animation: none;
   }
+
+  :root[data-timeframe-nav="forward"] {
+    --timeframe-dir: -1;
+  }
+
+  :root[data-timeframe-nav="backward"] {
+    --timeframe-dir: 1;
+  }
+
+  :root[data-timeframe-nav]::view-transition-old(*) {
+    animation: timeframe-out var(--animation-duration) ease-out both;
+  }
+
+  :root[data-timeframe-nav]::view-transition-new(*) {
+    animation: timeframe-in var(--animation-duration) ease-out both;
+  }
+
+  :root[data-timeframe-nav]::view-transition-old(main-header),
+  :root[data-timeframe-nav]::view-transition-old(trigger-group) {
+    display: none;
+  }
+
+  :root[data-timeframe-nav]::view-transition-new(main-header),
+  :root[data-timeframe-nav]::view-transition-new(trigger-group) {
+    animation: none;
+  }
+
+  @keyframes timeframe-out {
+    to {
+      translate: calc(var(--timeframe-dir) * 5rem) 0;
+      opacity: 0;
+    }
+  }
+
+  @keyframes timeframe-in {
+    from {
+      translate: calc(var(--timeframe-dir) * -5rem) 0;
+      opacity: 0;
+    }
+  }
 </style>
