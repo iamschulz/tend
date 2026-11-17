@@ -107,6 +107,12 @@ export default defineNuxtConfig({
     viewTransition: true,
   },
 
+  // Explicit host works around @nuxt/schema resolving an unset host to `{}`,
+  // which crashes `nuxt dev` (options.hostname.toLowerCase is not a function).
+  devServer: {
+    host: process.env.NUXT_HOST || process.env.HOST || 'localhost',
+  },
+
   vite: {
     build: { 
       cssMinify: 'esbuild', //Drop this once ssstyles adds initial-value to its @property rules.
