@@ -3,26 +3,28 @@
         <span class="long">{{ title.long }}</span>
         <span class="short">{{ title.short }}</span>
         
-        <NuxtLink
-            :to="title.prevLink || route.path"
-            class="nav-link"
-            :class="{ 'nav-link--disabled': !title.prevLink }"
-            :tabindex="title.prevLink ? undefined : -1"
-            :aria-hidden="title.prevLink ? undefined : 'true'"
-        >
-            <nuxt-icon name="arrow_left" size="48" />
-            <span v-if="title.prevLink" class="sr-only">{{ $t('previous') }}</span>
-        </NuxtLink>
-        <NuxtLink
-            :to="title.nextLink || route.path"
-            class="nav-link"
-            :class="{ 'nav-link--disabled': !title.nextLink }"
-            :tabindex="title.nextLink ? undefined : -1"
-            :aria-hidden="title.nextLink ? undefined : 'true'"
-        >
-            <nuxt-icon name="arrow_right" size="48" />
-            <span v-if="title.nextLink" class="sr-only">{{ $t('next') }}</span>
-        </NuxtLink>
+        <template v-if="showNav">
+            <NuxtLink
+                :to="title.prevLink || route.path"
+                class="nav-link"
+                :class="{ 'nav-link--disabled': !title.prevLink }"
+                :tabindex="title.prevLink ? undefined : -1"
+                :aria-hidden="title.prevLink ? undefined : 'true'"
+            >
+                <nuxt-icon name="arrow_left" size="48" />
+                <span v-if="title.prevLink" class="sr-only">{{ $t('previous') }}</span>
+            </NuxtLink>
+            <NuxtLink
+                :to="title.nextLink || route.path"
+                class="nav-link"
+                :class="{ 'nav-link--disabled': !title.nextLink }"
+                :tabindex="title.nextLink ? undefined : -1"
+                :aria-hidden="title.nextLink ? undefined : 'true'"
+            >
+                <nuxt-icon name="arrow_right" size="48" />
+                <span v-if="title.nextLink" class="sr-only">{{ $t('next') }}</span>
+            </NuxtLink>
+        </template>
     </h1>
 </template>
 
@@ -35,6 +37,9 @@
     const { t, locale } = useI18n()
 
     const route = useRoute();
+
+    /** Time navigation arrows only belong on the date-based views. */
+    const showNav = computed(() => /^\/((day|week|month|year)(\/|$)|$)/.test(route.path));
 
     const fallback: TitleInfo = { short: 'Tend', long: 'Tend', prevLink: null, nextLink: null };
 
